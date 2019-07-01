@@ -1,0 +1,13 @@
+Package: TestName
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Author: Lei Li
+Maintainer: Lei Li <leilioxford@gmail.com> <leil@uchicago.edu>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL-3 | file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: Seurat, dplyr, ggplot2, cowplot, FastKNN, reshape2, igraph, umap, emstreeR, scales, SDMTools, Rtsne, ElPiGraph.R, formatR
+RoxygenNote: 6.1.1

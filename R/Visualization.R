@@ -1,0 +1,836 @@
+
+#' colorGradient
+#'
+#' get gradient colors
+#'
+#' @param x value vector
+#' @param colors color plate
+#' @param colsteps color steps
+#'
+colorGradient <- function(
+  x,
+  colors=c("red","yellow","green","blue"),
+  colsteps=100
+) {
+  return( colorRampPalette(colors) (colsteps) [ findInterval(x, seq(min(x),max(x), length.out=colsteps)) ] )
+}
+
+
+#' trajectoryKNNPlot
+#'
+#' plot cells with trajectory
+#'
+#' @param object seurat object
+#' @param group.by cell clusters
+#' @param reduction reduction name
+#' @param graph knn graph used
+#' @param line.size width of cell trajectory
+#' @param line.color color of cell trajectory
+#'
+#' @export
+trajectoryKNNPlot <- function(
+  object = NULL,
+  group.by  = NULL,
+  reduction = NULL,
+  graph = NULL,
+  line.size = 0.5,
+  line.color = "gray"
+) {
+  if(!is.null(object)) {
+    if(!is.null(group.by)) {
+      group = as.character(object@meta.data[[group.by]])
+    } else {
+      group = as.character(object@meta.data[[1]])
+    }
+
+    if(!is.null(graph)) {
+      graph <- object@misc[[graph]]
+    } else {
+      graph <- object@misc[["jointGraph"]]
+    }
+
+    if(!is.null(reduction)) {
+      umap1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      umap2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+    } else {
+      umap1 = object@reductions[[1]]@cell.embeddings[, 1]
+      umap2 = object@reductions[[1]]@cell.embeddings[, 2]
+    }
+
+    # trajectory
+    data <- data.frame(
+      x=as.numeric(umap1),
+      y=as.numeric(umap2),
+      cluster=group
+    )
+
+    nrow <- dim(graph)[1]
+    ncol <- dim(graph)[2]
+    row <- rep(1:nrow,ncol)
+    graph.frame <- data.frame(row,value =as.numeric(graph))
+    graph.frame <- graph.frame[order(row),]
+    graph.frame <- as.matrix(graph.frame)
+
+    # initial path.x and path.y
+    path.x <- rep(0, dim(graph.frame)[1]*3)
+    path.y <- rep(0, dim(graph.frame)[1]*3)
+
+    for (x in 1:dim(graph.frame)[1]) {
+      i <- graph.frame[x,1]
+      j <- graph.frame[x,2]
+
+      xxx <- 3*(x-1) + 1
+      path.x[xxx] <- umap1[i]
+      path.x[xxx+1] <- umap1[j]
+      path.x[xxx+2] <- 0
+
+      path.y[xxx] <- umap2[i]
+      path.y[xxx+1] <- umap2[j]
+      path.y[xxx+2] <- NA
+
+    }
+
+    path <- data.frame(x=path.x,y=path.y)
+    p <- ggplot(data, aes(x,y)) +
+      geom_path(data = path,mapping = aes(x,y), colour = line.color, size = line.size) +
+      geom_point(aes(colour = cluster)) + xlab("dim1") + ylab("dim2")
+
+    return(p)
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
+
+
+
+
+#' pseudoTimeKNNPlot
+#'
+#' plot cells with trajectory and pseudoTime
+#'
+#' @param object seurat object
+#' @param reduction reduction name
+#' @param graph kNN graph used
+#' @param pseudotime pseudotime used
+#' @param colors gradient colors for pseudotime. color order is low to high.
+#' @param line.size line width for kNN network
+#' @param line.color line color for kNN network
+#'
+#' @export
+pseudoTimeKNNPlot <- function(
+  object = NULL,
+  reduction = NULL,
+  graph = NULL,
+  pseudotime = NULL,
+  colors = c("blue", "green","yellow", "red"),
+  line.size = 0.5,
+  line.color = "gray"
+) {
+  if(!is.null(object)) {
+    if(!is.null(graph)) {
+      graph <- object@misc[[graph]]
+    } else {
+      graph <- object@misc[["jointGraph"]]
+    }
+
+    if(!is.null(pseudotime)) {
+      pseudotime <- object@meta.data[[pseudotime]]
+    } else {
+      pseudotime <- object@meta.data[["jointKNNTime"]]
+    }
+
+    if(!is.null(reduction)) {
+      umap1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      umap2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+    } else {
+      umap1 = object@reductions[[1]]@cell.embeddings[, 1]
+      umap2 = object@reductions[[1]]@cell.embeddings[, 2]
+    }
+
+    # joint trajectory
+    data <- data.frame(
+      x=as.numeric(umap1),
+      y=as.numeric(umap2),
+      time=as.numeric(pseudotime)
+    )
+
+    nrow <- dim(graph)[1]
+    ncol <- dim(graph)[2]
+    row <- rep(1:nrow,ncol)
+    graph.frame <- data.frame(row,value =as.numeric(graph))
+    graph.frame <- graph.frame[order(row),]
+    graph.frame <- as.matrix(graph.frame)
+
+    # initial path.x and path.y
+    path.x <- rep(0, dim(graph.frame)[1]*3)
+    path.y <- rep(0, dim(graph.frame)[1]*3)
+
+    for (x in 1:dim(graph.frame)[1]) {
+      i <- graph.frame[x,1]
+      j <- graph.frame[x,2]
+
+      xxx <- 3*(x-1) + 1
+      path.x[xxx] <- umap1[i]
+      path.x[xxx+1] <- umap1[j]
+      path.x[xxx+2] <- 0
+
+      path.y[xxx] <- umap2[i]
+      path.y[xxx+1] <- umap2[j]
+      path.y[xxx+2] <- NA
+
+    }
+
+    path <- data.frame(x=path.x,y=path.y)
+
+    p <- ggplot(data, aes(x,y)) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      geom_point(aes(colour = time)) +
+      scale_color_gradientn(colours = colors) + xlab("dim1") + ylab("dim2")
+    return(p)
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
+
+#' trajectoryMSTPlot
+#'
+#' plot cells with trajectory (MST based)
+#'
+#' @param object seurat object
+#' @param group.by cell clusters
+#' @param reduction reduction name
+#' @param pg knn graph used
+#' @param line.size width of cell trajectory
+#' @param line.color color of cell trajectory
+#'
+#' @export
+trajectoryMSTPlot <- function(
+  object = NULL,
+  group.by  = NULL,
+  reduction = NULL,
+  pg = NULL,
+  line.size = 0.5,
+  line.color = "gray"
+) {
+  if(!is.null(object)) {
+    if(!is.null(group.by)) {
+      group = as.character(object@meta.data[[group.by]])
+    } else {
+      group = as.character(object@meta.data[[1]])
+    }
+
+    if(!is.null(pg)) {
+      pg <- object@misc[[pg]]
+    } else {
+      pg <- object@misc[["jointPG"]]
+    }
+
+    if(!is.null(reduction)) {
+      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+    } else {
+      dim1 = object@reductions[[1]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[1]]@cell.embeddings[, 2]
+    }
+
+    # trajectory
+    data <- data.frame(
+      x=as.numeric(dim1),
+      y=as.numeric(dim2),
+      cluster=group
+    )
+
+    node.pg <- pg[[1]]$NodePositions
+    tree.pg <- pg[[1]][["Edges"]][["Edges"]]
+
+
+    path.x <- rep(0, dim(tree.pg)[1]*3)
+    path.y <- rep(0, dim(tree.pg)[1]*3)
+
+    for (x in 1:dim(tree.pg)[1]) {
+      i <- tree.pg[x,1]
+      j <- tree.pg[x,2]
+
+      xxx <- 3*(x-1) + 1
+      path.x[xxx] <- node.pg[i,1]
+      path.x[xxx+1] <- node.pg[j,1]
+      path.x[xxx+2] <- 0
+
+      path.y[xxx] <- node.pg[i,2]
+      path.y[xxx+1] <- node.pg[j,2]
+      path.y[xxx+2] <- NA
+    }
+
+    path <- data.frame(x=path.x,y=path.y)
+
+    p <- ggplot(data, aes(x,y)) +
+      geom_point(aes(colour = cluster)) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      xlab("dim1") + ylab("dim2")
+
+    return(p)
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
+
+
+
+#' pseudoTimeMSTPlot
+#'
+#' plot cells with trajectory and pseudoTime (MST based)
+#'
+#' @param object seurat object
+#' @param reduction reduction name
+#' @param pg principle graph (PG) used
+#' @param pseudotime pseudotime used
+#' @param colors gradient colors for pseudotime. color order is low to high.
+#' @param line.size line width for trajectory
+#' @param line.color line color for trajectory
+#'
+#' @export
+pseudoTimeMSTPlot <- function(
+  object = NULL,
+  reduction = NULL,
+  pg = NULL,
+  pseudotime = NULL,
+  colors = c("blue", "green","yellow", "red"),
+  line.size = 0.5,
+  line.color = "gray"
+) {
+  if(!is.null(object)) {
+    if(!is.null(pg)) {
+      pg <- object@misc[[pg]]
+    } else {
+      pg <- object@misc[["jointPG"]]
+    }
+
+    if(!is.null(pseudotime)) {
+      pseudotime <- object@meta.data[[pseudotime]]
+    } else {
+      pseudotime <- object@meta.data[["jointMSTTime"]]
+    }
+
+    if(!is.null(reduction)) {
+      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+    } else {
+      dim1 = object@reductions[[1]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[1]]@cell.embeddings[, 2]
+    }
+
+    # joint trajectory
+    data <- data.frame(
+      x=as.numeric(dim1),
+      y=as.numeric(dim2),
+      time=as.numeric(pseudotime)
+    )
+
+    node.pg <- pg[[1]]$NodePositions
+    tree.pg <- pg[[1]][["Edges"]][["Edges"]]
+
+
+    path.x <- rep(0, dim(tree.pg)[1]*3)
+    path.y <- rep(0, dim(tree.pg)[1]*3)
+
+    for (x in 1:dim(tree.pg)[1]) {
+      i <- tree.pg[x,1]
+      j <- tree.pg[x,2]
+
+      xxx <- 3*(x-1) + 1
+      path.x[xxx] <- node.pg[i,1]
+      path.x[xxx+1] <- node.pg[j,1]
+      path.x[xxx+2] <- 0
+
+      path.y[xxx] <- node.pg[i,2]
+      path.y[xxx+1] <- node.pg[j,2]
+      path.y[xxx+2] <- NA
+    }
+
+    path <- data.frame(x=path.x,y=path.y)
+
+    p <- ggplot(data, aes(x,y)) +
+      geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      xlab("dim1") + ylab("dim2")
+
+    return(p)
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
+
+
+#' clusterConnectionPlot
+#'
+#' plot cell clusters with connections
+#'
+#' @param object seurat object
+#' @param group.by cell cluster name
+#' @param reduction reduction name
+#' @param graph a KNN graph name
+#' @param cutoff only connections between two cluster have connection factor larger than this cutoff will be shown
+#' @param line.color line color of the connections between cell clusters
+#' @param point.size control dot size of cell clusters
+#' @param path.size control path size of cell connections
+#'
+#' @export
+clusterConnectionPlot <- function(
+  object = NULL,
+  group.by = NULL,
+  reduction = NULL,
+  graph = NULL,
+  cutoff = 0.01,
+  line.color = "black",
+  point.size = 2,
+  path.size = 1.5
+) {
+  if(!is.null(object)) {
+    if(!is.null(group.by)) {
+      group = as.character(object@meta.data[[group.by]])
+    } else {
+      group = as.character(object@meta.data[[1]])
+    }
+
+    if(!is.null(graph)) {
+      graph <- object@misc[[graph]]
+    } else {
+      graph <- object@misc[["jointGraph"]]
+    }
+
+    if(!is.null(reduction)) {
+      umap1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      umap2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+    } else {
+      umap1 = object@reductions[[1]]@cell.embeddings[, 1]
+      umap2 = object@reductions[[1]]@cell.embeddings[, 2]
+    }
+
+    data <- data.frame(
+      x=as.numeric(umap1),
+      y=as.numeric(umap2),
+      cluster=group
+    )
+
+    clusters <- sort(unique(group))
+    nCluster <- length(unique(group))
+    cluster.center <- data.frame(dim1 = 0, dim2 = 0, cells = 0)
+
+    for (i in 1:nCluster) {
+      cur.cluster <- clusters[i]
+      sub.data <- data[which(data$cluster == cur.cluster),]
+      cluster.center[i,] <- c(mean(sub.data$x), mean(sub.data$y), dim(sub.data)[1])
+    }
+    cluster.center$cluster <- clusters
+    cluster.center$dim1 <- as.numeric(cluster.center$dim1)
+    cluster.center$dim2 <- as.numeric(cluster.center$dim2)
+    cluster.center$cells <- as.numeric(cluster.center$cells)
+
+    # evaluate connections between cell clusters
+    knn.matrix <- matrix(data = 0, nrow = dim(graph)[1], ncol = dim(graph)[1])
+    for (i in 1:dim(graph)[1]) {
+      j.index <- graph[i,]
+      knn.matrix[i,j.index] <- 1
+    }
+
+    cluster.path <- data.frame(dim1 = 0, dim2 = 0, connection = 0)
+    cluster.path.index <- 1
+
+    for (i in 1:(nCluster-1)) {
+      c1 <- clusters[i]
+      index.c1 <- which(group == c1)
+      for (j in (i+1):nCluster) {
+        c2 <- clusters[j]
+        index.c2 <- which(group == c2)
+        within.c1 <- length(which(knn.matrix[index.c1,index.c1] > 0))
+        within.c2 <- length(which(knn.matrix[index.c2,index.c2] > 0))
+        across <- length(which(knn.matrix[index.c1,index.c2] > 0))
+
+        connection.factor <- across/sqrt(within.c1*within.c2)
+
+        if(connection.factor > cutoff) {
+          where.c1 <- which(cluster.center$cluster == c1)
+          where.c2 <- which(cluster.center$cluster == c2)
+
+          cluster.path[cluster.path.index,] <- c(cluster.center$dim1[where.c1], cluster.center$dim2[where.c1], connection.factor)
+          cluster.path.index <- cluster.path.index + 1
+          cluster.path[cluster.path.index,] <- c(cluster.center$dim1[where.c2], cluster.center$dim2[where.c2], connection.factor)
+          cluster.path.index <- cluster.path.index + 1
+          cluster.path[cluster.path.index,] <- c(0, NA, 0)
+          cluster.path.index <- cluster.path.index + 1
+        }
+      }
+    }
+
+    p <- ggplot(cluster.center,aes(x=dim1,y=dim2)) +
+      geom_path(data = cluster.path, size= path.size*40*cluster.path$connection, colour = line.color) +
+      geom_point(aes(colour = cluster), size = point.size*log2(cluster.center$cells)) +
+      geom_text(aes(label = cluster))
+
+    return(p)
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
+
+
+
+#' heatMapPlot
+#'
+#' plot heatmap of ADT and selected RNA features of cell clusters
+#'
+#' @param object seurat object
+#' @param adt.feature ADT features used for plot
+#' @param rna.feature RNA features used for plot
+#' @param group.by cell clusters
+#' @param adt.label annotate ADT features on HEATmap (TRUE or FALSE)
+#' @param rna.label annotate RNA features on HEATmap (TRUE or FALSE)
+#' @param label.hjust hjust for ADT labels, number between 0 and 1
+#' @param label.size font size of ADT labels
+#' @param height.rel reletive height of RNA compare to ADT. Default 1 means equal height. set to null , the height will be set according to number of features
+#' @param legend show legend or not. TRUE or FALSE
+#'
+#' @export
+
+heatMapPlot <- function(
+  object = NULL,
+  adt.feature = NULL,
+  rna.feature = NULL,
+  group.by = NULL,
+  adt.label = TRUE,
+  rna.label = FALSE,
+  label.hjust = 0.1,
+  label.size = 5,
+  height.rel = 1,
+  legend = FALSE
+) {
+  if(!is.null(object)) {
+    if(!is.null(group.by)){
+      if(is.null(adt.feature)) {
+        cat("User didn't provide ADT feature list, will use all!\n")
+        adt.feature = rownames(object@assays[["ADT"]]@scale.data)
+      }
+
+      if(is.null(rna.feature)) {
+        cat("User didn't provide RNA feature list, will choose top 10 for each cluster!\n")
+
+        Idents(object = object) <- object[[group.by]]
+        rna.markers <- FindAllMarkers(object, max.cells.per.ident = 100, min.diff.pct = 0.3, only.pos = TRUE,assay = 'RNA')
+        rna.top10 <- rna.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_logFC)
+        rna.feature <- rna.top10
+        rna.feature <- unique(rna.feature$gene)
+      } else {
+        rna.feature <- unique(rna.feature$gene)
+      }
+
+      ph.adt <- DoHeatmap(object, features = adt.feature, assay = "ADT", angle = 90, group.by = group.by) + theme(axis.text.y = element_blank())
+      if(!isTRUE(legend)) {
+        ph.adt <- ph.adt + NoLegend()
+      }
+      if(isTRUE(adt.label)) {
+        if(!is.null(label.hjust)) {
+          if((label.hjust > 1) || (label.hjust < 0)) {
+            cat("label.hjust only can be number between 0 and 1, will use default value 0.1!\n")
+            label.hjust = 0.1
+          }
+          label.hjust <- dim(object)[2]*label.hjust
+          ph.adt <- ph.adt + annotate("text",label = adt.feature, x = label.hjust, y = length(adt.feature):1,colour="white", fontface =2, size = label.size)
+        } else {
+          label.hjust <- dim(object)[2]*0.1
+          ph.adt <- ph.adt + annotate("text",label = adt.feature, x = label.hjust, y = length(adt.feature):1,colour="white", fontface =2, size = label.size)
+        }
+      }
+
+      ph.rna <- DoHeatmap(object, features = rna.feature, assay = "RNA",group.by = group.by, group.bar = FALSE, label = FALSE) + theme(axis.text.y = element_blank())
+      if(!isTRUE(legend)) {
+        ph.rna <- ph.rna + NoLegend()
+      }
+      rna.feature <- levels(ph.rna[["data"]][["Feature"]])
+      if(isTRUE(rna.label)) {
+        if(!is.null(label.hjust)) {
+          if((label.hjust > 1) || (label.hjust < 0)) {
+            cat("label.hjust only can be number between 0 and 1, will use default value 0.1!\n")
+            label.hjust = 0.1
+          }
+          label.hjust <- dim(object)[2]*label.hjust
+          ph.rna <- ph.rna + annotate("text",label = rna.feature, x = label.hjust, y = length(rna.feature):1,colour="white", fontface =2, size = label.size)
+        } else {
+          label.hjust <- dim(object)[2]*0.1
+          ph.rna <- ph.rna + annotate("text",label = rna.feature, x = label.hjust, y = length(rna.feature):1,colour="white", fontface =2, size = label.size)
+        }
+      }
+      if(is.null(height.rel)) {
+        height.rel <- length(rna.feature)/length(adt.feature)
+      }
+      rel_size_height <- c(1,height.rel)
+      p <- plot_grid(ph.adt,ph.rna,ncol = 1,rel_heights = rel_size_height)
+
+      return(p)
+    } else {
+      stop("Please determine cell cluster!\n")
+    }
+  } else {
+    stop("Please provide a seurat object!\n")
+  }
+}
+
+#' gridDimPlot
+#'
+#' grid dim plot for RNA, ADT and joint analysis
+#'
+#' @param object seurat object
+#' @param assays assays user want to plot
+#' @param reduction.prefix the prefix for reduction name. e.g. "umap_" for UMAP and "tsne" for "t-SNE"
+#' @param cluster.suffix the suffix for cell cluster name in mate information.
+#' @param darkTheme switch for darkTheme (TRUE or FALSE)
+#' @param legend switch for showing legend in each sub plot (TRUE or FALSE)
+#' @param figure.label.size font size for figure labels
+#' @param cluster.label swicth for showing cluster label on each sub plot (TRUE or FALSE)
+#' @param cluster.lable.size font size for cluster labels
+#' @param wide.rel relative width of figure label to the left. size of plots is 3.
+#' @param height.rel relative height of figure label on the top. size of plots is 3.
+#'
+#' @export
+
+gridDimPlot <- function(
+  object = NULL,
+  assays = c("RNA","ADT","Joint"),
+  reduction.prefix = "umap_",
+  cluster.suffix = "ClusterID",
+  darkTheme = TRUE,
+  legend = TRUE,
+  figure.label.size = 7,
+  cluster.label = TRUE,
+  cluster.lable.size = 5,
+  wide.rel = 1.5,
+  height.rel = 1
+) {
+  if(!is.null(object)) {
+    empty <- ggplot() + annotate("text",label = "", x = 0, y = 0, size = figure.label.size) + theme(
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.ticks.y = element_blank(),
+      axis.line = element_blank()
+    )
+    p.list <- list(empty)
+    # for label on the top
+    for (assay in assays) {
+      cur.label <- paste0(assay, " based clustering")
+      top.label.figure <- ggplot() + annotate("text",label = cur.label, x = 0, y = 0, size = figure.label.size, colour = "black") + theme(
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line = element_blank()
+      )
+      cur.index <- length(p.list) + 1
+      p.list[[cur.index]] <- top.label.figure
+    }
+
+    for (assay.x in assays) {
+      # for label to the left
+      cur.label <- paste0(assay.x, " based map")
+      top.label.figure <- ggplot() + annotate("text",label = cur.label, x = 0, y = 0, size = figure.label.size, colour = "black") + theme(
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.line = element_blank()
+      )
+      cur.index <- length(p.list) + 1
+      p.list[[cur.index]] <- top.label.figure
+
+      # dim plots for assay.x
+      for (assay.y in assays) {
+        cur.cluster <- paste0(tolower(assay.y),cluster.suffix)
+        cur.map <- paste0(reduction.prefix,tolower(assay.x))
+
+        cur.p <- DimPlot(object = object, group.by = cur.cluster,reduction = cur.map) + xlab(paste0(reduction.prefix,"1")) + ylab(paste0(reduction.prefix,"2"))
+        if(!isTRUE(legend)) {
+          cur.p <- cur.p + NoLegend()
+        }
+        if(isTRUE(darkTheme)) {
+          cur.p <- cur.p + DarkTheme()
+        }
+        if(isTRUE(cluster.label)) {
+          if(isTRUE(darkTheme)) {
+            cur.p <- LabelClusters(plot = cur.p, id = cur.cluster, size = cluster.lable.size, color = "white")
+          } else {
+            cur.p <- LabelClusters(plot = cur.p, id = cur.cluster, size = cluster.lable.size, color = "black")
+          }
+        }
+        cur.index <- length(p.list) + 1
+        p.list[[cur.index]] <- cur.p
+      }
+    }
+
+    # determine the relevent size of figures (set label:plot = 1:3)
+    rel_size <- c(3,3,3,3,3,3)
+    rel_size <- rel_size[1:length(assays)]
+    rel_size_wide <- c(wide.rel,rel_size)
+    rel_size_height <- c(height.rel,rel_size)
+
+    plot <- plot_grid(plotlist = p.list, ncol=length(assays) + 1, rel_widths = rel_size_wide, rel_heights = rel_size_height )
+    return(plot)
+  } else {
+    stop("Please provide a seurat object!\n")
+  }
+}
+
+
+#' highCorrelatedGenePlot
+#'
+#' order all cells by the gene expression level of a specific gene, and explorer the gene expression profiles for highly corrolated genes or a group of user choosed genes
+#'
+#' @param object Seurat object
+#' @param target.gene target gene user want focus on
+#' @param coef coef methods: spearman, pearson or kendall
+#' @param genes user's choice gene list
+#' @param topx number of genes that highly correlated with target gene
+#'
+#' @export
+
+highCorrelatedGenePlot <- function(
+  object = NULL,
+  target.gene = NULL,
+  coef = "spearman",
+  genes = NULL,
+  topx = 20,
+  group.by = "ident"
+) {
+  if(!is.null(object)) {
+    expression <- GetAssayData(object = object, slot = "scale.data", assay = "RNA")
+
+    # Order cells according to target gene
+    target.gene.express <- expression[target.gene,]
+    cell.order <- names(sort(target.gene.express))
+    target.gene.express <- target.gene.express[cell.order]
+    target.gene.express <- as.data.frame(target.gene.express)
+    colnames(target.gene.express) <- c("exp")
+    target.gene.express$order <- 1:length(cell.order)
+
+    if(!is.null(genes)) {
+      # make corrosponding RNA expression data
+      gene.list <- genes[which(genes %in% rownames(expression))]
+      data <- expression[gene.list,]
+      list <- setdiff(genes,rownames(expression))
+      zero.matrix <- as.data.frame(matrix(0,length(list),length(cell.order)))
+      rownames(zero.matrix) <- list
+      colnames(zero.matrix) <- colnames(data)
+      data <- rbind(data,zero.matrix)
+      data <- data[,cell.order]
+      data <- t(data)
+    } else {
+      all.coef <- c()
+      for (i in 1:dim(expression)[1]) {
+        all.coef[i] <- cor(as.numeric(expression[target.gene,]),as.numeric(expression[i,]),method = coef)
+      }
+
+      coef.data <- data.frame(gene=rownames(expression),cc=all.coef)
+      coef.data <- coef.data[order(coef.data$cc, decreasing = TRUE),]
+      coef.data <- coef.data[1:topx,]
+
+      genes <- as.character(coef.data$gene)
+
+      gene.list <- genes[which(genes %in% rownames(expression))]
+      data <- expression[gene.list,]
+      list <- setdiff(genes,rownames(expression))
+      zero.matrix <- as.data.frame(matrix(0,length(list),length(cell.order)))
+      rownames(zero.matrix) <- list
+      colnames(zero.matrix) <- colnames(data)
+      data <- rbind(data,zero.matrix)
+      data <- data[,cell.order]
+      data <- t(data)
+    }
+
+    if(group.by == "ident") {
+      cluster <- as.data.frame(object@active.ident)
+      colnames(cluster) <- c("cluster")
+    } else {
+      cluster <- as.data.frame(object@meta.data[[group.by]])
+      colnames(cluster) <- c("cluster")
+    }
+
+    # plot
+    p_line <- ggplot(data=target.gene.express, aes(x=order,y=exp)) + geom_line(arrow = arrow(),color="red") + labs(x="", y = "Gene Expression") + theme(axis.text.x = element_blank())
+    colfunc <- colorRampPalette(c("gray", "red"))
+    # expression
+    plot <- Seurat:::SingleRasterMap(data = data, raster = TRUE, colors = colfunc(20),
+                            disp.min = -2.5, disp.max = 2.5, feature.order = genes,
+                            cell.order = cell.order) + NoLegend()
+
+    # plot group bars
+    pbuild <- ggplot_build(plot = plot)
+    cols <- hue_pal()(length(x = levels(x = cluster$cluster)))
+    names(x = cols) <- levels(x = cluster$cluster)
+    y.pos <- max(pbuild$layout$panel_params[[1]]$y.range)*1.01
+    y.max <- max(pbuild$layout$panel_params[[1]]$y.range)*1.03
+    plot <- plot + annotation_raster(raster = t(x = cols[cluster$cluster]), xmin = -Inf, xmax = Inf, ymin = y.pos, ymax = y.max) + coord_cartesian(ylim = c(0, y.max), clip = "off")
+    figure <- plot_grid(p_line, plot,ncol = 1)
+    return(figure)
+  } else {
+    stop("Please provide Seurat Object!")
+  }
+}
+
+
+
+# Set a default value if an object is null
+#
+# @param lhs An object to set if it's null
+# @param rhs The value to provide if x is null
+#
+# @return rhs if lhs is null, else lhs
+#
+# @author Hadley Wickham
+# @references https://adv-r.hadley.nz/functions.html#missing-arguments
+#
+`%||%` <- function(lhs, rhs) {
+  if (!is.null(x = lhs)) {
+    return(lhs)
+  } else {
+    return(rhs)
+  }
+}
+
+# Set a default value if an object is NOT null
+#
+# @param lhs An object to set if it's NOT null
+# @param rhs The value to provide if x is NOT null
+#
+# @return lhs if lhs is null, else rhs
+#
+# @author Hadley Wickham
+# @references https://adv-r.hadley.nz/functions.html#missing-arguments
+#
+`%iff%` <- function(lhs, rhs) {
+  if (!is.null(x = lhs)) {
+    return(rhs)
+  } else {
+    return(lhs)
+  }
+}
+
+# Melt a data frame
+#
+# @param x A data frame
+#
+# @return A molten data frame
+#
+Melt <- function(x) {
+  if (!is.data.frame(x = x)) {
+    x <- as.data.frame(x = x)
+  }
+  return(data.frame(
+    rows = rep.int(x = rownames(x = x), times = ncol(x = x)),
+    cols = unlist(x = lapply(X = colnames(x = x), FUN = rep.int, times = nrow(x = x))),
+    vals = unlist(x = x, use.names = FALSE)
+  ))
+}
