@@ -25,7 +25,7 @@ buildPG(object, ...)
 
 \item{reduction.prefix}{(For Seurat) the prefix of reduction. e.g. "tsne_" or "umap_"}
 
-\item{pg.nodes}{parameter for computing Elastic Principal Graph. number of nodes you want to build PG. if NULL, we will calculated a number based on your data size}
+\item{pg.nodes}{parameter for computing Ecipal Graph. number of nodes you want to build PG. if NULL, we will calculated a number based on your data size}
 
 \item{pg.min.nodes}{parameter for computing Elastic Principal Graph. min value of pg.nodes}
 

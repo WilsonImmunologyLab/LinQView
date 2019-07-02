@@ -49,7 +49,7 @@ umapFromDistane(object, ...)
 
 \item{negative.sample.rate}{integer; determines how many non-neighbor points are used per point and per iteration during layout optimization}
 
-\item{dist}{(For Seurat) dist object or dist matrix}
+\item{dist}{(For default) dist object or dist matrix}
 }
 \description{
 Run UMAP to project single cells into 2D space using cell-cell pairwise distances
