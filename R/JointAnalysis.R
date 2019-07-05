@@ -496,7 +496,6 @@ umapFromDistane.default <- function(
     if(!is.matrix(object)) {
       dist <- as.matrix(object)
     }
-
     my.umap <- umap(dist,my.umap.conf,method = method)
     return(my.umap)
   } else {
@@ -512,7 +511,8 @@ umapFromDistane.default <- function(
 jointDistance.Seurat <- function(
   object,
   dims = 20,
-  alpha = NULL
+  beta = 1,
+  model = "LP"
 ) {
   cat("Start working...\n")
 
@@ -538,23 +538,44 @@ jointDistance.Seurat <- function(
 
   # Joint cell-cell distance
   cat("Start calculate joint cell-cell pairwise distances... \n")
-  if(is.null(alpha)) {
-    cat("Will automatically determine an alpha to calculate the joint distance \n")
+  if(!is.null(model)) {
+    cat("Scale ADT and RNA distances into same level... \n")
     learning.rate <- 1
     low.threshold <- 1e-5
-    alpha <- 0
     X <- rna.dist + adt.dist
     Y <- adt.dist
-    optimal <- gradientDescent(X, Y, alpha, learning.rate, low.threshold)
-    cat("alpha is set to",optimal," \n")
-    joint.dist <- rna.dist*optimal + adt.dist*(1-optimal)
+    optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
+    rna.dist.scale <- rna.dist*optimal
+    adt.dist.scale <- adt.dist*(1-optimal)
+    if(model == "LP") {
+      cat("Calculate joint distance using L-infinite model ... \n")
+
+      joint.dist <- pmax(rna.dist.scale,adt.dist.scale)
+
+      c.rna <- joint.dist - rna.dist.scale
+      c.adt <- joint.dist - adt.dist.scale
+      n.rna <- length(which(c.rna == 0))
+      n.adt <- length(which(c.adt == 0))
+
+      total <- n.rna + n.adt
+      p.rna <- n.rna/total*100
+      p.adt <- n.adt/total*100
+
+      cat("Contribution of ADT is",p.adt,"% \n")
+      cat("Contribution of RNA is",p.rna,"% \n")
+
+    } else if (model == "L1") {
+      if(!is.numeric(beta)) {
+        stop("beta should be a number!\n")
+      } else {
+        joint.dist <- rna.dist.scale*beta + adt.dist.scale*(1-beta)
+      }
+    } else {
+      stop("Can not recognize your model! Please set model, 'LP' or 'L1'! \n")
+    }
     object@misc[['jointDist']] <- joint.dist
   } else {
-    cat("will use user's alpha value",alpha," to calculate the joint distance \n")
-    # calculate scale factor to scale two distances into the same level
-    scale.factor <- sum(adt.dist)/sum(rna.dist)
-    joint.dist <- adt.dist*alpha + rna.dist*(1-alpha)*scale.factor
-    object@misc[['jointDist']] <- joint.dist
+    stop("Please set model, 'LP' or 'L1'! \n")
   }
   return(object)
 }
@@ -569,25 +590,47 @@ jointDistance.default <- function(
   object,
   dist1 = NULL,
   dist2 = NULL,
-  alpha = NULL
+  beta = 1,
+  model = "LP"
 ) {
-  if(is.null(alpha)) {
-    cat("will automatically determine an alpha to calculate the joint distance \n")
+  cat("Start calculate joint cell-cell pairwise distances... \n")
+  if(!is.null(model)) {
+    cat("Scale two distances into same level... \n")
     learning.rate <- 1
     low.threshold <- 1e-5
-    alpha <- 0
     X <- dist1 + dist2
     Y <- dist2
-    optimal <- gradientDescent(X, Y, alpha, learning.rate, low.threshold)
+    optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
+    dist1.scale <- dist1*optimal
+    dist2.scale <- dist2*(1-optimal)
+    if(model == "LP") {
+      cat("Calculate joint distance using L-infinite model ... \n")
 
-    joint.dist <- dist1*optimal + dist2*(1-optimal)
-  } else if (is.numeric(alpha)) {
-    cat("will use user's alpha value",alpha," to calculate the joint distance \n")
-    # calculate scale factor to scale two distances into the same level
-    scale.factor <- sum(dist1)/sum(dist2)
-    joint.dist <- dist1*alpha + dist2*(1-alpha)*scale.factor
+      joint.dist <- pmax(dist1.scale,dist2.scale)
+
+      c1 <- joint.dist - dist1.scale
+      c2 <- joint.dist - dist2.scale
+      n1 <- length(which(c1 == 0))
+      n2 <- length(which(c2 == 0))
+
+      total <- n1 + n2
+      p1 <- n1/total*100
+      p2 <- n2/total*100
+
+      cat("Contribution of dist1 is",p2,"% \n")
+      cat("Contribution of dist2 is",p1,"% \n")
+
+    } else if (model == "L1") {
+      if(!is.numeric(beta)) {
+        stop("beta should be a number!\n")
+      } else {
+        joint.dist <- dist1.scale*beta + dist2.scale*(1-beta)
+      }
+    } else {
+      stop("Can not recognize your model! Please set model, 'LP' or 'L1'! \n")
+    }
   } else {
-    stop("Please provide an alpha between 0 and 1, or you can leave alpha = NULL, we will determine for you \n")
+    stop("Please set model, 'LP' or 'L1'! \n")
   }
   return(joint.dist)
 }

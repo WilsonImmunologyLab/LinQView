@@ -4,10 +4,12 @@
 #'
 #' @param object (For Seurat) Seurat object
 #' @param dims (For Seurat) number of PCs used for RNA data. Default is 20
-#' @param alpha (For Seurat) use alpha to balence contributions from RNA and ADT in the joint distances. We suggest use 0.5 for initial analysis, and then adjust alpha for better results. User can set alpha = null, then we will automatically determine the value
+#' @param beta (For Seurat) For L1 model, use beta to balence contributions from RNA and ADT in the joint distances (0 <= beta <= 1). Default value is 0.5, indicate L1 modal will treat RNA and ADT equally. higher beta will increase the contribution of RNA
+#' @param model (For Seurat) Norm model for distance integration. Default model is L+ model (LP). Another option is L1 model (L1).
 #' @param dist1 (For default) dist object of first assay
 #' @param dist2 (For default) dist object of second assay
-#' @param alpha (For default) use alpha to balence contributions from two assays in joint distances. We suggest use 0.5 for initial analysis, and then adjust alpha for better results. User can set alpha = null, then we will automatically determine the value
+#' @param beta (For default) For L1 model, use beta to balence contributions from RNA and ADT in the joint distances (0 <= beta <= 1). Default value is 0.5, indicate L1 modal will treat RNA and ADT equally. higher beta will increase the contribution of RNA
+#' @param model (For default) Norm model for distance integration. Default model is L+ model. Another option is L1 model.
 #'
 #' @export
 #'
