@@ -6,10 +6,11 @@
 \alias{jointDistance}
 \title{jointDistance.Seurat}
 \usage{
-\method{jointDistance}{Seurat}(object, dims = 20, alpha = NULL)
+\method{jointDistance}{Seurat}(object, dims = 20, beta = 0.5,
+  model = "LP")
 
 \method{jointDistance}{default}(object, dist1 = NULL, dist2 = NULL,
-  alpha = NULL)
+  beta = 1, model = "LP")
 
 jointDistance(object, ...)
 }
@@ -18,13 +19,17 @@ jointDistance(object, ...)
 
 \item{dims}{(For Seurat) number of PCs used for RNA data. Default is 20}
 
-\item{alpha}{(For Seurat) use alpha to balence contributions from RNA and ADT in the joint distances. We suggest use 0.5 for initial analysis, and then adjust alpha for better results. User can set alpha = null, then we will automatically determine the value}
+\item{beta}{(For Seurat) For L1 model, use beta to balence contributions from RNA and ADT in the joint distances (0 <= beta <= 1). Default value is 0.5, indicate L1 modal will treat RNA and ADT equally. higher beta will increase the contribution of RNA}
+
+\item{model}{(For Seurat) Norm model for distance integration. Default model is L-infinite model (LP). Another option is L1 model (L1).}
 
 \item{dist1}{(For default) dist object of first assay}
 
 \item{dist2}{(For default) dist object of second assay}
 
-\item{alpha}{(For default) use alpha to balence contributions from two assays in joint distances. We suggest use 0.5 for initial analysis, and then adjust alpha for better results. User can set alpha = null, then we will automatically determine the value}
+\item{beta}{(For default) For L1 model, use beta to balence contributions from RNA and ADT in the joint distances (0 <= beta <= 1). Default value is 0.5, indicate L1 modal will treat RNA and ADT equally. higher beta will increase the contribution of RNA}
+
+\item{model}{(For default) Norm model for distance integration. Default model is L-infinite model. Another option is L1 model.}
 }
 \description{
 If input seurat object, will calculate cell-cell pairwise distances for RNA and ADT separately, then calculate the joint cell-cell pairwise distances. It alao can calculate joint distances for any two dist objects

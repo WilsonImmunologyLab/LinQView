@@ -511,7 +511,7 @@ umapFromDistane.default <- function(
 jointDistance.Seurat <- function(
   object,
   dims = 20,
-  beta = 1,
+  beta = 0.5,
   model = "LP"
 ) {
   cat("Start working...\n")
@@ -565,6 +565,7 @@ jointDistance.Seurat <- function(
       cat("Contribution of RNA is",p.rna,"% \n")
 
     } else if (model == "L1") {
+      cat("Calculate joint distance using L-1 model ... \n")
       if(!is.numeric(beta)) {
         stop("beta should be a number!\n")
       } else {
@@ -621,6 +622,7 @@ jointDistance.default <- function(
       cat("Contribution of dist2 is",p1,"% \n")
 
     } else if (model == "L1") {
+      cat("Calculate joint distance using L-1 model ... \n")
       if(!is.numeric(beta)) {
         stop("beta should be a number!\n")
       } else {

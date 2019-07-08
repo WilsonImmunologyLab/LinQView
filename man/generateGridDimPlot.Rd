@@ -5,7 +5,7 @@
 \title{generateGridDimPlot}
 \usage{
 generateGridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
-  reduction.prefix = "umap_", cluster.suffix = "ClusterID",
+  reduction.prefix = "tsne_", cluster.suffix = "ClusterID",
   darkTheme = TRUE, legend = TRUE, cluster.label = TRUE,
   cluster.lable.size = 5)
 }

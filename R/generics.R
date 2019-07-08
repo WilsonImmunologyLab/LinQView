@@ -5,11 +5,11 @@
 #' @param object (For Seurat) Seurat object
 #' @param dims (For Seurat) number of PCs used for RNA data. Default is 20
 #' @param beta (For Seurat) For L1 model, use beta to balence contributions from RNA and ADT in the joint distances (0 <= beta <= 1). Default value is 0.5, indicate L1 modal will treat RNA and ADT equally. higher beta will increase the contribution of RNA
-#' @param model (For Seurat) Norm model for distance integration. Default model is L+ model (LP). Another option is L1 model (L1).
+#' @param model (For Seurat) Norm model for distance integration. Default model is L-infinite model (LP). Another option is L1 model (L1).
 #' @param dist1 (For default) dist object of first assay
 #' @param dist2 (For default) dist object of second assay
 #' @param beta (For default) For L1 model, use beta to balence contributions from RNA and ADT in the joint distances (0 <= beta <= 1). Default value is 0.5, indicate L1 modal will treat RNA and ADT equally. higher beta will increase the contribution of RNA
-#' @param model (For default) Norm model for distance integration. Default model is L+ model. Another option is L1 model.
+#' @param model (For default) Norm model for distance integration. Default model is L-infinite model. Another option is L1 model.
 #'
 #' @export
 #'
