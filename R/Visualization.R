@@ -16,51 +16,34 @@ colorGradient <- function(
 }
 
 
-#' trajectoryKNNPlot
+#' trajectoryPlotKNN
 #'
-#' plot cells with trajectory
+#' plot cells with KNN method based trajectory
 #'
 #' @param object seurat object
-#' @param group.by cell clusters
-#' @param reduction reduction name
-#' @param graph knn graph used
+#' @param assay Assay name
 #' @param line.size width of cell trajectory
 #' @param line.color color of cell trajectory
 #'
 #' @export
-trajectoryKNNPlot <- function(
+trajectoryPlotKNN <- function(
   object = NULL,
-  group.by  = NULL,
-  reduction = NULL,
-  graph = NULL,
+  assay = 'Joint',
   line.size = 0.5,
   line.color = "gray"
 ) {
   if(!is.null(object)) {
-    if(!is.null(group.by)) {
-      group = as.character(object@meta.data[[group.by]])
-    } else {
-      group = as.character(object@meta.data[[1]])
-    }
-
-    if(!is.null(graph)) {
-      graph <- object@misc[[graph]]
-    } else {
-      graph <- object@misc[["jointGraph"]]
-    }
-
-    if(!is.null(reduction)) {
-      umap1 = object@reductions[[reduction]]@cell.embeddings[, 1]
-      umap2 = object@reductions[[reduction]]@cell.embeddings[, 2]
-    } else {
-      umap1 = object@reductions[[1]]@cell.embeddings[, 1]
-      umap2 = object@reductions[[1]]@cell.embeddings[, 2]
-    }
+    group.namae <- as.character(object@misc[[assay]][['cluster']])
+    group <- as.character(object@meta.data[[group.namae]])
+    graph <- object@misc[[assay]][['knn']]
+    reduction <- object@misc[[assay]][['reduction']]
+    dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+    dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
 
     # trajectory
     data <- data.frame(
-      x=as.numeric(umap1),
-      y=as.numeric(umap2),
+      x=as.numeric(dim1),
+      y=as.numeric(dim2),
       cluster=group
     )
 
@@ -80,12 +63,12 @@ trajectoryKNNPlot <- function(
       j <- graph.frame[x,2]
 
       xxx <- 3*(x-1) + 1
-      path.x[xxx] <- umap1[i]
-      path.x[xxx+1] <- umap1[j]
+      path.x[xxx] <- dim1[i]
+      path.x[xxx+1] <- dim1[j]
       path.x[xxx+2] <- 0
 
-      path.y[xxx] <- umap2[i]
-      path.y[xxx+1] <- umap2[j]
+      path.y[xxx] <- dim2[i]
+      path.y[xxx+1] <- dim2[j]
       path.y[xxx+2] <- NA
 
     }
@@ -103,54 +86,38 @@ trajectoryKNNPlot <- function(
 
 
 
-
-#' pseudoTimeKNNPlot
+#' pseudoTimePlotKNN
 #'
 #' plot cells with trajectory and pseudoTime
 #'
 #' @param object seurat object
-#' @param reduction reduction name
-#' @param graph kNN graph used
-#' @param pseudotime pseudotime used
+#' @param assay Assay name
 #' @param colors gradient colors for pseudotime. color order is low to high.
 #' @param line.size line width for kNN network
 #' @param line.color line color for kNN network
 #'
 #' @export
-pseudoTimeKNNPlot <- function(
+#'
+pseudoTimePlotKNN <- function(
   object = NULL,
-  reduction = NULL,
-  graph = NULL,
-  pseudotime = NULL,
+  assay = 'Joint',
   colors = c("blue", "green","yellow", "red"),
   line.size = 0.5,
   line.color = "gray"
 ) {
   if(!is.null(object)) {
-    if(!is.null(graph)) {
-      graph <- object@misc[[graph]]
-    } else {
-      graph <- object@misc[["jointGraph"]]
-    }
 
-    if(!is.null(pseudotime)) {
-      pseudotime <- object@meta.data[[pseudotime]]
-    } else {
-      pseudotime <- object@meta.data[["jointKNNTime"]]
-    }
-
-    if(!is.null(reduction)) {
-      umap1 = object@reductions[[reduction]]@cell.embeddings[, 1]
-      umap2 = object@reductions[[reduction]]@cell.embeddings[, 2]
-    } else {
-      umap1 = object@reductions[[1]]@cell.embeddings[, 1]
-      umap2 = object@reductions[[1]]@cell.embeddings[, 2]
-    }
+    graph <- object@misc[[assay]][['knn']]
+    time.name <- object@misc[[assay]][['time']][['knn']]
+    pseudotime <- object@meta.data[[time.name]]
+    reduction <- object@misc[[assay]][['reduction']]
+    dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+    dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
 
     # joint trajectory
     data <- data.frame(
-      x=as.numeric(umap1),
-      y=as.numeric(umap2),
+      x=as.numeric(dim1),
+      y=as.numeric(dim2),
       time=as.numeric(pseudotime)
     )
 
@@ -170,12 +137,12 @@ pseudoTimeKNNPlot <- function(
       j <- graph.frame[x,2]
 
       xxx <- 3*(x-1) + 1
-      path.x[xxx] <- umap1[i]
-      path.x[xxx+1] <- umap1[j]
+      path.x[xxx] <- dim1[i]
+      path.x[xxx+1] <- dim1[j]
       path.x[xxx+2] <- 0
 
-      path.y[xxx] <- umap2[i]
-      path.y[xxx+1] <- umap2[j]
+      path.y[xxx] <- dim2[i]
+      path.y[xxx+1] <- dim2[j]
       path.y[xxx+2] <- NA
 
     }
@@ -192,46 +159,29 @@ pseudoTimeKNNPlot <- function(
   }
 }
 
-#' trajectoryMSTPlot
+#' trajectoryPlotMST
 #'
 #' plot cells with trajectory (MST based)
 #'
 #' @param object seurat object
-#' @param group.by cell clusters
-#' @param reduction reduction name
-#' @param pg knn graph used
+#' @param assay Assay name
 #' @param line.size width of cell trajectory
 #' @param line.color color of cell trajectory
 #'
 #' @export
-trajectoryMSTPlot <- function(
+trajectoryPlotMST <- function(
   object = NULL,
-  group.by  = NULL,
-  reduction = NULL,
-  pg = NULL,
+  assay = 'Joint',
   line.size = 0.5,
   line.color = "gray"
 ) {
   if(!is.null(object)) {
-    if(!is.null(group.by)) {
-      group = as.character(object@meta.data[[group.by]])
-    } else {
-      group = as.character(object@meta.data[[1]])
-    }
-
-    if(!is.null(pg)) {
-      pg <- object@misc[[pg]]
-    } else {
-      pg <- object@misc[["jointPG"]]
-    }
-
-    if(!is.null(reduction)) {
-      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
-      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
-    } else {
-      dim1 = object@reductions[[1]]@cell.embeddings[, 1]
-      dim2 = object@reductions[[1]]@cell.embeddings[, 2]
-    }
+    group.namae <- as.character(object@misc[[assay]][['cluster']])
+    group <- as.character(object@meta.data[[group.namae]])
+    pg <- object@misc[[assay]][['pg']]
+    reduction <- object@misc[[assay]][['reduction']]
+    dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+    dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
 
     # trajectory
     data <- data.frame(
@@ -276,48 +226,31 @@ trajectoryMSTPlot <- function(
 
 
 
-#' pseudoTimeMSTPlot
+#' pseudoTimePlotMST
 #'
 #' plot cells with trajectory and pseudoTime (MST based)
 #'
 #' @param object seurat object
-#' @param reduction reduction name
-#' @param pg principle graph (PG) used
-#' @param pseudotime pseudotime used
+#' @param assay reduction name
 #' @param colors gradient colors for pseudotime. color order is low to high.
 #' @param line.size line width for trajectory
 #' @param line.color line color for trajectory
 #'
 #' @export
-pseudoTimeMSTPlot <- function(
+pseudoTimePlotMST <- function(
   object = NULL,
-  reduction = NULL,
-  pg = NULL,
-  pseudotime = NULL,
+  assay = NULL,
   colors = c("blue", "green","yellow", "red"),
   line.size = 0.5,
   line.color = "gray"
 ) {
   if(!is.null(object)) {
-    if(!is.null(pg)) {
-      pg <- object@misc[[pg]]
-    } else {
-      pg <- object@misc[["jointPG"]]
-    }
-
-    if(!is.null(pseudotime)) {
-      pseudotime <- object@meta.data[[pseudotime]]
-    } else {
-      pseudotime <- object@meta.data[["jointMSTTime"]]
-    }
-
-    if(!is.null(reduction)) {
-      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
-      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
-    } else {
-      dim1 = object@reductions[[1]]@cell.embeddings[, 1]
-      dim2 = object@reductions[[1]]@cell.embeddings[, 2]
-    }
+    pg <- object@misc[[assay]][['pg']]
+    reduction <- object@misc[[assay]][['reduction']]
+    dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+    dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+    time.name <- object@misc[[assay]][['time']][['mst']]
+    pseudotime <- object@meta.data[[time.name]]
 
     # joint trajectory
     data <- data.frame(
@@ -366,10 +299,8 @@ pseudoTimeMSTPlot <- function(
 #' plot cell clusters with connections
 #'
 #' @param object seurat object
-#' @param group.by cell cluster name
-#' @param reduction reduction name
-#' @param graph a KNN graph name
-#' @param cutoff only connections between two cluster have connection factor larger than this cutoff will be shown
+#' @param assay Assay name
+#' @param cutoff only connections between two cluster have connection factor larger than this cutoff will be shown. Default value = 0, user can adjust the cutoff to hide weak connections
 #' @param line.color line color of the connections between cell clusters
 #' @param point.size control dot size of cell clusters
 #' @param path.size control path size of cell connections
@@ -377,38 +308,23 @@ pseudoTimeMSTPlot <- function(
 #' @export
 clusterConnectionPlot <- function(
   object = NULL,
-  group.by = NULL,
-  reduction = NULL,
-  graph = NULL,
-  cutoff = 0.01,
+  assay = 'Joint',
+  cutoff = 0,
   line.color = "black",
   point.size = 2,
   path.size = 1.5
 ) {
   if(!is.null(object)) {
-    if(!is.null(group.by)) {
-      group = as.character(object@meta.data[[group.by]])
-    } else {
-      group = as.character(object@meta.data[[1]])
-    }
-
-    if(!is.null(graph)) {
-      graph <- object@misc[[graph]]
-    } else {
-      graph <- object@misc[["jointGraph"]]
-    }
-
-    if(!is.null(reduction)) {
-      umap1 = object@reductions[[reduction]]@cell.embeddings[, 1]
-      umap2 = object@reductions[[reduction]]@cell.embeddings[, 2]
-    } else {
-      umap1 = object@reductions[[1]]@cell.embeddings[, 1]
-      umap2 = object@reductions[[1]]@cell.embeddings[, 2]
-    }
+    group.namae <- as.character(object@misc[[assay]][['cluster']])
+    group <- as.character(object@meta.data[[group.namae]])
+    graph <- object@misc[[assay]][['knn']]
+    reduction <- object@misc[[assay]][['reduction']]
+    dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+    dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
 
     data <- data.frame(
-      x=as.numeric(umap1),
-      y=as.numeric(umap2),
+      x=as.numeric(dim1),
+      y=as.numeric(dim2),
       cluster=group
     )
 
@@ -426,7 +342,7 @@ clusterConnectionPlot <- function(
     cluster.center$dim2 <- as.numeric(cluster.center$dim2)
     cluster.center$cells <- as.numeric(cluster.center$cells)
 
-    # evaluate connections between cell clusters
+    # evaluate connections among cell clusters
     knn.matrix <- matrix(data = 0, nrow = dim(graph)[1], ncol = dim(graph)[1])
     for (i in 1:dim(graph)[1]) {
       j.index <- graph[i,]
@@ -579,9 +495,7 @@ heatMapPlot <- function(
 #' grid dim plot for RNA, ADT and joint analysis
 #'
 #' @param object seurat object
-#' @param assays assays user want to plot
-#' @param reduction.prefix the prefix for reduction name. e.g. "umap_" for UMAP and "tsne" for "t-SNE"
-#' @param cluster.suffix the suffix for cell cluster name in mate information.
+#' @param assays assays user want to plot and compare
 #' @param darkTheme switch for darkTheme (TRUE or FALSE)
 #' @param legend switch for showing legend in each sub plot (TRUE or FALSE)
 #' @param figure.label.size font size for figure labels
@@ -595,8 +509,6 @@ heatMapPlot <- function(
 gridDimPlot <- function(
   object = NULL,
   assays = c("RNA","ADT","Joint"),
-  reduction.prefix = "umap_",
-  cluster.suffix = "ClusterID",
   darkTheme = TRUE,
   legend = TRUE,
   figure.label.size = 7,
@@ -691,9 +603,7 @@ gridDimPlot <- function(
 #' generate a grid dim plot object list for RNA, ADT and joint analysis
 #'
 #' @param object seurat object
-#' @param assays assays user want to plot
-#' @param reduction.prefix the prefix for reduction name. e.g. "umap_" for UMAP and "tsne" for "t-SNE"
-#' @param cluster.suffix the suffix for cell cluster name in mate information.
+#' @param assays assays user want to plot and compare
 #' @param darkTheme switch for darkTheme (TRUE or FALSE)
 #' @param legend switch for showing legend in each sub plot (TRUE or FALSE)
 #' @param cluster.label swicth for showing cluster label on each sub plot (TRUE or FALSE)
@@ -704,8 +614,6 @@ gridDimPlot <- function(
 generateGridDimPlot <- function(
   object = NULL,
   assays = c("RNA","ADT","Joint"),
-  reduction.prefix = "tsne_",
-  cluster.suffix = "ClusterID",
   darkTheme = TRUE,
   legend = TRUE,
   cluster.label = TRUE,
@@ -717,10 +625,10 @@ generateGridDimPlot <- function(
     for (assay.x in assays) {
       # dim plots for assay.x
       for (assay.y in assays) {
-        cur.cluster <- paste0(tolower(assay.y),cluster.suffix)
-        cur.map <- paste0(reduction.prefix,tolower(assay.x))
-
-        cur.p <- DimPlot(object = object, group.by = cur.cluster,reduction = cur.map) + xlab(paste0(reduction.prefix,"1")) + ylab(paste0(reduction.prefix,"2"))
+        cur.cluster <- object@misc[[assay.y]][['cluster']]
+        cur.map <- object@misc[[assay.x]][['reduction']]
+        reductionType <- gsub(pattern = "_.+", replacement = "", x = cur.map)
+        cur.p <- DimPlot(object = object, group.by = cur.cluster,reduction = cur.map) + xlab(paste0(reductionType," 1")) + ylab(paste0(reductionType," 2"))
         if(!isTRUE(legend)) {
           cur.p <- cur.p + NoLegend()
         }

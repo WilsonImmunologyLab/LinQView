@@ -13,13 +13,9 @@
 softThreshold(object, ...)
 }
 \arguments{
-\item{object}{The object}
+\item{object}{(For Seurat) Seurat object}
 
 \item{sealing}{(For Seurat) the sealing point of mitochondrial gene threshold, for 10X data we suggest use 10 percent}
-
-\item{...}{Arguments passed to other methods (ignored for now)}
-
-\item{object}{(For Seurat) Seurat object}
 
 \item{data}{(For default) Array of mito percent}
 

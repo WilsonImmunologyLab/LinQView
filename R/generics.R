@@ -24,7 +24,6 @@ jointDistance <- function(object, ...) {
 #'
 #' @param object (For Seurat) Seurat object
 #' @param assay (For Seurat) run UMAP for which assay, choose from RNA, ADT, Joint or All
-#' @param dist (For default) dist object or dist matrix
 #' @param seed see number. default is 42
 #' @param method could be "naive" or "umap-learn"
 #' @param n.neighbors integer; number of nearest neighbors
@@ -51,7 +50,6 @@ umapFromDistane <- function(object, ...) {
 #'
 #' @param object (For Seurat) Seurat object
 #' @param assay (For Seurat) run t-SNE for which assay, choose from RNA, ADT, Joint or All
-#' @param dist (For default) dist object or dist matrix
 #' @param perplexity numeric; Perplexity parameter (should not be bigger than 3 * perplexity < nrow(X) - 1, see details for interpretation)
 #' @param dim integer; Output dimensionality (default: 2)
 #' @param seed integer; seed for reproducible results.
@@ -83,7 +81,6 @@ buildMST <- function(object, ...) {
 #'
 #' @param object (For Seurat) Seurat object
 #' @param assay (For Seurat) user choose the assay data they want to build a MST based on, can be RNA, ADT, Joint or All (All means calculate all three)
-#' @param reduction.prefix (For Seurat) the prefix of reduction. e.g. "tsne_" or "umap_"
 #' @param object (For default) cell embedding
 #' @param mst (For default) MST for building PG
 #' @param pg.nodes parameter for computing Ecipal Graph. number of nodes you want to build PG. if NULL, we will calculated a number based on your data size
@@ -121,8 +118,6 @@ buildKNN <- function(object, ...) {
 #' determine the soft threshold of percentage of mitochondrial gene. The criteria is: for each sample, we only keep the 95 percent cells with lowest percent of mito genes. If the cell quality is too bad, we use 10 percent as a sealing threshold
 #'
 #' @title softThreshold
-#' @param object The object
-#' @param ... Arguments passed to other methods (ignored for now)
 #'
 #' @param object (For Seurat) Seurat object
 #' @param sealing (For Seurat) the sealing point of mitochondrial gene threshold, for 10X data we suggest use 10 percent

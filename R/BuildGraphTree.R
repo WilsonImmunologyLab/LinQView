@@ -9,36 +9,36 @@ buildMST.Seurat <- function(
 ) {
   if(!is.null(object)) {
     if(assay == "All") {
-      rna.dist <- object@misc[['rnaDist']]
-      adt.dist <- object@misc[['adtDist']]
-      joint.dist <- object@misc[['jointDist']]
+      rna.dist <- object@misc[['RNA']][['dist']]
+      adt.dist <- object@misc[['ADT']][['dist']]
+      joint.dist <- object@misc[['Joint']][['dist']]
 
       # build MST based on cell-cell distances
       joint.tree <- mlpack_mst(as.matrix(joint.dist))
       rna.tree <- mlpack_mst(as.matrix(rna.dist))
       adt.tree <- mlpack_mst(as.matrix(adt.dist))
 
-      object@misc[["rnaTree"]] <- rna.tree
-      object@misc[["adtTree"]] <- adt.tree
-      object@misc[["jointTree"]] <- joint.tree
+      object@misc[["RNA"]][['mst']] <- rna.tree
+      object@misc[["ADT"]][['mst']] <- adt.tree
+      object@misc[["Joint"]][['mst']] <- joint.tree
     } else if (assay == "Joint") {
-      joint.dist <- object@misc[['jointDist']]
+      joint.dist <- object@misc[['Joint']][['dist']]
 
       # build MST based on cell-cell distances
       joint.tree <- mlpack_mst(as.matrix(joint.dist))
-      object@misc[["jointTree"]] <- joint.tree
+      object@misc[["Joint"]][['mst']] <- joint.tree
     } else if (assay == "RNA") {
-      rna.dist <- object@misc[['rnaDist']]
+      rna.dist <- object@misc[['RNA']][['dist']]
 
       # build MST based on cell-cell distances
       rna.tree <- mlpack_mst(as.matrix(rna.dist))
-      object@misc[["rnaTree"]] <- rna.tree
+      object@misc[["RNA"]][['mst']] <- rna.tree
     } else if (assay == "ADT") {
-      adt.dist <- object@misc[['adtDist']]
+      adt.dist <- object@misc[['ADT']][['dist']]
 
       # build MST based on cell-cell distances
       adt.tree <- mlpack_mst(as.matrix(adt.dist))
-      object@misc[["adtTree"]] <- adt.tree
+      object@misc[["ADT"]][['mst']] <- adt.tree
     } else {
       stop("Invalid assay name! Assay name can only be RNA, ADT, Joint or All")
     }
@@ -110,7 +110,7 @@ buildMST.default <- function(
 buildPG.Seurat <- function(
   object,
   assay = "Joint",
-  reduction.prefix = "tsne_",
+  reduction = NULL,
   pg.nodes = NULL,
   pg.min.nodes = 30,
   pg.Lambda = 0.03,
@@ -121,53 +121,70 @@ buildPG.Seurat <- function(
 ) {
   if(!is.null(object)) {
     if(assay == "All") {
+      if(!is.null(reduction)) {
+        stop("reduction name can only be used for single Assay! Please set reduction to NULL is you want run ALL Assay. \n")
+      }
       # build PG for joint data
       cat("build PG for joint data ... \n")
-      joint.mst <- object@misc[['jointTree']]
-      joint.reduction.name <- paste0(reduction.prefix,"joint")
+      joint.mst <- object@misc[['Joint']][['mst']]
+      joint.reduction.name <- object@misc[['Joint']][['reduction']]
       joint.embedding <- object@reductions[[joint.reduction.name]]@cell.embeddings
 
-      object@misc[['jointPG']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
 
       # build PG for RNA data
       cat("build PG for RNA data ... \n")
-      rna.mst <- object@misc[['rnaTree']]
-      rna.reduction.name <- paste0(reduction.prefix,"rna")
+      rna.mst <- object@misc[['RNA']][['mst']]
+      rna.reduction.name <- object@misc[['RNA']][['reduction']]
       rna.embedding <- object@reductions[[rna.reduction.name]]@cell.embeddings
 
-      object@misc[['rnaPG']] <- buildPG(object = rna.embedding, mst = rna.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      object@misc[['RNA']][['pg']] <- buildPG(object = rna.embedding, mst = rna.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
 
       # build PG for ADT data
       cat("build PG for ADT data ... \n")
-      adt.mst <- object@misc[['adtTree']]
-      adt.reduction.name <- paste0(reduction.prefix,"adt")
+      adt.mst <- object@misc[['ADT']][['mst']]
+      adt.reduction.name <- object@misc[['ADT']][['reduction']]
       adt.embedding <- object@reductions[[adt.reduction.name]]@cell.embeddings
 
-      object@misc[['adtPG']] <- buildPG(object = adt.embedding, mst = adt.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      object@misc[['ADT']][['pg']] <- buildPG(object = adt.embedding, mst = adt.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "Joint") {
       # build PG for joint data
       cat("build PG for joint data ... \n")
-      joint.mst <- object@misc[['jointTree']]
-      joint.reduction.name <- paste0(reduction.prefix,"joint")
+      joint.mst <- object@misc[['Joint']][['mst']]
+      if(!is.null(reduction)) {
+        joint.reduction.name <- reduction
+      } else {
+        joint.reduction.name <- object@misc[['Joint']][['reduction']]
+      }
       joint.embedding <- object@reductions[[joint.reduction.name]]@cell.embeddings
+
+      object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
 
       object@misc[['jointPG']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "RNA") {
       # build PG for RNA data
       cat("build PG for RNA data ... \n")
-      rna.mst <- object@misc[['rnaTree']]
-      rna.reduction.name <- paste0(reduction.prefix,"rna")
+      rna.mst <- object@misc[['RNA']][['mst']]
+      if(!is.null(reduction)) {
+        rna.reduction.name <- reduction
+      } else {
+        rna.reduction.name <- object@misc[['RNA']][['reduction']]
+      }
       rna.embedding <- object@reductions[[rna.reduction.name]]@cell.embeddings
 
-      object@misc[['rnaPG']] <- buildPG(object = rna.embedding, mst = rna.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      object@misc[['RNA']][['pg']] <- buildPG(object = rna.embedding, mst = rna.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "ADT") {
       # build PG for ADT data
       cat("build PG for ADT data ... \n")
-      adt.mst <- object@misc[['adtTree']]
-      adt.reduction.name <- paste0(reduction.prefix,"adt")
+      adt.mst <- object@misc[['ADT']][['mst']]
+      if(!is.null(reduction)) {
+        adt.reduction.name <- reduction
+      } else {
+        adt.reduction.name <- object@misc[['ADT']][['reduction']]
+      }
       adt.embedding <- object@reductions[[adt.reduction.name]]@cell.embeddings
 
-      object@misc[['adtPG']] <- buildPG(object = adt.embedding, mst = adt.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      object@misc[['ADT']][['pg']] <- buildPG(object = adt.embedding, mst = adt.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else {
       stop("Invalid assay name! Assay name can only be RNA, ADT, Joint or All")
     }
@@ -265,9 +282,9 @@ buildKNN.Seurat <- function(
 ) {
   if(!is.null(object)) {
     if(assay == "All") {
-      rna.dist <- object@misc[['rnaDist']]
-      adt.dist <- object@misc[['adtDist']]
-      joint.dist <- object@misc[['jointDist']]
+      rna.dist <- object@misc[['RNA']][['dist']]
+      adt.dist <- object@misc[['ADT']][['dist']]
+      joint.dist <- object@misc[['Joint']][['dist']]
 
       # build KNN graph based on cell-cell distances
       cat("building kNN graph from joint distance... k = ",k,"\n")
@@ -277,30 +294,30 @@ buildKNN.Seurat <- function(
       cat("building kNN graph from ADT distance... k = ",k,"\n")
       adt.graph <- fastKNN(adt.dist, k = k)
 
-      object@misc[["rnaGraph"]] <- rna.graph
-      object@misc[["adtGraph"]] <- adt.graph
-      object@misc[["jointGraph"]] <- joint.graph
+      object@misc[["RNA"]][['knn']] <- rna.graph
+      object@misc[["ADT"]][['knn']] <- adt.graph
+      object@misc[["Joint"]][['knn']] <- joint.graph
     } else if (assay == "Joint") {
-      joint.dist <- object@misc[['jointDist']]
+      joint.dist <- object@misc[['Joint']][['dist']]
 
       # build KNN graph based on cell-cell distances
       cat("building kNN graph from joint distance... k = ",k,"\n")
       joint.graph <- fastKNN(joint.dist, k = k)
-      object@misc[["jointGraph"]] <- joint.graph
+      object@misc[["Joint"]][['knn']] <- joint.graph
     } else if (assay == "RNA") {
-      rna.dist <- object@misc[['rnaDist']]
+      rna.dist <- object@misc[['RNA']][['dist']]
 
       # build KNN graph based on cell-cell distances
       cat("building kNN graph from RNA distance... k = ",k,"\n")
       rna.graph <- fastKNN(rna.dist, k = k)
-      object@misc[["rnaGraph"]] <- rna.graph
+      object@misc[["RNA"]][['knn']] <- rna.graph
     } else if (assay == "ADT") {
-      adt.dist <- object@misc[['adtDist']]
+      adt.dist <- object@misc[['ADT']][['dist']]
 
       # build KNN graph based on cell-cell distances
       cat("building kNN graph from ADT distance... k = ",k,"\n")
       adt.graph <- fastKNN(adt.dist, k = k)
-      object@misc[["adtGraph"]] <- adt.graph
+      object@misc[["ADT"]][['knn']] <- adt.graph
     } else {
       stop("Invalid assay name! Assay name can only be RNA, ADT, Joint or All")
     }
@@ -356,172 +373,6 @@ fastKNN <- function(
   return(knn)
 }
 
-#' batchPseudoTime
-#'
-#' calculate pseudotime using a given start point from MST or KNN. This function only can be used if you know which cell is the root. Not suggested.
-#'
-#' @param object Seurat object
-#' @param method could be MST or KNN
-#' @param mst user choose the assay data MST they want to use for pseudotime, can be RNA, ADT, Joint or All (All means calculate all three), use also can determine any mst (for example, mst = "rnaTree", the rnaTree must be located in object[at]misc[['rnaTree']]
-#' @param knn user choose the assay data KNN they want to use for pseudotime, can be RNA, ADT, Joint or All (All means calculate all three), use also can determine any knn by name (for example, knn = "rnaGraph", the rnaTree must be located in object[at]misc[['rnaGraph']]
-#' @param dist if use choose their own KNN or MST, user should determine the dist object or distance matrix for the knn graph or MST. the dist can be dist object, or the name of the dist object that is located in object[at]misc[[dist]]. for example, user can set dist = object[at]misc[["userDist"]] or knn.dist = "userDist"
-#' @param root user choose the root cell
-#' @export
-batchPseudoTime <- function(
-  object = NULL,
-  method = c("MST", "KNN"),
-  mst = "Joint",
-  knn = "Joint",
-  dist = NULL,
-  root = NULL
-) {
-  if(!is.null(object)) {
-    if(method == "MST") {
-      if(mst == "All") {
-        # MST
-        rna.tree <- object@misc[['rnaTree']]
-        adt.tree <- object@misc[['adtTree']]
-        joint.tree <- object@misc[['jointTree']]
-
-        # order cells
-        cat("calculating pseudotime for RNA data...\n")
-        rna.time <- orderCellsMST(data = rna.tree,root = root)
-        cat("calculating pseudotime for ADT data...\n")
-        adt.time <- orderCellsMST(data = adt.tree,root = root)
-        cat("calculating pseudotime for joint data...\n")
-        joint.time <- orderCellsMST(data = joint.tree,root = root)
-
-        # save
-        object$rnaMSTTime <- rna.time
-        object$adtMSTTime <- adt.time
-        object$jointMSTTime <- joint.time
-
-      } else if (mst == "Joint") {
-        # MST
-        joint.tree <- object@misc[['jointTree']]
-
-        # order cells
-        cat("calculating pseudotime for joint data...\n")
-        joint.time <- orderCellsMST(data = joint.tree,root = root)
-
-        # save
-        object$jointMSTTime <- joint.time
-      } else if (mst == "RNA") {
-        # MST
-        rna.tree <- object@misc[['rnaTree']]
-
-        # order cells
-        cat("calculating pseudotime for RNA data...\n")
-        rna.time <- orderCellsMST(data = rna.tree,root = root)
-
-        # save
-        object$rnaMSTTime <- rna.time
-      } else if (mst == "ADT") {
-        # MST
-        adt.tree <- object@misc[['adtTree']]
-
-        # order cells
-        cat("calculating pseudotime for ADT data...\n")
-        adt.time <- orderCellsMST(data = adt.tree,root = root)
-
-        # save
-        object$adtMSTTime <- adt.time
-      } else {
-        # MST
-        cur.tree <- object@misc[[mst]]
-
-        # order cells
-        cat("calculating pseudotime for your data...\n")
-        cur.time <- orderCellsMST(data = adt.tree,root = root)
-        timename <- paste0(mst,"Time")
-
-        # save
-        object@meta.data[[timename]] <- cur.time
-      }
-      return(object)
-    } else if (method == "KNN") {
-      if(knn == "All") {
-        # KNN
-        rna.graph <- object@misc[['rnaGraph']]
-        adt.graph <- object@misc[['adtGraph']]
-        joint.graph <- object@misc[['jointGraph']]
-
-        rna.dist <- object@misc[['rnaDist']]
-        adt.dist <- object@misc[['adtDist']]
-        joint.dist <- object@misc[['jointDist']]
-
-        # order cells
-        cat("calculating pseudotime for RNA data...\n")
-        rna.time <- orderCellsKNN(data = rna.graph,dist = rna.dist,root = root)
-        cat("calculating pseudotime for ADT data...\n")
-        adt.time <- orderCellsKNN(data = adt.graph,dist = adt.dist,root = root)
-        cat("calculating pseudotime for Joint data...\n")
-        joint.time <- orderCellsKNN(data = joint.graph,dist = joint.dist,root = root)
-
-        # save
-        object$rnaKNNTime <- rna.time
-        object$adtKNNTime <- adt.time
-        object$jointKNNTime <- joint.time
-
-      } else if (knn == "Joint") {
-        # KNN
-        joint.graph <- object@misc[['jointGraph']]
-        joint.dist <- object@misc[['jointDist']]
-
-        # order cells
-        cat("calculating pseudotime for Joint data...\n")
-        joint.time <- orderCellsKNN(data = joint.graph,dist = joint.dist,root = root)
-
-        # save
-        object$jointKNNTime <- joint.time
-      } else if (knn == "RNA") {
-        # KNN
-        rna.graph <- object@misc[['rnaGraph']]
-        rna.dist <- object@misc[['rnaDist']]
-
-        # order cells
-        cat("calculating pseudotime for RNA data...\n")
-        rna.time <- orderCellsKNN(data = rna.graph,dist = rna.dist,root = root)
-
-        # save
-        object$rnaTime <- rna.time
-      } else if (knn == "ADT") {
-        # KNN
-        adt.graph <- object@misc[['adtGraph']]
-        adt.dist <- object@misc[['adtDist']]
-
-        # order cells
-        cat("calculating pseudotime for ADT data...\n")
-        adt.time <- orderCellsKNN(data = adt.graph,dist = adt.dist,root = root)
-
-        # save
-        object$adtKNNTime <- adt.time
-      } else {
-        # KNN
-        cur.graph <- object@misc[[knn]]
-        if(is.character(dist)) {
-          cur.dist <- object@misc[[dist]]
-        } else {
-          cur.dist <- dist
-        }
-
-        # order cells
-        cat("calculating pseudotime for your data...\n")
-        cur.time <- orderCellsKNN(data = cur.graph,dist = cur.dist,root = root)
-        timename <- paste0(graph,"Time")
-
-        # save
-        object@meta.data[[timename]] <- cur.time
-      }
-      return(object)
-    } else {
-      stop("Please provide a valid method, MST or KNN!")
-    }
-  } else {
-    stop("Please provide an Seurat object!")
-  }
-}
-
 
 #' pseudoTime
 #'
@@ -529,9 +380,7 @@ batchPseudoTime <- function(
 #'
 #' @param object Seurat object
 #' @param method could be MST or KNN
-#' @param group.by cell clustering results.
-#' @param graph kNN or MST graph. use can determine any knn by name.for example, knn = "rnaGraph", the rnaTree must be located in object[at]misc[['rnaGraph']]
-#' @param dist if use choose their own KNN or MST, user should determine the dist object or distance matrix for the knn graph or MST. the dist can be dist object, or the name of the dist object that is located in object[at]misc[[dist]]. for example, user can set dist = object[at]misc[["userDist"]] or knn.dist = "userDist"
+#' @param assay Assay name. Can be RNA, ADT or Joint
 #' @param root.cluster user choose the root cell cluster
 #'
 #' @export
@@ -539,18 +388,13 @@ batchPseudoTime <- function(
 pseudoTime <- function(
   object,
   method = c("MST", "KNN"),
-  group.by = NULL,
-  graph = NULL,
-  dist = NULL,
+  assay = "Joint",
   root.cluster = NULL
 ) {
   if(!is.null(object)) {
-    if(is.character(dist)) {
-      cur.dist <- object@misc[[dist]]
-    } else {
-      cur.dist <- dist
-    }
-
+    group.by <- object@misc[[assay]][['cluster']]
+    cur.dist <- object@misc[[assay]][['dist']]
+    # identify root cell
     if(root.cluster %in% levels(object@meta.data[[group.by]])) {
       index1 <- which(object@meta.data[[group.by]] == root.cluster)
       index2 <- which(object@meta.data[[group.by]] != root.cluster)
@@ -561,27 +405,28 @@ pseudoTime <- function(
 
     if(method == "MST") {
       # MST
-      tree <- object@misc[[graph]]
+      tree <- object@misc[[assay]][['mst']]
 
       # order cells
-      cat("calculating pseudotime for given data...",root.id,"\n")
+      cat("calculating pseudotime for ",assay," data...",root.id,"\n")
       time <- orderCellsMST(data = tree, root = root.id)
 
-      time.name <- paste0(graph,"MSTTime")
+      time.name <- paste0(tolower(assay),"MSTtime")
       # save
       object@meta.data[[time.name]] <- time
-
+      object@misc[[assay]][['time']][['mst']] <- time.name
     } else if (method == "KNN") {
       # KNN
-      knn <- object@misc[[graph]]
+      knn <- object@misc[[assay]][['knn']]
 
       # order cells
-      cat("calculating pseudotime for ADT data...\n")
+      cat("calculating pseudotime for ",assay," data...\n")
       time <- orderCellsKNN(data = knn,dist = cur.dist,root = root.id)
 
-      time.name <- paste0(graph,"KNNTime")
+      time.name <- paste0(tolower(assay),"KNNtime")
       # save
       object@meta.data[[time.name]] <- time
+      object@misc[[assay]][['time']][['knn']] <- time.name
     } else {
       stop("Please provide a valid method, MST or KNN!")
     }

@@ -5,7 +5,6 @@
 \title{gridDimPlot}
 \usage{
 gridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
-  reduction.prefix = "umap_", cluster.suffix = "ClusterID",
   darkTheme = TRUE, legend = TRUE, figure.label.size = 7,
   cluster.label = TRUE, cluster.lable.size = 5, wide.rel = 1.5,
   height.rel = 1)
@@ -13,11 +12,7 @@ gridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
 \arguments{
 \item{object}{seurat object}
 
-\item{assays}{assays user want to plot}
-
-\item{reduction.prefix}{the prefix for reduction name. e.g. "umap_" for UMAP and "tsne" for "t-SNE"}
-
-\item{cluster.suffix}{the suffix for cell cluster name in mate information.}
+\item{assays}{assays user want to plot and compare}
 
 \item{darkTheme}{switch for darkTheme (TRUE or FALSE)}
 

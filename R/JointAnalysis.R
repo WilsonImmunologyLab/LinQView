@@ -155,7 +155,7 @@ clusteringFromDistance <- function(
       cat("You set assay = All, but didn't provide 3 resolutions, will use default value 0.6 for all three\n")
       resolution = c(0.6,0.6,0.6)
     } else {
-      cat("You set resolution for RNA = ",resolution[2],", For ADT = ",resolution[3],", For joint = ",resolution[1], "...\n ")
+      cat("You set resolution for RNA = ",resolution[2],", For ADT = ",resolution[3],", For joint = ",resolution[1], "...\n")
     }
   }
   if(!is.null(object)){
@@ -164,52 +164,58 @@ clusteringFromDistance <- function(
       cat("Start run clustering for RNA using cell-cell distances...\n")
 
       # identify cell clusters by calling Seurat function
-      object[["rna_snn"]] <- FindNeighbors(object = object@misc[['rnaDist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
+      object[["rna_snn"]] <- FindNeighbors(object = object@misc[['RNA']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
       object <- FindClusters(object = object, resolution = resolution[2], graph.name = "rna_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["rnaClusterID"]] <- Idents(object = object)
+      object@misc[['RNA']][['cluster']] <- "rnaClusterID"
 
       # for ADT
       cat("Start run clustering for ADT using cell-cell distances...\n")
 
       # identify cell clusters by calling Seurat function
-      object[["adt_snn"]] <- FindNeighbors(object = object@misc[['adtDist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
+      object[["adt_snn"]] <- FindNeighbors(object = object@misc[['ADT']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
       object <- FindClusters(object = object, resolution = resolution[3], graph.name = "adt_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["adtClusterID"]] <- Idents(object = object)
+      object@misc[['ADT']][['cluster']] <- "adtClusterID"
 
       # for Joint
       cat("Start run clustering for Joint data using cell-cell distances...\n")
 
       # identify cell clusters by calling Seurat function
-      object[["joint_snn"]] <- FindNeighbors(object = object@misc[['jointDist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
+      object[["joint_snn"]] <- FindNeighbors(object = object@misc[['Joint']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
       object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["jointClusterID"]] <- Idents(object = object)
+      object@misc[['Joint']][['cluster']] <- "jointClusterID"
 
     } else if (assay == "Joint") {
       # for Joint
       cat("Start run clustering for Joint data using cell-cell distances...\n")
 
       # identify cell clusters by calling Seurat function
-      object[["joint_snn"]] <- FindNeighbors(object = object@misc[['jointDist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
+      object[["joint_snn"]] <- FindNeighbors(object = object@misc[['Joint']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
       object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["jointClusterID"]] <- Idents(object = object)
+      object@misc[['Joint']][['cluster']] <- "jointClusterID"
 
     } else if (assay == "ADT") {
       # for ADT
       cat("Start run clustering for ADT using cell-cell distances...\n")
 
       # identify cell clusters by calling Seurat function
-      object[["adt_snn"]] <- FindNeighbors(object = object@misc[['adtDist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
+      object[["adt_snn"]] <- FindNeighbors(object = object@misc[['ADT']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
       object <- FindClusters(object = object, resolution = resolution[1], graph.name = "adt_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["adtClusterID"]] <- Idents(object = object)
+      object@misc[['ADT']][['cluster']] <- "adtClusterID"
 
     } else if (assay == "RNA") {
       # for RNA
       cat("Start run clustering for RNA using cell-cell distances...\n")
 
       # identify cell clusters by calling Seurat function
-      object[["rna_snn"]] <- FindNeighbors(object = object@misc[['rnaDist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
+      object[["rna_snn"]] <- FindNeighbors(object = object@misc[['RNA']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
       object <- FindClusters(object = object, resolution = resolution[1], graph.name = "rna_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["rnaClusterID"]] <- Idents(object = object)
+      object@misc[['RNA']][['cluster']] <- "rnaClusterID"
 
     } else {
       stop("Please provide correct assay name! choose from RNA, ADT, Joint, All")
@@ -261,67 +267,68 @@ umapFromDistane.Seurat <- function(
       # for RNA
       cat("Start run UMAP for RNA using cell-cell distances...\n")
 
-      rna.dist.matrix <- as.matrix(object@misc[['rnaDist']])
+      rna.dist.matrix <- as.matrix(object@misc[['RNA']][['dist']])
       # run umap with pairwise distances
 
       my.umap <- umap(rna.dist.matrix,my.umap.conf,method = method)
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "rnaUMAP_", assay = "RNA")
       object[["umap_rna"]] <- umap.reduction
       rownames(object@reductions[["umap_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      #colnames(object@reductions[["umap_rna"]]@cell.embeddings) <- c("UMAP1","UMAP2")
+      object@misc[['RNA']][['reduction']] <- "umap_rna"
 
       # for ADT
       cat("Start run UMAP for ADT using cell-cell distances...\n")
 
-      adt.dist.matrix <- as.matrix(object@misc[['adtDist']])
+      adt.dist.matrix <- as.matrix(object@misc[['ADT']][['dist']])
       # run umap with pairwise distances
       my.umap <- umap(adt.dist.matrix, my.umap.conf, method = method)
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "adtUMAP_", assay = "ADT")
       object[["umap_adt"]] <- umap.reduction
       rownames(object@reductions[["umap_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      #colnames(object@reductions[["umap_adt"]]@cell.embeddings) <- c("UMAP1","UMAP2")
+      object@misc[['ADT']][['reduction']] <- "umap_adt"
 
       # for Joint
       cat("Start run UMAP for Joint data using cell-cell distances...\n")
 
-      joint.dist.matrix <- as.matrix(object@misc[['jointDist']])
+      joint.dist.matrix <- as.matrix(object@misc[['Joint']][['dist']])
       my.umap <- umap(joint.dist.matrix,my.umap.conf,method = method)
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout,key = "jointUMAP_",assay = "ADT")
       object[["umap_joint"]] <- umap.reduction
       rownames(object@reductions[["umap_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      #colnames(object@reductions[["umap_joint"]]@cell.embeddings) <- c("UMAP1","UMAP2")
+      object@misc[['Joint']][['reduction']] <- "umap_joint"
     } else if (assay == "Joint") {
       # for Joint
       cat("Start run UMAP for Joint data using cell-cell distances...\n")
 
-      joint.dist.matrix <- as.matrix(object@misc[['jointDist']])
+      joint.dist.matrix <- as.matrix(object@misc[['Joint']][['dist']])
       my.umap <- umap(joint.dist.matrix,my.umap.conf,method = method)
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout,key = "jointUMAP_",assay = "ADT")
       object[["umap_joint"]] <- umap.reduction
       rownames(object@reductions[["umap_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      #colnames(object@reductions[["umap_joint"]]@cell.embeddings) <- c("UMAP1","UMAP2")
+      object@misc[['Joint']][['reduction']] <- "umap_joint"
     } else if (assay == "ADT") {
       # for ADT
       cat("Start run UMAP for ADT using cell-cell distances...\n")
 
-      adt.dist.matrix <- as.matrix(object@misc[['adtDist']])
+      adt.dist.matrix <- as.matrix(object@misc[['ADT']][['dist']])
       # run umap with pairwise distances
       my.umap <- umap(adt.dist.matrix, my.umap.conf, method = method)
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "adtUMAP_", assay = "ADT")
       object[["umap_adt"]] <- umap.reduction
       rownames(object@reductions[["umap_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      #colnames(object@reductions[["umap_adt"]]@cell.embeddings) <- c("UMAP1","UMAP2")
+      object@misc[['ADT']][['reduction']] <- "umap_adt"
     } else if (assay == "RNA") {
       # for RNA
       cat("Start run UMAP for RNA using cell-cell distances...\n")
 
-      rna.dist.matrix <- as.matrix(object@misc[['rnaDist']])
+      rna.dist.matrix <- as.matrix(object@misc[['RNA']][['dist']])
       # run umap with pairwise distances
+
       my.umap <- umap(rna.dist.matrix,my.umap.conf,method = method)
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "rnaUMAP_", assay = "RNA")
       object[["umap_rna"]] <- umap.reduction
       rownames(object@reductions[["umap_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      #colnames(object@reductions[["umap_rna"]]@cell.embeddings) <- c("UMAP1","UMAP2")
+      object@misc[['RNA']][['reduction']] <- "umap_rna"
     } else {
       stop("Please provide correct assay name! choose from RNA, ADT, Joint, All")
     }
@@ -351,69 +358,75 @@ tsneFromDistane.Seurat <- function(
       # for RNA
       cat("Start run t-SNE for RNA using cell-cell distances...\n")
 
-      rna.dist <- object@misc[['rnaDist']]
+      rna.dist <- object@misc[['RNA']][['dist']]
       # run tsne with pairwise distances
       my.tsne <- Rtsne(rna.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rna_tsne_", assay = "RNA")
       object[["tsne_rna"]] <- tsne.reduction
       rownames(object@reductions[["tsne_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
+      object@misc[['RNA']][['reduction']] <- "tsne_rna"
 
       # for ADT
       cat("Start run t-SNE for ADT using cell-cell distances...\n")
 
-      adt.dist <- object@misc[['adtDist']]
+      adt.dist <- object@misc[['ADT']][['dist']]
       # run tsne with pairwise distances
       my.tsne <- Rtsne(adt.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adt_tsne_", assay = "ADT")
       object[["tsne_adt"]] <- tsne.reduction
       rownames(object@reductions[["tsne_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
+      object@misc[['ADT']][['reduction']] <- "tsne_adt"
 
       # for Joint
       cat("Start run t-SNE for Joint data using cell-cell distances...\n")
 
-      joint.dist <- object@misc[['jointDist']]
+      joint.dist <- object@misc[['Joint']][['dist']]
       # run tsne with pairwise distances
       my.tsne <- Rtsne(joint.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "joint_tsne_", assay = "ADT")
       object[["tsne_joint"]] <- tsne.reduction
       rownames(object@reductions[["tsne_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
+      object@misc[['Joint']][['reduction']] <- "tsne_joint"
 
     } else if (assay == "Joint") {
       # for Joint
       cat("Start run t-SNE for Joint data using cell-cell distances...\n")
 
-      joint.dist <- object@misc[['jointDist']]
+      joint.dist <- object@misc[['Joint']][['dist']]
       # run tsne with pairwise distances
       my.tsne <- Rtsne(joint.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "joint_tsne_", assay = "ADT")
       object[["tsne_joint"]] <- tsne.reduction
       rownames(object@reductions[["tsne_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
+      object@misc[['Joint']][['reduction']] <- "tsne_joint"
     } else if (assay == "ADT") {
       # for ADT
       cat("Start run t-SNE for ADT using cell-cell distances...\n")
 
-      adt.dist <- object@misc[['adtDist']]
+      adt.dist <- object@misc[['ADT']][['dist']]
       # run tsne with pairwise distances
       my.tsne <- Rtsne(adt.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adt_tsne_", assay = "ADT")
       object[["tsne_adt"]] <- tsne.reduction
       rownames(object@reductions[["tsne_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
+      object@misc[['ADT']][['reduction']] <- "tsne_adt"
     } else if (assay == "RNA") {
       # for RNA
       cat("Start run t-SNE for RNA using cell-cell distances...\n")
 
-      rna.dist <- object@misc[['rnaDist']]
+      rna.dist <- object@misc[['RNA']][['dist']]
       # run tsne with pairwise distances
       my.tsne <- Rtsne(rna.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rna_tsne_", assay = "RNA")
       object[["tsne_rna"]] <- tsne.reduction
       rownames(object@reductions[["tsne_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
+      object@misc[['RNA']][['reduction']] <- "tsne_rna"
     } else {
       stop("Please provide correct assay name! choose from RNA, ADT, Joint, All")
     }
@@ -512,7 +525,9 @@ jointDistance.Seurat <- function(
   object,
   dims = 20,
   beta = 0.5,
-  model = "LP"
+  model = "LP",
+  keep.rna = TRUE,
+  keep.adt = TRUE
 ) {
   cat("Start working...\n")
 
@@ -526,7 +541,14 @@ jointDistance.Seurat <- function(
   }
   rna.pca <- object@reductions[["pca"]]@cell.embeddings[,1:dims]
   rna.dist <- dist(x = rna.pca)
-  object@misc[['rnaDist']] <- rna.dist
+  if(isTRUE(keep.rna)) {
+    if(!is.null(object@misc[['RNA']])) {
+      object@misc[['RNA']][['dist']] <- rna.dist
+    } else {
+      object@misc[['RNA']] <- list()
+      object@misc[['RNA']][['dist']] <- rna.dist
+    }
+  }
 
   # for ADT
   cat("Start calculate cell-cell pairwise distances for ADT...\n")
@@ -534,7 +556,15 @@ jointDistance.Seurat <- function(
   # calculate cell-cell pairwise distances for ADT directly using normalized data
   adt.data <- t(as.matrix(GetAssayData(object, slot = "data")))
   adt.dist <- dist(x = adt.data)
-  object@misc[['adtDist']] <- adt.dist
+
+  if(isTRUE(keep.adt)) {
+    if(!is.null(object@misc[['ADT']])) {
+      object@misc[['ADT']][['dist']] <- adt.dist
+    } else {
+      object@misc[['ADT']] <- list()
+      object@misc[['ADT']][['dist']] <- adt.dist
+    }
+  }
 
   # Joint cell-cell distance
   cat("Start calculate joint cell-cell pairwise distances... \n")
@@ -574,7 +604,13 @@ jointDistance.Seurat <- function(
     } else {
       stop("Can not recognize your model! Please set model, 'LP' or 'L1'! \n")
     }
-    object@misc[['jointDist']] <- joint.dist
+
+    if(!is.null(object@misc[['Joint']])) {
+      object@misc[['Joint']][['dist']] <- joint.dist
+    } else {
+      object@misc[['Joint']] <- list()
+      object@misc[['Joint']][['dist']] <- joint.dist
+    }
   } else {
     stop("Please set model, 'LP' or 'L1'! \n")
   }

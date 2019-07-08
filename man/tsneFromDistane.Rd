@@ -26,8 +26,6 @@ tsneFromDistane(object, ...)
 \item{seed}{integer; seed for reproducible results.}
 
 \item{theta}{numeric; Speed/accuracy trade-off (increase for less accuracy), set to 0.0 for exact TSNE (default: 0.5)}
-
-\item{dist}{(For default) dist object or dist matrix}
 }
 \description{
 Run t-SNE to project single cells into 2D map using cell-cell pairwise distances

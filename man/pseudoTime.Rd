@@ -4,19 +4,15 @@
 \alias{pseudoTime}
 \title{pseudoTime}
 \usage{
-pseudoTime(object, method = c("MST", "KNN"), group.by = NULL,
-  graph = NULL, dist = NULL, root.cluster = NULL)
+pseudoTime(object, method = c("MST", "KNN"), assay = "Joint",
+  root.cluster = NULL)
 }
 \arguments{
 \item{object}{Seurat object}
 
 \item{method}{could be MST or KNN}
 
-\item{group.by}{cell clustering results.}
-
-\item{graph}{kNN or MST graph. use can determine any knn by name.for example, knn = "rnaGraph", the rnaTree must be located in object[at]misc[['rnaGraph']]}
-
-\item{dist}{if use choose their own KNN or MST, user should determine the dist object or distance matrix for the knn graph or MST. the dist can be dist object, or the name of the dist object that is located in object[at]misc[[dist]]. for example, user can set dist = object[at]misc[["userDist"]] or knn.dist = "userDist"}
+\item{assay}{Assay name. Can be RNA, ADT or Joint}
 
 \item{root.cluster}{user choose the root cell cluster}
 }

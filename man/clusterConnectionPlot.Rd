@@ -4,20 +4,15 @@
 \alias{clusterConnectionPlot}
 \title{clusterConnectionPlot}
 \usage{
-clusterConnectionPlot(object = NULL, group.by = NULL,
-  reduction = NULL, graph = NULL, cutoff = 0.01,
+clusterConnectionPlot(object = NULL, assay = "Joint", cutoff = 0,
   line.color = "black", point.size = 2, path.size = 1.5)
 }
 \arguments{
 \item{object}{seurat object}
 
-\item{group.by}{cell cluster name}
+\item{assay}{Assay name}
 
-\item{reduction}{reduction name}
-
-\item{graph}{a KNN graph name}
-
-\item{cutoff}{only connections between two cluster have connection factor larger than this cutoff will be shown}
+\item{cutoff}{only connections between two cluster have connection factor larger than this cutoff will be shown. Default value = 0, user can adjust the cutoff to hide weak connections}
 
 \item{line.color}{line color of the connections between cell clusters}
 

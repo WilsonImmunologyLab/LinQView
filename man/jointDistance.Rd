@@ -7,7 +7,7 @@
 \title{jointDistance.Seurat}
 \usage{
 \method{jointDistance}{Seurat}(object, dims = 20, beta = 0.5,
-  model = "LP")
+  model = "LP", keep.rna = TRUE, keep.adt = TRUE)
 
 \method{jointDistance}{default}(object, dist1 = NULL, dist2 = NULL,
   beta = 1, model = "LP")

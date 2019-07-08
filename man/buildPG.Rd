@@ -6,10 +6,10 @@
 \alias{buildPG}
 \title{buildPG.Seurat}
 \usage{
-\method{buildPG}{Seurat}(object, assay = "Joint",
-  reduction.prefix = "tsne_", pg.nodes = NULL, pg.min.nodes = 30,
-  pg.Lambda = 0.03, pg.Mu = 0.01, trimming.radius = Inf,
-  final.energy = "Penalized", initial.MST = FALSE)
+\method{buildPG}{Seurat}(object, assay = "Joint", reduction = NULL,
+  pg.nodes = NULL, pg.min.nodes = 30, pg.Lambda = 0.03,
+  pg.Mu = 0.01, trimming.radius = Inf, final.energy = "Penalized",
+  initial.MST = FALSE)
 
 \method{buildPG}{default}(object, mst = NULL, pg.nodes = NULL,
   pg.min.nodes = 30, pg.Lambda = 0.03, pg.Mu = 0.01,
@@ -22,8 +22,6 @@ buildPG(object, ...)
 \item{object}{(For Seurat) Seurat object}
 
 \item{assay}{(For Seurat) user choose the assay data they want to build a MST based on, can be RNA, ADT, Joint or All (All means calculate all three)}
-
-\item{reduction.prefix}{(For Seurat) the prefix of reduction. e.g. "tsne_" or "umap_"}
 
 \item{pg.nodes}{parameter for computing Ecipal Graph. number of nodes you want to build PG. if NULL, we will calculated a number based on your data size}
 

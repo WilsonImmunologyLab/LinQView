@@ -48,8 +48,6 @@ umapFromDistane(object, ...)
 \item{local.connectivity}{numeric; used during construction of fuzzy simplicial set}
 
 \item{negative.sample.rate}{integer; determines how many non-neighbor points are used per point and per iteration during layout optimization}
-
-\item{dist}{(For default) dist object or dist matrix}
 }
 \description{
 Run UMAP to project single cells into 2D space using cell-cell pairwise distances

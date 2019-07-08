@@ -1,6 +1,6 @@
-Package: TestName
+Package: LinQseq
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Integrate information from both transcriptome and cell surface protein signals to better identify cell heterogeneity
 Version: 0.1.0
 Author: Lei Li
 Maintainer: Lei Li <leilioxford@gmail.com> <leil@uchicago.edu>
