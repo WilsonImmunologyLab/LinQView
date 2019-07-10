@@ -152,7 +152,7 @@ pseudoTimePlotKNN <- function(
     p <- ggplot(data, aes(x,y)) +
       geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
       geom_point(aes(colour = time)) +
-      scale_color_gradientn(colours = colors) + xlab("dim1") + ylab("dim2")
+      scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) + xlab("dim1") + ylab("dim2")
     return(p)
   } else {
     stop("Please provide a Seurat object!")
@@ -225,6 +225,161 @@ trajectoryPlotMST <- function(
 }
 
 
+#' distHeatMap
+#'
+#' plot contribution of each modality on a N*N heatmap
+#'
+#' @param object seurat object
+#' @param assay Assay name. Default is "Joint"
+#' @param cell.num number of cells in heatmap. For large datasets, user may want to reduce the number of cells. Default value is set to 1000, indicate 1000 cells at maximum.
+#' @param group.by order cells by cell clusters. If set to NULL, will use current ident.
+#' @param colors two distinct colors for ADT and RNA.
+#' @param group.bar Add a color bar showing group status for cells
+#' @param label Label the cell identies above the color bar
+#' @param size Size of text above color bar
+#' @param hjust Horizontal justification of text above color bar
+#' @param angle angle of cluster label
+#' @param dims If RNA distance is not available, dims of PCA used to calculate RNA distance.
+#'
+#' @export
+distHeatMap <- function(
+  object = NULL,
+  assay = 'Joint',
+  cell.num = 1000,
+  group.by = NULL,
+  colors = c("yellow","green"),
+  group.bar = TRUE,
+  label = TRUE,
+  size = 5.5,
+  hjust = 0,
+  angle = 90,
+  dims = 20
+) {
+  if(!is.null(object)) {
+    if(is.null(object@misc[["Joint"]][["dist"]])) {
+      stop("Can not find joint distance! Please calculate joint distance using jointDistance() first!\n")
+    } else if(is.null(object@misc[["RNA"]][["dist"]]) || is.null(object@misc[["ADT"]][["dist"]])) {
+      cat("Can not find distances for ADT and RNA, will calculate now, dim for PCA is set to 20\n")
+
+      # for RNA
+      cat("Start calculate cell-cell pairwise distances for RNA...\n")
+      DefaultAssay(object = object) <- "RNA"
+      # calculate cell-cell pairwise distances for RNA using top n PCs
+      rna.pca <- object@reductions[["pca"]]
+      if(is.null(rna.pca)) {
+        stop("Please do PCA analysis for RNA data first!")
+      }
+      rna.pca <- object@reductions[["pca"]]@cell.embeddings[,1:dims]
+      rna.dist <- dist(x = rna.pca)
+
+      # for ADT
+      cat("Start calculate cell-cell pairwise distances for ADT...\n")
+      DefaultAssay(object = object) <- "ADT"
+      # calculate cell-cell pairwise distances for ADT directly using normalized data
+      adt.data <- t(as.matrix(GetAssayData(object, slot = "data")))
+      adt.dist <- dist(x = adt.data)
+
+      object@misc[["Joint"]][["alpha"]]
+      d.rna <- rna.dist*alpha
+      d.adt <- adt.dist*(1-alpha)
+      d.joint <- object@misc[["Joint"]][["dist"]]
+    } else {
+      d.rna <- object@misc[["RNA"]][["dist"]]
+      d.adt <- object@misc[["ADT"]][["dist"]]
+      d.joint <- object@misc[["Joint"]][["dist"]]
+    }
+    c.rna <- d.joint - d.rna
+
+    indicate <- c.rna
+    # 1 indicate ADT and 0 indicate RNA
+    indicate[which(indicate != 0)] = 1
+    indicate.matrix <- as.matrix(indicate)
+
+    k = 1
+    if(cell.num < dim(indicate.matrix)[1]) {
+      k = dim(indicate.matrix)[1]/cell.num
+    }
+
+    data <- as.data.frame(object@active.ident)
+    colnames(data) <- "cluster"
+    data$barcode <- rownames(data)
+    if(!is.null(group.by)) {
+      data$cluster <- object@meta.data[[group.by]]
+    }
+
+    clusters <- sort(unique(data$cluster))
+    sel_names <- c()
+    for (cluster in clusters) {
+      cur <- data[which(data$cluster == cluster),]
+      cur.len <- dim(cur)[1]
+      cur.sel.len <- floor(cur.len/k)
+      cur.sel.names <- rownames(cur)[1:cur.sel.len]
+      sel_names <- c(sel_names, cur.sel.names)
+    }
+
+    group.use <- Idents(object)
+    if(!is.null(group.by)) {
+      group.use <- as.factor(object@meta.data[[group.by]])
+      names(group.use) <- names(Idents(object))
+    }
+    group.use <- group.use[sel_names]
+
+    submatrix <- indicate.matrix[sel_names,sel_names]
+    #submatrix[which(submatrix == 0)] <- "RNA"
+    #submatrix[which(submatrix == 1)] <- "ADT"
+
+    rna.lab <- paste0("RNA(",round(object@misc[["Joint"]][["contribution"]][["rna"]],2),"%)")
+    adt.lab <- paste0("ADT(",round(object@misc[["Joint"]][["contribution"]][["adt"]],2),"%)")
+    melted <- melt(submatrix)
+    melted$value <- as.factor(melted$value)
+    p <- ggplot(data = melted, aes(Var1, Var2, fill = value)) +
+      geom_tile() +
+      scale_fill_manual(values = colors, breaks = c(0,1), labels = c(rna.lab,adt.lab)) +
+      labs(x = NULL, y = NULL) +
+      NoAxes(keep.text = FALSE) +
+      labs(fill = "Contribution")
+
+    # group bars
+    if(group.bar) {
+      pbuild <- ggplot_build(plot = p)
+      cols <- hue_pal()(length(x = levels(x = group.use)))
+      names(x = cols) <- levels(x = group.use)
+      y.pos <- max(pbuild$layout$panel_params[[1]]$y.range)*1.01
+      y.max <- y.pos*1.02
+      p <- p + annotation_raster(raster = t(x = cols[sort(x = group.use)]), xmin = -Inf, xmax = Inf, ymin = y.pos, ymax = y.max) + coord_cartesian(ylim = c(0, y.max), clip = 'off')
+
+      # cluster labels
+      if(label) {
+        x.max <- max(pbuild$layout$panel_params[[1]]$x.range)
+        x.divs <- pbuild$layout$panel_params[[1]]$x.major
+        x <- data.frame(group = sort(x = group.use), x = x.divs)
+        label.x.pos <- tapply(X = x$x, INDEX = x$group, FUN = median) * x.max
+        label.x.pos <- data.frame(group = names(x = label.x.pos), label.x.pos)
+        p <- p + geom_text(
+          stat = "identity",
+          data = label.x.pos,
+          aes_string(label = 'group', x = 'label.x.pos'),
+          y = y.max + y.max * 0.03 * 0.5,
+          angle = angle,
+          hjust = hjust,
+          size = size,
+          inherit.aes = FALSE
+        )
+        p <- suppressMessages(p + coord_cartesian(
+          ylim = c(0, y.max + y.max * 0.003 * max(nchar(x = levels(x = group.use))) * size),
+          clip = 'off')
+        )
+      }
+    }
+    return(p)
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
+
+
+
+
 
 #' pseudoTimePlotMST
 #'
@@ -283,7 +438,7 @@ pseudoTimePlotMST <- function(
     path <- data.frame(x=path.x,y=path.y)
 
     p <- ggplot(data, aes(x,y)) +
-      geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors) +
+      geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) +
       geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
       xlab("dim1") + ylab("dim2")
 

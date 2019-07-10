@@ -541,14 +541,6 @@ jointDistance.Seurat <- function(
   }
   rna.pca <- object@reductions[["pca"]]@cell.embeddings[,1:dims]
   rna.dist <- dist(x = rna.pca)
-  if(isTRUE(keep.rna)) {
-    if(!is.null(object@misc[['RNA']])) {
-      object@misc[['RNA']][['dist']] <- rna.dist
-    } else {
-      object@misc[['RNA']] <- list()
-      object@misc[['RNA']][['dist']] <- rna.dist
-    }
-  }
 
   # for ADT
   cat("Start calculate cell-cell pairwise distances for ADT...\n")
@@ -556,15 +548,6 @@ jointDistance.Seurat <- function(
   # calculate cell-cell pairwise distances for ADT directly using normalized data
   adt.data <- t(as.matrix(GetAssayData(object, slot = "data")))
   adt.dist <- dist(x = adt.data)
-
-  if(isTRUE(keep.adt)) {
-    if(!is.null(object@misc[['ADT']])) {
-      object@misc[['ADT']][['dist']] <- adt.dist
-    } else {
-      object@misc[['ADT']] <- list()
-      object@misc[['ADT']][['dist']] <- adt.dist
-    }
-  }
 
   # Joint cell-cell distance
   cat("Start calculate joint cell-cell pairwise distances... \n")
@@ -577,6 +560,25 @@ jointDistance.Seurat <- function(
     optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
     rna.dist.scale <- rna.dist*optimal
     adt.dist.scale <- adt.dist*(1-optimal)
+
+    if(isTRUE(keep.rna)) {
+      if(!is.null(object@misc[['RNA']])) {
+        object@misc[['RNA']][['dist']] <- rna.dist.scale
+      } else {
+        object@misc[['RNA']] <- list()
+        object@misc[['RNA']][['dist']] <- rna.dist.scale
+      }
+    }
+
+    if(isTRUE(keep.adt)) {
+      if(!is.null(object@misc[['ADT']])) {
+        object@misc[['ADT']][['dist']] <- adt.dist.scale
+      } else {
+        object@misc[['ADT']] <- list()
+        object@misc[['ADT']][['dist']] <- adt.dist.scale
+      }
+    }
+
     if(model == "LP") {
       cat("Calculate joint distance using L-infinite model ... \n")
 
@@ -607,9 +609,17 @@ jointDistance.Seurat <- function(
 
     if(!is.null(object@misc[['Joint']])) {
       object@misc[['Joint']][['dist']] <- joint.dist
+      object@misc[['Joint']][['alpha']] <- optimal
+      object@misc[['Joint']][['model']] <- model
+      object@misc[['Joint']][['contribution']][['rna']] <- p.rna
+      object@misc[['Joint']][['contribution']][['adt']] <- p.adt
     } else {
       object@misc[['Joint']] <- list()
       object@misc[['Joint']][['dist']] <- joint.dist
+      object@misc[['Joint']][['alpha']] <- optimal
+      object@misc[['Joint']][['model']] <- model
+      object@misc[['Joint']][['contribution']][['rna']] <- p.rna
+      object@misc[['Joint']][['contribution']][['adt']] <- p.adt
     }
   } else {
     stop("Please set model, 'LP' or 'L1'! \n")

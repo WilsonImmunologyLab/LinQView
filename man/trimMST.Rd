@@ -12,5 +12,5 @@ trimMST(mst = NULL, embedding = NULL)
 \item{embedding}{cell embedding}
 }
 \description{
-trim MST, remove leaf. This step create initial tree for principle graph method.
+trim MST, remove all 1) leaf nodes (nodes only connected to one node), 2) connecting nodes (nodes connected to two nodes after remove all leaf nodes).  This step create initial tree for principle graph method.
 }

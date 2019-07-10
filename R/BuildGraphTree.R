@@ -159,8 +159,6 @@ buildPG.Seurat <- function(
       joint.embedding <- object@reductions[[joint.reduction.name]]@cell.embeddings
 
       object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
-
-      object@misc[['jointPG']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "RNA") {
       # build PG for RNA data
       cat("build PG for RNA data ... \n")
@@ -607,7 +605,7 @@ orderCellsKNN <- function(
 
 #' trimMST
 #'
-#' trim MST, remove leaf. This step create initial tree for principle graph method.
+#' trim MST, remove all 1) leaf nodes (nodes only connected to one node), 2) connecting nodes (nodes connected to two nodes after remove all leaf nodes).  This step create initial tree for principle graph method.
 #'
 #' @param mst a MST
 #' @param embedding cell embedding
@@ -620,13 +618,53 @@ trimMST <- function(
 ) {
   mst.all.nodes <- c(mst[,1],mst[,2])
   mst.count <- table(mst.all.nodes)
-  mst.leaf.node <- which(mst.count == 1)
 
+  # remove all leaf nodes
+  mst.leaf.node <- mst.count[which(mst.count == 1)]
+  mst.leaf.node <- as.integer(names(mst.leaf.node))
   index.1 <- which(mst[,1] %in% mst.leaf.node)
   index.2 <- which(mst[,2] %in% mst.leaf.node)
   index <- unique(c(index.1,index.2))
   mst.trimmed <- mst[-index,]
-  embedding.trimmed <- embedding[-mst.leaf.node,]
+
+  # remove all twoway nodes
+  mst.all.nodes <- c(mst.trimmed[,1],mst.trimmed[,2])
+  mst.count <- table(mst.all.nodes)
+  mst.twoway.node <- mst.count[which(mst.count == 2)]
+  mst.twoway.node <- as.integer(names(mst.twoway.node))
+
+  while (length(which(mst.count == 2)) > 0) {
+    cur.twoway.node <- mst.count[which(mst.count == 2)]
+    cur.twoway.node <- as.integer(names(cur.twoway.node))
+
+    cur.twoway.node <- cur.twoway.node[1]
+
+    index.1 <- which(mst.trimmed[,1] %in% cur.twoway.node)
+    index.2 <- which(mst.trimmed[,2] %in% cur.twoway.node)
+    if(length(index.1) == 2) {
+      node1 <- mst.trimmed[index.1[1],2]
+      node2 <- mst.trimmed[index.1[2],2]
+    } else if (length(index.1) == 1) {
+      node1 <- mst.trimmed[index.1,2]
+      node2 <- mst.trimmed[index.2,1]
+    } else if (length(index.2) == 2){
+      node1 <- mst.trimmed[index.2[1],1]
+      node2 <- mst.trimmed[index.2[2],1]
+    } else {
+      stop("Error!")
+    }
+
+    index <- unique(c(index.1,index.2))
+    mst.trimmed <- mst.trimmed[-index,]
+
+    mst.trimmed <- rbind(mst.trimmed,c(node2, node1))
+
+    mst.all.nodes <- c(mst.trimmed[,1],mst.trimmed[,2])
+    mst.count <- table(mst.all.nodes)
+  }
+
+  # remove all leaf nodes and two-way nodes from embedding
+  embedding.trimmed <- embedding[-c(mst.leaf.node,mst.twoway.node),]
 
   # make a projection between old node numbering and new node numbering
   ori.names <- rownames(embedding)
