@@ -166,7 +166,7 @@ loadMatrix <- function(
 
 loadTable <- function(
   file = NULL,
-  header = header
+  header = TRUE
 ) {
   if(!is.null(file)) {
     table <- read.csv(file = file, header = header)
