@@ -1,4 +1,5 @@
 #' buildMST.Seurat
+#' @importFrom emstreeR mlpack_mst
 #'
 #' @rdname buildMST
 #' @export
@@ -49,6 +50,7 @@ buildMST.Seurat <- function(
 }
 
 #' buildMST.dist
+#' @importFrom emstreeR mlpack_mst
 #'
 #' @rdname buildMST
 #' @export
@@ -67,6 +69,7 @@ buildMST.dist <- function(
 
 
 #' buildMST.matrix
+#' @importFrom emstreeR mlpack_mst
 #'
 #' @rdname buildMST
 #' @export
@@ -84,6 +87,7 @@ buildMST.matrix <- function(
 }
 
 #' buildMST.default
+#' @importFrom emstreeR mlpack_mst
 #'
 #' @rdname buildMST
 #' @export
@@ -103,6 +107,7 @@ buildMST.default <- function(
 
 
 #' buildPG.Seurat
+#' @importFrom ElPiGraph.R computeElasticPrincipalTree
 #'
 #' @rdname buildPG
 #' @export
@@ -196,6 +201,7 @@ buildPG.Seurat <- function(
 
 
 #' buildPG.default
+#' @importFrom ElPiGraph.R computeElasticPrincipalTree
 #'
 #' @rdname buildPG
 #' @export
@@ -352,6 +358,7 @@ buildKNN.default <- function(
 #' fastKNN
 #'
 #' run fastKNN method
+#' @importFrom FastKNN k.nearest.neighbors
 #'
 #' @param dist dist object or matrix
 #' @param k k value for KNN graph
@@ -563,6 +570,8 @@ orderCellsMST <- function(
 #' @param data a KNN
 #' @param dist dist matrix the KNN calculated from
 #' @param root user choose the a root node
+#'
+#' @importFrom igraph graph_from_adjacency_matrix shortest.paths V
 #'
 #' @export
 

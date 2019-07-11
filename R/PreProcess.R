@@ -2,7 +2,9 @@
 #'
 #' @rdname softThreshold
 #' @method softThreshold Seurat
+#'
 #' @export
+#'
 softThreshold.Seurat <- function(
   object = NULL,
   sealing = 10
@@ -30,7 +32,9 @@ softThreshold.Seurat <- function(
 #'
 #' @rdname softThreshold
 #' @method softThreshold default
+#'
 #' @export
+#'
 softThreshold.default <- function(
   object = NULL,
   sealing = 10
@@ -60,6 +64,7 @@ softThreshold.default <- function(
 #' @param pattern the pattern (regular expression) of unwanted genes (e.g. '^IG[HKL]' for IgH, IgK, IgL genes). For more information about regular expression, please visit https://en.wikipedia.org/wiki/Regular_expression
 #'
 #' @export
+#'
 removeGene <- function(
   object = NULL,
   pattern = NULL

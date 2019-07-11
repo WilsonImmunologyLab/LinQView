@@ -4,7 +4,7 @@
 \alias{loadTable}
 \title{loadTable}
 \usage{
-loadTable(file = NULL, header = header)
+loadTable(file = NULL, header = TRUE)
 }
 \arguments{
 \item{file}{csv file}

@@ -1,112 +1,6 @@
-#' jointClusteing
-#' 1) Calculate cell-cell pairwise distances for RNA and ADT separately, then calculate the joint cell-cell pairwise distances
-#' 2) Run UMAP to project single cells into 2D map using cell-cell pairwise distances
-#' 3) Run clustering method (call Seurat function) to identify cell populations using cell-cell pairwise distances
-#' Since trajectory analysis require distances, this function is not recommended
-#'
-#' @param object Seurat object
-#' @param run_seprate also calculate cell-cell pairwise distances, umap and clustering for RNA and ADT separately
-#' @param reduction_method reduction method. Now only support UMAP. Will support t-SNE later...
-#' @param dims number of PCs used for RNA data. Default is top 20
-#' @param resolution resolution for 1) Joint, 2) RNA and 3) ADT clustering. if run_seprate = TRUE, user should provide all three solutions, otherwise will use default value 0.2 for all three datasets
-#' @param alpha use alpha to balence contributions from RNA and ADT in the joint distances. We suggest use 0.5 for initial analysis, and then adjust alpha for better results
-#'
-#' @export
-jointClusteing <- function(
-  object,
-  run_seprate = FALSE,
-  reduction_method = "UMAP",
-  dims = 20,
-  resolution = c(0.2,0.2,0.2),
-  alpha = 0.5
-) {
-  cat("Start working...\n")
-  if(isTRUE(run_seprate)) {
-    if(length(resolution < 3)) {
-      cat("You set run_seprate = TRUE, but didn't provide 3 resolutions, will use default value 0.2 for all three \n")
-      resolution = c(0.2,0.2,0.2)
-    }
-  }
-
-  # for RNA
-  cat("Start calculate cell-cell pairwise distances for RNA...\n")
-  DefaultAssay(object = object) <- "RNA"
-  # calculate cell-cell pairwise distances for RNA using top n PCs
-  rna.pca <- object@reductions[["pca"]]@cell.embeddings[,1:dims]
-  rna.dist <- dist(x = rna.pca)
-  object@misc[['rnaDist']] <- rna.dist
-
-  if(isTRUE(run_seprate)) {
-    rna.dist.matrix <- as.matrix(rna.dist)
-    # run umap with pairwise distances
-    my.umap.conf <- umap.defaults
-    my.umap.conf$input <- "dist"
-    my.umap <- umap(rna.dist.matrix,my.umap.conf,method = "umap-learn")
-    umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "rnaUMAP_", assay = "RNA")
-    object[["umap_rna"]] <- umap.reduction
-    rownames(object@reductions[["umap_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-    #colnames(object@reductions[["umap_rna"]]@cell.embeddings) <- c("UMAP1","UMAP2")
-
-    # identify cell clusters by calling Seurat function
-    object[["rna_snn"]] <- FindNeighbors(object = rna.dist)$snn
-    object <- FindClusters(object = object, resolution = resolution[2], graph.name = "rna_snn")
-    object[["rnaClusterID"]] <- Idents(object = object)
-  }
-
-  # for ADT
-  cat("Start calculate cell-cell pairwise distances for ADT...\n")
-  DefaultAssay(object = object) <- "ADT"
-  # calculate cell-cell pairwise distances for ADT directly using normalized data
-  adt.data <- t(as.matrix(GetAssayData(object, slot = "data")))
-  adt.dist <- dist(x = adt.data)
-  object@misc[['adtDist']] <- adt.dist
-
-  if(isTRUE(run_seprate)) {
-    adt.dist.matrix <- as.matrix(adt.dist)
-    # run umap with pairwise distances
-    my.umap.conf <- umap.defaults
-    my.umap.conf$input <- "dist"
-    my.umap <- umap(adt.dist.matrix, my.umap.conf, method = "umap-learn")
-    umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "adtUMAP_", assay = "ADT")
-    object[["umap_adt"]] <- umap.reduction
-    rownames(object@reductions[["umap_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-    #colnames(object@reductions[["umap_adt"]]@cell.embeddings) <- c("UMAP1","UMAP2")
-
-    # identify cell clusters by calling Seurat function
-    object[["adt_snn"]] <- FindNeighbors(object = adt.dist)$snn
-    object <- FindClusters(object = object, resolution = resolution[3], graph.name = "adt_snn")
-    object[["adtClusterID"]] <- Idents(object = object)
-  }
-
-  # Joint cell-cell distance
-  cat("Start calculate joint cell-cell pairwise distances... alpha = ",alpha,"\n")
-  # calculate scale factor to scale two distances into the same level
-  scale.factor <- sum(adt.dist)/sum(rna.dist)
-  joint.dist <- adt.dist*alpha + rna.dist*(1-alpha)*scale.factor
-  object@misc[['jointDist']] <- joint.dist
-
-  joint.dist.matrix <- as.matrix(joint.dist)
-  my.umap.conf <- umap.defaults
-  my.umap.conf$input <- "dist"
-  my.umap <- umap(joint.dist.matrix,my.umap.conf,method = "umap-learn")
-  umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout,key = "jointUMAP_",assay = "ADT")
-  object[["umap_joint"]] <- umap.reduction
-  rownames(object@reductions[["umap_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-  #colnames(object@reductions[["umap_joint"]]@cell.embeddings) <- c("UMAP1","UMAP2")
-
-  # identify cell clusters by calling Seurat function
-  object[["joint_snn"]] <- FindNeighbors(object = joint.dist)$snn
-  object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn")
-  object[["jointClusterID"]] <- Idents(object = object)
-
-  return(object)
-}
-
-
 #' clusteringFromDistance
 #'
 #' Run clustering method (implemented by Seurat package) to identify cell populations using cell-cell pairwise distances
-#'
 #'
 #' @param object Seurat object
 #' @param assay run UMAP for which assay, choose from RNA, ADT, Joint or All
@@ -228,6 +122,7 @@ clusteringFromDistance <- function(
 
 #' umapFromDistane.Seurat
 #'
+#' @importFrom umap umap umap.defaults
 #' @rdname umapFromDistane
 #' @export
 #'
@@ -340,6 +235,7 @@ umapFromDistane.Seurat <- function(
 
 #' tsneFromDistane.Seurat
 #'
+#' @importFrom Rtsne Rtsne
 #' @rdname tsneFromDistane
 #' @export
 #'
@@ -439,6 +335,7 @@ tsneFromDistane.Seurat <- function(
 
 #' tsneFromDistane.default
 #'
+#' @importFrom Rtsne Rtsne
 #' @rdname tsneFromDistane
 #' @export
 #'
@@ -470,6 +367,7 @@ tsneFromDistane.default <- function(
 
 #' umapFromDistane.default
 #'
+#' @importFrom umap umap umap.defaults
 #' @rdname umapFromDistane
 #' @export
 #'
@@ -520,6 +418,7 @@ umapFromDistane.default <- function(
 #' jointDistance.Seurat
 #'
 #' @rdname jointDistance
+#'
 #' @export
 jointDistance.Seurat <- function(
   object,
