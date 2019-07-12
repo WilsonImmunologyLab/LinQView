@@ -387,6 +387,7 @@ fastKNN <- function(
 #' @param method could be MST or KNN
 #' @param assay Assay name. Can be RNA, ADT or Joint
 #' @param root.cluster user choose the root cell cluster
+#' @param percentile.cutoff setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers
 #'
 #' @export
 #'
@@ -394,7 +395,8 @@ pseudoTime <- function(
   object,
   method = c("MST", "KNN"),
   assay = "Joint",
-  root.cluster = NULL
+  root.cluster = NULL,
+  percentile.cutoff = 0.99
 ) {
   if(!is.null(object)) {
     group.by <- object@misc[[assay]][['cluster']]
@@ -413,8 +415,8 @@ pseudoTime <- function(
       tree <- object@misc[[assay]][['mst']]
 
       # order cells
-      cat("calculating pseudotime for ",assay," data...",root.id,"\n")
-      time <- orderCellsMST(data = tree, root = root.id)
+      cat("calculating pseudotime for ",assay," data...\n")
+      time <- orderCellsMST(data = tree, root = root.id, cutoff = percentile.cutoff)
 
       time.name <- paste0(tolower(assay),"MSTtime")
       # save
@@ -426,7 +428,7 @@ pseudoTime <- function(
 
       # order cells
       cat("calculating pseudotime for ",assay," data...\n")
-      time <- orderCellsKNN(data = knn,dist = cur.dist,root = root.id)
+      time <- orderCellsKNN(data = knn,dist = cur.dist,root = root.id, cutoff = percentile.cutoff)
 
       time.name <- paste0(tolower(assay),"KNNtime")
       # save
@@ -479,12 +481,14 @@ findRootNodeID<- function(
 #'
 #' @param data a MST
 #' @param root user choose the a root node
+#' @param cutoff setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers
 #'
 #' @export
 
 orderCellsMST <- function(
   data = NULL,
-  root = NULL
+  root = NULL,
+  cutoff = 0.99
 ) {
   if(!is.null(data)) {
     origin1 <- data
@@ -554,7 +558,12 @@ orderCellsMST <- function(
     }
     # ugly code end
     result <- result[order(result$node),]
-    pseduotime <- result$distance/max(result$distance)
+
+    sort.dist <- sort(result$distance)
+    p95.dist <- sort.dist[floor(length(sort.dist)*cutoff)]
+
+    pseduotime <- result$distance/p95.dist
+    pseduotime[which(pseduotime > 1)] <- 1
 
     return(pseduotime)
   } else {
@@ -570,6 +579,7 @@ orderCellsMST <- function(
 #' @param data a KNN
 #' @param dist dist matrix the KNN calculated from
 #' @param root user choose the a root node
+#' @param cutoff setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers
 #'
 #' @importFrom igraph graph_from_adjacency_matrix shortest.paths V
 #'
@@ -578,7 +588,8 @@ orderCellsMST <- function(
 orderCellsKNN <- function(
   data = NULL,
   dist = NULL,
-  root = NULL
+  root = NULL,
+  cutoff = 0.99
 ) {
   if(!is.null(data)) {
     # generate a matrix from KNN
@@ -602,14 +613,17 @@ orderCellsKNN <- function(
     time <- as.numeric(t(short.dist))
 
     # scale to [0,1]
-    pseduotime <- time/max(time)
+    sort.dist <- sort(time)
+    p95.dist <- sort.dist[floor(length(sort.dist)*cutoff)]
+
+    pseduotime <- time/p95.dist
+    pseduotime[which(pseduotime > 1)] = 1
 
     return(pseduotime)
   } else {
     stop("Please provide KNN!")
   }
 }
-
 
 
 #' trimMST

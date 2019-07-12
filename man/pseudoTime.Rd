@@ -5,7 +5,7 @@
 \title{pseudoTime}
 \usage{
 pseudoTime(object, method = c("MST", "KNN"), assay = "Joint",
-  root.cluster = NULL)
+  root.cluster = NULL, percentile.cutoff = 0.99)
 }
 \arguments{
 \item{object}{Seurat object}
@@ -15,6 +15,8 @@ pseudoTime(object, method = c("MST", "KNN"), assay = "Joint",
 \item{assay}{Assay name. Can be RNA, ADT or Joint}
 
 \item{root.cluster}{user choose the root cell cluster}
+
+\item{percentile.cutoff}{setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers}
 }
 \description{
 calculate pseudotime using a given start point from MST or KNN.

@@ -4,12 +4,14 @@
 \alias{orderCellsMST}
 \title{orderCellsMST}
 \usage{
-orderCellsMST(data = NULL, root = NULL)
+orderCellsMST(data = NULL, root = NULL, cutoff = 0.99)
 }
 \arguments{
 \item{data}{a MST}
 
 \item{root}{user choose the a root node}
+
+\item{cutoff}{setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers}
 }
 \description{
 calculate pseduotime using a given start point from MST

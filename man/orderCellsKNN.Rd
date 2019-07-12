@@ -4,7 +4,7 @@
 \alias{orderCellsKNN}
 \title{orderCellsKNN}
 \usage{
-orderCellsKNN(data = NULL, dist = NULL, root = NULL)
+orderCellsKNN(data = NULL, dist = NULL, root = NULL, cutoff = 0.99)
 }
 \arguments{
 \item{data}{a KNN}
@@ -12,6 +12,8 @@ orderCellsKNN(data = NULL, dist = NULL, root = NULL)
 \item{dist}{dist matrix the KNN calculated from}
 
 \item{root}{user choose the a root node}
+
+\item{cutoff}{setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers}
 }
 \description{
 calculate pseduotime using a given start point from KNN
