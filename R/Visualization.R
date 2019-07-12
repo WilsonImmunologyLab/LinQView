@@ -589,7 +589,7 @@ heatMapPlot <- function(
         rna.feature <- rna.top10
         rna.feature <- unique(rna.feature$gene)
       } else {
-        rna.feature <- unique(rna.feature$gene)
+        rna.feature <- unique(rna.feature)
       }
 
       ph.adt <- DoHeatmap(object, features = adt.feature, assay = "ADT", angle = 90, group.by = group.by) + theme(axis.text.y = element_blank())

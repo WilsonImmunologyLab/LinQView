@@ -13,9 +13,9 @@ LazyData: true
 Depends:
     R (>= 3.4.0),
     Seurat (>= 3.0.0),
+    dplyr
 Imports: 
     cowplot (>= 0.9.0),
-    dplyr, 
     ggplot2 (>= 3.0.0), 
     FastKNN (>= 0.0.1), 
     reshape2 (>= 1.4.0), 
