@@ -1,7 +1,7 @@
 #' trajectoryPlotKNN
 #'
 #' plot cells with KNN method based trajectory
-#' @importFrom ggplot2 ggplot geom_path geom_point xlab ylab
+#' @importFrom ggplot2 ggplot geom_path geom_point aes labs  xlab ylab
 #'
 #' @param object seurat object
 #' @param assay Assay name
@@ -73,7 +73,7 @@ trajectoryPlotKNN <- function(
 #'
 #' plot cells with trajectory and pseudoTime
 #'
-#' @importFrom ggplot2 ggplot geom_path geom_point scale_color_gradientn
+#' @importFrom ggplot2 ggplot geom_path geom_point scale_color_gradientn aes labs xlab ylab
 #'
 #' @param object seurat object
 #' @param assay Assay name
@@ -154,7 +154,7 @@ pseudoTimePlotKNN <- function(
 #' @param line.size width of cell trajectory
 #' @param line.color color of cell trajectory
 #'
-#' @importFrom ggplot2 ggplot geom_path geom_point xlab ylab
+#' @importFrom ggplot2 ggplot geom_path geom_point aes labs xlab ylab
 #'
 #' @export
 trajectoryPlotMST <- function(
@@ -218,7 +218,7 @@ trajectoryPlotMST <- function(
 #' plot contribution of each modality on a N*N heatmap
 #'
 #' @importFrom scales hue_pal
-#' @importFrom ggplot2 annotation_raster coord_cartesian ggplot_build aes_string geom_tile scale_fill_manual labs
+#' @importFrom ggplot2 annotation_raster coord_cartesian ggplot_build aes_string geom_tile scale_fill_manual labs aes xlab ylab
 #' @importFrom reshape2 melt
 #'
 #' @param object seurat object
@@ -377,7 +377,7 @@ distHeatMap <- function(
 #'
 #' plot cells with trajectory and pseudoTime (MST based)
 #'
-#' @importFrom ggplot2 ggplot geom_point scale_color_gradientn geom_path xlab ylab
+#' @importFrom ggplot2 ggplot geom_point scale_color_gradientn geom_path xlab ylab aes
 #'
 #' @param object seurat object
 #' @param assay reduction name
@@ -447,7 +447,7 @@ pseudoTimePlotMST <- function(
 #'
 #' plot cell clusters with connections
 #'
-#' @importFrom ggplot2 ggplot geom_point geom_text geom_path
+#' @importFrom ggplot2 ggplot geom_point geom_text geom_path aes
 #'
 #' @param object seurat object
 #' @param assay Assay name
@@ -546,7 +546,7 @@ clusterConnectionPlot <- function(
 #'
 #' plot heatmap of ADT and selected RNA features of cell clusters
 #' @importFrom  cowplot plot_grid
-#' @importFrom ggplot2 annotate
+#' @importFrom ggplot2 annotate aes
 #'
 #' @param object seurat object
 #' @param adt.feature ADT features used for plot
@@ -966,7 +966,7 @@ plotInfo <- function (
 #' order all cells by the gene expression level of a specific gene, and explorer the gene expression profiles for highly corrolated genes or a group of user choosed genes
 #'
 #' @importFrom grDevices colorRampPalette
-#' @importFrom ggplot2 ggplot geom_line labs theme annotation_raster coord_cartesian ggplot_build aes_string geom_tile scale_fill_manual labs
+#' @importFrom ggplot2 ggplot geom_line theme annotation_raster coord_cartesian ggplot_build aes_string geom_tile scale_fill_manual labs aes arrow xlab ylab
 #' @importFrom scales hue_pal
 #' @importFrom cowplot plot_grid
 #'
@@ -976,6 +976,8 @@ plotInfo <- function (
 #' @param coef coef methods: spearman, pearson or kendall
 #' @param genes user's choice gene list
 #' @param topx number of genes that highly correlated with target gene
+#' @param group.by cell clusters
+#' @param colors colors for gene expression
 #'
 #' @export
 
@@ -985,7 +987,8 @@ highCorrelatedGenePlot <- function(
   coef = "spearman",
   genes = NULL,
   topx = 20,
-  group.by = "ident"
+  group.by = "ident",
+  colors = c("gray", "red")
 ) {
   if(!is.null(object)) {
     expression <- GetAssayData(object = object, slot = "scale.data", assay = "RNA")
@@ -1042,7 +1045,7 @@ highCorrelatedGenePlot <- function(
 
     # plot
     p_line <- ggplot(data=target.gene.express, aes(x=order,y=exp)) + geom_line(arrow = arrow(),color="red") + labs(x="", y = "Gene Expression") + theme(axis.text.x = element_blank())
-    colfunc <- colorRampPalette(c("gray", "red"))
+    colfunc <- colorRampPalette(colors)
     # expression
     plot <- SingleRasterMap(data = data, raster = TRUE, colors = colfunc(20),
                             disp.min = -2.5, disp.max = 2.5, feature.order = genes,
@@ -1074,8 +1077,8 @@ highCorrelatedGenePlot <- function(
 # @param limits A two-length numeric vector with the limits for colors on the plot
 # @param group.by A vector to group cells by, should be one grouping identity per cell
 #
-#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient
-#' scale_fill_gradientn theme element_blank labs geom_point guides guide_legend geom_tile
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes
+#' scale_fill_gradientn theme element_blank labs geom_point guides guide_legend geom_tile xlab ylab
 #
 SingleRasterMap <- function(
   data,

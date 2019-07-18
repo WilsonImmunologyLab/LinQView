@@ -5,7 +5,8 @@
 \title{highCorrelatedGenePlot}
 \usage{
 highCorrelatedGenePlot(object = NULL, target.gene = NULL,
-  coef = "spearman", genes = NULL, topx = 20, group.by = "ident")
+  coef = "spearman", genes = NULL, topx = 20, group.by = "ident",
+  colors = c("gray", "red"))
 }
 \arguments{
 \item{object}{Seurat object}
@@ -17,6 +18,10 @@ highCorrelatedGenePlot(object = NULL, target.gene = NULL,
 \item{genes}{user's choice gene list}
 
 \item{topx}{number of genes that highly correlated with target gene}
+
+\item{group.by}{cell clusters}
+
+\item{colors}{colors for gene expression}
 }
 \description{
 order all cells by the gene expression level of a specific gene, and explorer the gene expression profiles for highly corrolated genes or a group of user choosed genes
