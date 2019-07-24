@@ -1,3 +1,7 @@
+#' @importFrom Rcpp evalCpp
+#'
+NULL
+
 #' clusteringFromDistance
 #'
 #' Run clustering method (implemented by Seurat package) to identify cell populations using cell-cell pairwise distances
@@ -426,7 +430,9 @@ jointDistance.Seurat <- function(
   beta = 0.5,
   model = "LP",
   keep.rna = TRUE,
-  keep.adt = TRUE
+  keep.adt = TRUE,
+  sigmoid.n = 10,
+  sigmoid.k = 0.5
 ) {
   cat("Start working...\n")
 
@@ -445,8 +451,11 @@ jointDistance.Seurat <- function(
   cat("Start calculate cell-cell pairwise distances for ADT...\n")
   DefaultAssay(object = object) <- "ADT"
   # calculate cell-cell pairwise distances for ADT directly using normalized data
-  adt.data <- t(as.matrix(GetAssayData(object, slot = "data")))
-  adt.dist <- dist(x = adt.data)
+  adt.data <- as.matrix(GetAssayData(object, slot = "data"))
+  adt.dist <- scaleDistCpp(adt.data, sigmoid.n, sigmoid.k)
+  rownames(adt.dist) <- colnames(adt.data)
+  colnames(adt.dist) <- colnames(adt.data)
+  adt.dist <- as.dist(adt.dist)
 
   # Joint cell-cell distance
   cat("Start calculate joint cell-cell pairwise distances... \n")

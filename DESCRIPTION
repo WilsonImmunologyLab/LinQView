@@ -25,9 +25,11 @@ Imports:
     scales (>= 1.0.0), 
     SDMTools (>= 1.0.0), 
     Rtsne (>= 0.15), 
-    ElPiGraph.R
+    ElPiGraph.R,
+    Rcpp (>= 1.0.0)
 Suggests:
     loomR,
     testthat,
     hdf5r
+LinkingTo: Rcpp
 RoxygenNote: 6.1.1
