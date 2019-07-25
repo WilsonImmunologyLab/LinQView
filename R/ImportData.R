@@ -1,3 +1,7 @@
+#' @import Seurat
+#' @import dplyr
+NULL
+
 #' readDataFrom10X
 #'
 #' read data from 10X (cell ranger V3 output) by calling Seurat Read10X function
