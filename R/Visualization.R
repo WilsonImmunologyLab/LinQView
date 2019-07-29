@@ -59,7 +59,7 @@ trajectoryPlotKNN <- function(
     path <- data.frame(x=path.x,y=path.y)
     p <- ggplot(data, aes(x,y)) +
       geom_path(data = path,mapping = aes(x,y), colour = line.color, size = line.size) +
-      geom_point(aes(colour = cluster)) + xlab("dim1") + ylab("dim2")
+      geom_point(aes(colour = cluster)) + xlab("dim1") + ylab("dim2") + LightTheme()
 
     return(p)
   } else {
@@ -137,7 +137,7 @@ pseudoTimePlotKNN <- function(
     p <- ggplot(data, aes(x,y)) +
       geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
       geom_point(aes(colour = time)) +
-      scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) + xlab("dim1") + ylab("dim2")
+      scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) + xlab("dim1") + ylab("dim2") + LightTheme()
     return(p)
   } else {
     stop("Please provide a Seurat object!")
@@ -204,7 +204,7 @@ trajectoryPlotMST <- function(
     p <- ggplot(data, aes(x,y)) +
       geom_point(aes(colour = cluster)) +
       geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
-      xlab("dim1") + ylab("dim2")
+      xlab("dim1") + ylab("dim2") + LightTheme()
 
     return(p)
   } else {
@@ -434,7 +434,7 @@ pseudoTimePlotMST <- function(
     p <- ggplot(data, aes(x,y)) +
       geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) +
       geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
-      xlab("dim1") + ylab("dim2")
+      xlab("dim1") + ylab("dim2") + LightTheme()
 
     return(p)
   } else {
@@ -532,7 +532,7 @@ clusterConnectionPlot <- function(
     p <- ggplot(cluster.center,aes(x=dim1,y=dim2)) +
       geom_path(data = cluster.path, size= path.size*40*cluster.path$connection, colour = line.color) +
       geom_point(aes(colour = cluster), size = point.size*log2(cluster.center$cells)) +
-      geom_text(aes(label = cluster))
+      geom_text(aes(label = cluster)) + LightTheme()
 
     return(p)
   } else {
@@ -1176,3 +1176,55 @@ Melt <- function(x) {
     vals = unlist(x = x, use.names = FALSE)
   ))
 }
+
+# A seurat style theme for ggplot2 figures
+#
+# @return A molten data frame
+#
+
+LightTheme <- function(...) {
+  light.background <- element_rect(fill = 'white')
+  light.background.no.border <- element_rect(fill = 'white', size = 0)
+  font.margin <- 4
+  black.text <- element_text(
+    size = 20,
+    colour = 'black',
+    margin = margin(
+      t = font.margin,
+      r = font.margin,
+      b = font.margin,
+      l = font.margin
+    )
+  )
+  black.line <- element_line(colour = 'black', size = 1)
+  no.line <- element_line(size = 0)
+  #   Create the light theme
+  light.theme <- theme(
+    #   Set background colors
+    plot.background = light.background,
+    panel.background = light.background,
+    legend.background = light.background,
+    legend.box.background = light.background.no.border,
+    legend.key = light.background.no.border,
+    strip.background = element_rect(fill = 'grey50', colour = NA),
+    #   Set text colors
+    plot.title = black.text,
+    plot.subtitle = black.text,
+    axis.title = black.text,
+    axis.text = black.text,
+    legend.title = black.text,
+    legend.text = black.text,
+    strip.text = black.text,
+    #   Set line colors
+    axis.line.x = black.line,
+    axis.line.y = black.line,
+    panel.grid = no.line,
+    panel.grid.minor = no.line,
+    #   Validate the theme
+    validate = TRUE,
+    #   Extra parameters
+    ...
+  )
+  return(light.theme)
+}
+
