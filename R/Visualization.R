@@ -575,6 +575,9 @@ heatMapPlot <- function(
 ) {
   if(!is.null(object)) {
     if(!is.null(group.by)){
+      if((dim(object@assays[["ADT"]]@scale.data)[1] * dim(object@assays[["RNA"]]@scale.data)[1]) == 0) {
+        stop("Your data (RNA or ADT) have not been sclaed yet, Please run dataScaling() function first!\n")
+      }
       if(is.null(adt.feature)) {
         cat("User didn't provide ADT feature list, will use all!\n")
         adt.feature = rownames(object@assays[["ADT"]]@scale.data)
@@ -1065,21 +1068,21 @@ highCorrelatedGenePlot <- function(
   }
 }
 
-# A single heatmap from ggplot2 using geom_raster. Copy from Seurat
-#
-# @param data A matrix or data frame with data to plot
-# @param raster switch between geom_raster and geom_tile
-# @param cell.order ...
-# @param feature.order ...
-# @param cols A vector of colors to use
-# @param disp.min Minimum display value (all values below are clipped)
-# @param disp.max Maximum display value (all values above are clipped)
-# @param limits A two-length numeric vector with the limits for colors on the plot
-# @param group.by A vector to group cells by, should be one grouping identity per cell
-#
+#' A single heatmap from ggplot2 using geom_raster. Copy from Seurat
+#'
+#' @param data A matrix or data frame with data to plot
+#' @param raster switch between geom_raster and geom_tile
+#' @param cell.order ...
+#' @param feature.order ...
+#' @param cols A vector of colors to use
+#' @param disp.min Minimum display value (all values below are clipped)
+#' @param disp.max Maximum display value (all values above are clipped)
+#' @param limits A two-length numeric vector with the limits for colors on the plot
+#' @param group.by A vector to group cells by, should be one grouping identity per cell
+#'
 #' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes
 #' scale_fill_gradientn theme element_blank labs geom_point guides guide_legend geom_tile xlab ylab
-#
+#'
 SingleRasterMap <- function(
   data,
   raster = TRUE,
@@ -1124,16 +1127,16 @@ SingleRasterMap <- function(
   return(plot)
 }
 
-# Set a default value if an object is null
-#
-# @param lhs An object to set if it's null
-# @param rhs The value to provide if x is null
-#
-# @return rhs if lhs is null, else lhs
-#
-# @author Hadley Wickham
-# @references https://adv-r.hadley.nz/functions.html#missing-arguments
-#
+#' Set a default value if an object is null
+#'
+#' @param lhs An object to set if it's null
+#' @param rhs The value to provide if x is null
+#'
+#' @return rhs if lhs is null, else lhs
+#'
+#' @author Hadley Wickham
+#' @references https://adv-r.hadley.nz/functions.html#missing-arguments
+#'
 `%||%` <- function(lhs, rhs) {
   if (!is.null(x = lhs)) {
     return(lhs)
@@ -1142,16 +1145,16 @@ SingleRasterMap <- function(
   }
 }
 
-# Set a default value if an object is NOT null
-#
-# @param lhs An object to set if it's NOT null
-# @param rhs The value to provide if x is NOT null
-#
-# @return lhs if lhs is null, else rhs
-#
-# @author Hadley Wickham
-# @references https://adv-r.hadley.nz/functions.html#missing-arguments
-#
+#' Set a default value if an object is NOT null
+#'
+#' @param lhs An object to set if it's NOT null
+#' @param rhs The value to provide if x is NOT null
+#'
+#' @return lhs if lhs is null, else rhs
+#'
+#' @author Hadley Wickham
+#' @references https://adv-r.hadley.nz/functions.html#missing-arguments
+#'
 `%iff%` <- function(lhs, rhs) {
   if (!is.null(x = lhs)) {
     return(rhs)
@@ -1160,11 +1163,11 @@ SingleRasterMap <- function(
   }
 }
 
-# Melt a data frame
-#
-# @param x A data frame
-#
-# @return A molten data frame
+#' Melt a data frame
+#'
+#' @param x A data frame
+#'
+#' @return A molten data frame
 #
 Melt <- function(x) {
   if (!is.data.frame(x = x)) {
@@ -1177,10 +1180,11 @@ Melt <- function(x) {
   ))
 }
 
-# A seurat style theme for ggplot2 figures
-#
-# @return A molten data frame
-#
+#' A seurat style theme for ggplot2 figures
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme
+#' @return A theme object
+#'
 
 LightTheme <- function(...) {
   light.background <- element_rect(fill = 'white')
