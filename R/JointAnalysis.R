@@ -463,9 +463,11 @@ jointDistance.Seurat <- function(
     cat("Scale ADT and RNA distances into same level... \n")
     learning.rate <- 1
     low.threshold <- 1e-5
+    max.iter <- 10000
     X <- rna.dist + adt.dist
     Y <- adt.dist
-    optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
+    #optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
+    optimal <- gradientDescentCpp(X, Y, alpha = 0, learning.rate, low.threshold, max.iter)
     rna.dist.scale <- rna.dist*optimal
     adt.dist.scale <- adt.dist*(1-optimal)
 
@@ -553,9 +555,11 @@ jointDistance.default <- function(
     cat("Scale two distances into same level... \n")
     learning.rate <- 1
     low.threshold <- 1e-5
+    max.iter <- 10000
     X <- dist1 + dist2
     Y <- dist2
-    optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
+    #optimal <- gradientDescent(X, Y, alpha = 0, learning.rate, low.threshold)
+    optimal <- gradientDescentCpp(X, Y, alpha = 0, learning.rate, low.threshold, max.iter)
     dist1.scale <- dist1*optimal
     dist2.scale <- dist2*(1-optimal)
     if(model == "LP") {

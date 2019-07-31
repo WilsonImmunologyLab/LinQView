@@ -2,15 +2,6 @@
 #include <math.h>
 using namespace Rcpp;
 
-//' Multiply a number by two
-//'
-//' @param x A single integer.
-//' @export
-// [[Rcpp::export]]
-int timesTwo(int x) {
-  return x * 2;
-}
-
 //' Sigmoid function
 //'
 //' @param a A Numeric Vector. original distance
@@ -70,6 +61,71 @@ NumericMatrix scaleDistCpp(NumericMatrix data, double n, double k) {
     }
   }
   return temp_dist_matrix;
+}
+
+//' objective function for gradient descnet method
+//'
+//' @param alpha current value of parameter alpha.
+//' @param X distance vector.
+//' @param Y distance vector.
+//' @export
+// [[Rcpp::export]]
+double objectiveFunctionCpp(double alpha, NumericVector X, NumericVector Y) {
+  double n = X.size();
+  NumericVector Z = X * alpha - Y;
+  double diff = sum(pow(Z, 2))/(2*n);
+  return diff;
+}
+
+//' gradient function for gradient descnet method
+//'
+//' @param alpha current value of parameter alpha.
+//' @param X distance vector.
+//' @param Y distance vector.
+//' @export
+// [[Rcpp::export]]
+double gradientFunctionCpp(double alpha, NumericVector X, NumericVector Y) {
+  double n = X.size();
+  double diff = sum(X * alpha - Y)/n;
+  return diff;
+}
+
+//' gradient descnet method
+//'
+//' @param X distance vector.
+//' @param Y distance vector.
+//' @param alpha initial value of parameter alpha.
+//' @param learning_rate learning rate of GD method
+//' @param low_threshold the low threshold of GD
+//' @param max_iter maximum iterations
+//' @export
+// [[Rcpp::export]]
+double gradientDescentCpp(NumericVector X, NumericVector Y, double alpha, double learning_rate, double low_threshold, int max_iter) {
+  double gradient;
+  double alpha_last;
+  double n = X.size();
+  for(int iter = 1; iter < max_iter; iter++)
+  {
+    // calculate gradient
+    gradient = sum(X * alpha - Y)/n;
+
+    alpha_last = alpha;
+    alpha = alpha - learning_rate * gradient;
+    //Rcout << "iter =" << iter << "\talpha = " << alpha << "\talpha last = " << alpha_last << "\tgradient = " << gradient << "\tlearning rate = " << learning_rate << "\n";
+    if(abs(gradient) < low_threshold)
+    {
+      break;
+    }
+    if((alpha < 0)||(alpha > 1))
+    {
+      if(abs(alpha_last) < abs(alpha)) {
+        learning_rate = learning_rate/2;
+        alpha_last = 0;
+        alpha = 0;
+      }
+    }
+  }
+  return alpha;
 }
 
 

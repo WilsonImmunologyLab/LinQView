@@ -5,17 +5,6 @@
 
 using namespace Rcpp;
 
-// timesTwo
-int timesTwo(int x);
-RcppExport SEXP _LinQseq_timesTwo(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(timesTwo(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // Sigmoid
 NumericVector Sigmoid(NumericVector a, double n, double k);
 RcppExport SEXP _LinQseq_Sigmoid(SEXP aSEXP, SEXP nSEXP, SEXP kSEXP) {
@@ -53,12 +42,56 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// objectiveFunctionCpp
+double objectiveFunctionCpp(double alpha, NumericVector X, NumericVector Y);
+RcppExport SEXP _LinQseq_objectiveFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(objectiveFunctionCpp(alpha, X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gradientFunctionCpp
+double gradientFunctionCpp(double alpha, NumericVector X, NumericVector Y);
+RcppExport SEXP _LinQseq_gradientFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Y(YSEXP);
+    rcpp_result_gen = Rcpp::wrap(gradientFunctionCpp(alpha, X, Y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gradientDescentCpp
+double gradientDescentCpp(NumericVector X, NumericVector Y, double alpha, double learning_rate, double low_threshold, int max_iter);
+RcppExport SEXP _LinQseq_gradientDescentCpp(SEXP XSEXP, SEXP YSEXP, SEXP alphaSEXP, SEXP learning_rateSEXP, SEXP low_thresholdSEXP, SEXP max_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< double >::type learning_rate(learning_rateSEXP);
+    Rcpp::traits::input_parameter< double >::type low_threshold(low_thresholdSEXP);
+    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(gradientDescentCpp(X, Y, alpha, learning_rate, low_threshold, max_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_LinQseq_timesTwo", (DL_FUNC) &_LinQseq_timesTwo, 1},
     {"_LinQseq_Sigmoid", (DL_FUNC) &_LinQseq_Sigmoid, 3},
     {"_LinQseq_EucNorm", (DL_FUNC) &_LinQseq_EucNorm, 1},
     {"_LinQseq_scaleDistCpp", (DL_FUNC) &_LinQseq_scaleDistCpp, 3},
+    {"_LinQseq_objectiveFunctionCpp", (DL_FUNC) &_LinQseq_objectiveFunctionCpp, 3},
+    {"_LinQseq_gradientFunctionCpp", (DL_FUNC) &_LinQseq_gradientFunctionCpp, 3},
+    {"_LinQseq_gradientDescentCpp", (DL_FUNC) &_LinQseq_gradientDescentCpp, 6},
     {NULL, NULL, 0}
 };
 
