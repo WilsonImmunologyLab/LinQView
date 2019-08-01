@@ -1083,6 +1083,7 @@ highCorrelatedGenePlot <- function(
 #' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes
 #' scale_fill_gradientn theme element_blank labs geom_point guides guide_legend geom_tile xlab ylab
 #'
+
 SingleRasterMap <- function(
   data,
   raster = TRUE,
@@ -1137,6 +1138,7 @@ SingleRasterMap <- function(
 #' @author Hadley Wickham
 #' @references https://adv-r.hadley.nz/functions.html#missing-arguments
 #'
+
 `%||%` <- function(lhs, rhs) {
   if (!is.null(x = lhs)) {
     return(lhs)
@@ -1155,6 +1157,7 @@ SingleRasterMap <- function(
 #' @author Hadley Wickham
 #' @references https://adv-r.hadley.nz/functions.html#missing-arguments
 #'
+
 `%iff%` <- function(lhs, rhs) {
   if (!is.null(x = lhs)) {
     return(rhs)
@@ -1168,7 +1171,8 @@ SingleRasterMap <- function(
 #' @param x A data frame
 #'
 #' @return A molten data frame
-#
+#'
+
 Melt <- function(x) {
   if (!is.data.frame(x = x)) {
     x <- as.data.frame(x = x)
@@ -1185,6 +1189,7 @@ Melt <- function(x) {
 #' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme
 #' @return A theme object
 #'
+#' @export
 
 LightTheme <- function(...) {
   light.background <- element_rect(fill = 'white')
