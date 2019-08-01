@@ -1186,7 +1186,7 @@ Melt <- function(x) {
 
 #' A seurat style theme for ggplot2 figures
 #'
-#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin
 #' @return A theme object
 #'
 #' @export
