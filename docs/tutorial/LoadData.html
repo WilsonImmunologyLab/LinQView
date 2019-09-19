@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Lei Li leil@uchicago.edu" />
+
+<meta name="date" content="2019-07-11" />
+
+<title>LinQseq: joint analysis for multi-modal data</title>
+<link rel="icon" type="image/x-icon" href="../cookie.ico"/>
+
+
+
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+
+
+</head>
+
+<body>
+
+<div class="navbox">
+<ul class="nav">
+  <li><a href="../index.html">About</a></li>
+  <li><a href="../install.html">Install</a></li>
+  <li><a class="active" href="../tutorial.html">Tutorial</a></li>
+  <li><a href="../contact.html">Contact</a></li>
+</ul>
+</div>  
+
+<div class="row">
+<div class="col s12 m3">
+<div class="table cover">
+<div class="cover-card table-cell table-middle">
+<span class="author_name">Using joint analysis with multi-modal data: CITE-seq</span>
+<span class="author_bio mbm">Lei Li <a href="mailto:leil@uchicago.edu" class="email">leil@uchicago.edu</a></span>
+<span class="author_bio mbm">2019-07-11</span>
+</div>
+</div>
+</div>
+
+
+<div class="col s12 m9">
+<div class="post-listing">
+
+<div id="post">
+<article class="post-content">
+<div id="load-packages" class="section level1">
+<h1>Load packages</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(LinQseq)</a></code></pre></div>
+</div>
+<div id="load-data-from-10x-folder" class="section level1">
+<h1>Load data from 10X folder</h1>
+<p>For 10X data (cell ranger output), user can call readDataFrom10X() function to read expression data for both RNA and ADT at the same time.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># Load in the RNA UMI matrix</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">cbmc.data &lt;-<span class="st"> </span><span class="kw">readDataFrom10X</span>(<span class="dt">dir =</span> <span class="st">&quot;../1K/filtered_feature_bc_matrix/&quot;</span>)</a></code></pre></div>
+<p>Seurat object can be created from the list just read from 10X data</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># Create Seurat object</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">cbmc &lt;-<span class="st"> </span><span class="kw">createObject</span>(<span class="dt">data =</span> cbmc.data)</a></code></pre></div>
+</div>
+<div id="load-data-from-umi-matrix" class="section level1">
+<h1>Load data from UMI matrix</h1>
+<p>For UMI matrix, user should load them as txt files.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># Load in the RNA UMI matrix</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">cbmc.rna &lt;-<span class="st"> </span><span class="kw">as.sparse</span>(<span class="dt">x =</span> <span class="kw">read.csv</span>(<span class="dt">file =</span> <span class="st">&quot;../../Tutorial/data/GSE100866_CBMC_8K_13AB_10X-RNA_umi.csv.gz&quot;</span>, </a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>, <span class="dt">row.names =</span> <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">cbmc.rna &lt;-<span class="st"> </span><span class="kw">CollapseSpeciesExpressionMatrix</span>(<span class="dt">object =</span> cbmc.rna)</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co"># Load in the ADT UMI matrix</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">cbmc.adt &lt;-<span class="st"> </span><span class="kw">as.sparse</span>(<span class="dt">x =</span> <span class="kw">read.csv</span>(<span class="dt">file =</span> <span class="st">&quot;../../Tutorial/data/GSE100866_CBMC_8K_13AB_10X-ADT_umi.csv.gz&quot;</span>, </a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>, <span class="dt">row.names =</span> <span class="dv">1</span>))</a></code></pre></div>
+<p>For multiple mopdalities input, createObject() will only keep the cells appear in both modalities.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># Create Seurat object</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">cbmc &lt;-<span class="st"> </span><span class="kw">createObject</span>(<span class="dt">rna =</span> cbmc.rna, <span class="dt">adt =</span> cbmc.adt)</a></code></pre></div>
+</div>
+<div id="load-data-from-csv-file" class="section level1">
+<h1>Load data from CSV file</h1>
+<p>For CSV files, user can load data using loadMatrix() function</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># load UMI</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">rna.table &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;../ECCITEseq/GSE108313_RAW/GSM2895282_Hashtag-RNA.umi.txt.gz&quot;</span>, </a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">    <span class="dt">header =</span> <span class="ot">TRUE</span>, <span class="dt">row.names =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">rna.table &lt;-<span class="st"> </span><span class="kw">as.sparse</span>(rna.table)</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">rna.table &lt;-<span class="st"> </span><span class="kw">CollapseSpeciesExpressionMatrix</span>(<span class="dt">object =</span> rna.table)</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6"><span class="co"># load HTO</span></a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">hto.table &lt;-<span class="st"> </span><span class="kw">loadMatrix</span>(<span class="dt">file =</span> <span class="st">&quot;../ECCITEseq/GSE108313_RAW/GSM2895283_Hashtag-HTO-count.csv&quot;</span>, </a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">    <span class="dt">header =</span> <span class="ot">TRUE</span>, <span class="dt">row.names =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb7-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb7-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb7-11" data-line-number="11"><span class="co"># load ADT</span></a>
+<a class="sourceLine" id="cb7-12" data-line-number="12">adt.table &lt;-<span class="st"> </span><span class="kw">loadMatrix</span>(<span class="dt">file =</span> <span class="st">&quot;../ECCITEseq/GSE108313_RAW/GSM2895284_Hashtag-ADT2-count.csv&quot;</span>, </a>
+<a class="sourceLine" id="cb7-13" data-line-number="13">    <span class="dt">header =</span> <span class="ot">TRUE</span>, <span class="dt">row.names =</span> <span class="dv">1</span>)</a></code></pre></div>
+<p>For multiple mopdalities input, createObject() will only keep the cells appear in both modalities.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># Create Seurat object</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">pbmc &lt;-<span class="st"> </span><span class="kw">createObject</span>(<span class="dt">rna =</span> rna.table, <span class="dt">adt =</span> adt.table, <span class="dt">hto =</span> hto.table)</a></code></pre></div>
+</div>
+<div id="load-tcr-information-from-csv-file" class="section level1">
+<h1>load TCR information from CSV file</h1>
+<p>User can load TCR/BCR information from CSV file</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">tcr.ab &lt;-<span class="st"> </span><span class="kw">loadTable</span>(<span class="dt">file =</span> <span class="st">&quot;../ECCITEseq/GSE126310_RAW/GSM3596088_mx-TCRab.csv&quot;</span>, </a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">    )</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">tcr.gd &lt;-<span class="st"> </span><span class="kw">loadTable</span>(<span class="dt">file =</span> <span class="st">&quot;../ECCITEseq/GSE126310_RAW/GSM3596089_mx-TCRgd.csv&quot;</span>)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">tcr.ab[<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, ]</a></code></pre></div>
+<pre><code>##             barcode is_cell                   contig_id high_confidence
+## 1  AAACCTGCAAGTTGTC    True AAACCTGCAAGTTGTC-1_contig_1            True
+## 2  AAACGGGGTTAGAACA    True AAACGGGGTTAGAACA-1_contig_1            True
+## 3  AAAGCAAAGGGCATGT    True AAAGCAAAGGGCATGT-1_contig_1            True
+## 4  AAAGCAAGTATAGGGC    True AAAGCAAGTATAGGGC-1_contig_1            True
+## 5  AAAGCAAGTATAGGGC    True AAAGCAAGTATAGGGC-1_contig_2            True
+## 6  AAAGTAGAGAGAGCTC    True AAAGTAGAGAGAGCTC-1_contig_1            True
+## 7  AAATGCCAGCCGCCTA    True AAATGCCAGCCGCCTA-1_contig_1            True
+## 8  AAATGCCAGCCGCCTA    True AAATGCCAGCCGCCTA-1_contig_2            True
+## 9  AAATGCCAGCCGCCTA    True AAATGCCAGCCGCCTA-1_contig_3            True
+## 10 AAATGCCTCGAATGGG    True AAATGCCTCGAATGGG-1_contig_1            True
+##    length chain  v_gene d_gene  j_gene c_gene full_length productive
+## 1     493   TRB  TRBV15  TRBD1 TRBJ1-2  TRBC1        True       True
+## 2     562   TRB TRBV3-1  TRBD2 TRBJ2-3  TRBC2        True       True
+## 3     277   TRB  TRBV16   None    None  TRBC1       False       None
+## 4     416   TRB  TRBV16   None    None  TRBC1       False       None
+## 5     468 Multi  TRBV28   None    None  IGHG1       False       None
+## 6     527   TRB TRBV7-9  TRBD2 TRBJ2-3  TRBC2        True       True
+## 7     477   TRB  TRBV16   None    None  TRBC1       False       None
+## 8     568   TRB TRBV6-5  TRBD1 TRBJ2-7  TRBC2        True       True
+## 9     479   TRA   TRAV4   None  TRAJ35   TRAC        True       None
+## 10    498   TRB TRBV5-1  TRBD2 TRBJ1-1  TRBC1        True       True
+##                  cdr3
+## 1      CATSRETGGYGYTF
+## 2  CASSQNPTGLAVADTQYF
+## 3                None
+## 4                None
+## 5                None
+## 6   CASSLNEAGPATDTQYF
+## 7                None
+## 8   CASSLGQHRESYYEQYF
+## 9                None
+## 10      CASSVREDTEAFF
+##                                                   cdr3_nt reads umis
+## 1              TGTGCCACCAGCAGAGAGACAGGAGGGTATGGCTACACCTTC  1408    8
+## 2  TGTGCCAGCAGCCAAAACCCGACGGGACTAGCGGTCGCAGATACGCAGTATTTT  5877   16
+## 3                                                    None   308    1
+## 4                                                    None   753    4
+## 5                                                    None   196    1
+## 6     TGTGCCAGCAGCTTAAATGAGGCGGGACCCGCGACAGATACGCAGTATTTT  1243    6
+## 7                                                    None  1388    4
+## 8     TGTGCCAGCAGCCTCGGACAGCACCGAGAAAGTTACTACGAGCAGTACTTC   861    4
+## 9                                                    None   214    1
+## 10                TGCGCCAGCAGTGTGCGGGAGGACACTGAAGCTTTCTTT  1862    4
+##    raw_clonotype_id        raw_consensus_id
+## 1       clonotype17 clonotype17_consensus_1
+## 2       clonotype18 clonotype18_consensus_1
+## 3              None                    None
+## 4              None                    None
+## 5              None                    None
+## 6       clonotype19 clonotype19_consensus_1
+## 7        clonotype1                    None
+## 8        clonotype1  clonotype1_consensus_1
+## 9        clonotype1                    None
+## 10      clonotype20 clonotype20_consensus_2</code></pre>
+</div>
+</article>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

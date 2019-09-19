@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Lei Li leil@uchicago.edu" />
+
+<meta name="date" content="2019-07-02" />
+
+<title>LinQ-seq: joint analysis for multi-modal data</title>
+<link rel="icon" type="image/x-icon" href="cookie.ico"/>
+
+
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+</head>
+
+<body>
+
+<div class="navbox">
+  <ul class="nav">
+    <li><a class="active" href="index.html">About</a></li>
+    <li><a href="install.html">Install</a></li>
+    <li><a href="tutorial.html">Tutorial</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</div>
+
+
+
+
+<div class="row">
+  
+
+  <div class="col s12 m3">
+
+    <div class="table cover">
+
+      <div class="cover-card table-cell table-middle">
+        <div class="center">
+          <img class="logo" src="img/linklogo.png">
+        </div>
+        
+        <span class="author_name">LinQ-seq: Joint analysis for multi-modal data</span>
+        <span class="author_bio">Wilson Lab</span>
+        <span class="author_job">The University of Chicago </span>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col s12 m9">
+    <div class="post-listing">
+      <div id="post">
+        <h1>Integrating multiple modalities for better cell heterogeneity identification</h1>
+        <p>
+          “LinQ-seq” was designed as a joint single cell analysis strategy that could integrate information from both transcriptome and surface protein markers for cell heterogeneity identification. The system structure was inspried by <a href="https://satijalab.org/seurat/">Seurat</a>, <a href="https://github.com/theislab/paga">PAGA</a> and other conventional scRNA-seq tools. To be competiable with Seurat (since they already did amazing work on pre-processing, clustering, batch effects correction and differential expression analysis) and avoid redundant work, we adopted data structure design and integrated some pre-process steps from Seurat V3. Users can use "LinQ-seq" for modality integration, trajectory analysis and "Seurat" for batch effects correction, differential expression analysis on the same dataset without any data conversion. 
+        </p>
+        <p>
+          We use cell-cell distances to represent variations of gene expression in each modality. Cell-cell distances from different modalities could be scaled into same level by a linear transformation, and then being integrated into one distance matrix, which will be able to represent variations of gene expression from multiple modalities. We introduced L-infinite norm model for the distance integration. Since the variations among cells were represented by a cell-cell distance matrix, “LinQ-seq” is compatible with all clustering methods (e.g. k-means, Hierarchical clustering, community detection, Louvain, FCM) and dimension reduction methods (e.g. MDS, t-SNE, UMAP). After cell embedding and clustering were constructed, modalities in genotype/phenotype property group could be applied to the result for biological patterns identification and enrichment analysis. Furthermore, based on the joint cell embedding and clustering, we also implemented cell developmental trajectory construction and pseudotime estimation methods for multi-modal data trajectory analysis. We believe that this method could help to identify cell heterogeneity more accurately and also benefit further downstream analysis. 
+        </p>
+        <p>
+
+        </p>
+        <img src="img/Workflow.png">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Lei Li leil@uchicago.edu" />
+
+<meta name="date" content="2019-07-02" />
+
+<title>LinQ-seq: joint analysis for multi-modal data</title>
+<link rel="icon" type="image/x-icon" href="cookie.ico"/>
+
+
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+</head>
+
+<body>
+
+
+<div class="navbox">
+<ul class="nav">
+  <li><a href="index.html">About</a></li>
+  <li><a href="install.html">Install</a></li>
+  <li><a class="active" href="tutorial.html">Tutorial</a></li>
+  <li><a href="contact.html">Contact</a></li>
+</ul>
+</div>  
+
+<div class="row">
+
+  <div class="col s12 m3">
+    <div class="table cover">
+      <div class="cover-card table-cell table-middle">
+        <div class="center">
+          <img class="logo" src="img/linklogo.png" >
+        </div>
+        <span class="author_name">LinQ-seq: Joint analysis for multi-modal data</span>
+        <span class="author_bio">Wilson Lab</span>
+        <span class="author_job">The University of Chicago </span>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col s12 m9">
+    <div class="post-listing">
+      <div id="post">
+
+        <h1><a href="tutorial/LoadData.html">Load data from multiple resources</a></h1>
+        <div class="bigbox">
+          <div class="box">
+            <p>
+              Users are allowed to load data from multiple resources. We adopted data object strcuture desgin and pre-processing steps from Seurat V3. Users famliar with Seurat can use Seurat functions to load data and create objects. We also provided some functions for data loading. 
+            </p>
+          </div>
+          <div class="box">
+            <a href="tutorial/LoadData.html"><img src="img/LoadData.png"></a>
+          </div>
+        </div>
+
+        <h1><a href="tutorial/10X10K.html">Joint analysis achieves better cell clustering by integrating both transcriptome and surface protein signals</a></h1>
+        <div class="bigbox">
+          <div class="box">
+            <p>
+              Using “LinQ-seq”, we are able to perform joint analysis for multi-modal datasets and compare the results with transcriptome or surface protein alone. We performed joint analysis on several public multi-modal datasets (see method section for details). Results showed joint analysis achieves better clustering quality and deeper resolutions. 
+            </p>
+          </div>
+          <div class="box">
+            <a href="tutorial/10X10K.html"><img src="img/Figure2.png"></a>
+          </div>
+        </div>
+        
+        <h1><a href="tutorial/DatasetIntegration.html">Batch effects correction for multi-modal data with joint analysis </a></h1>
+        <div class="bigbox">
+          <div class="box">
+            <p>
+              To evaluate the compatibility of “LinQ-seq” with conventional computational batch effects correction methods, we performed joint analysis using “LinQ-seq” on two datasets of PBMCs from healthy donors (called PBMC 1K and PBMC 10K). We performed joint analysis on two independent runs: one with batch effects correction and one without as control. Here, we use Seurat V3 to remove the batch effects. 
+            </p>
+          </div>
+          <div class="box">
+            <a href="tutorial/DatasetIntegration.html"><img src="img/Figure3.png"></a>
+          </div>
+        </div>
+<!--
+        <h1><a href="tutorial/HashTag.html">Batch effects correction for multi-modal data with joint analysis (Experimental methods) </a></h1>
+        <div class="bigbox">
+          <div class="box">
+            <p>
+              To evaluate the compatibility of “LinQ-seq” with conventional computational batch effects correction methods, we performed joint analysis using “LinQ-seq” on two datasets of PBMCs from healthy donors (called PBMC 1K and PBMC 10K). We performed joint analysis on two independent runs: one with batch effects correction and one without as control. 
+            </p>
+          </div>
+          <div class="box">
+            <a href="tutorial/HashTag.html"><img src="img/Figure4.png"></a>
+          </div>
+        </div>
+-->       
+
+        <h1><a href="tutorial/10X1K.html">Construct cell trajectory and estimate pseduotime based on cell embedding and clustering from joint analysis (MST+EPG method) </a></h1>
+        <div class="bigbox">
+          <div class="box">
+            <p>
+              Based on joint analysis, we also can expend trajectory construction and pesudotime estimation from transcriptome-based to multi-modal data using both transcriptome and surface protein signals. 
+            </p>
+          </div>
+          <div class="box">
+            <a href="tutorial/10X1K.html"><img src="img/Figure5.png"></a>
+          </div>
+        </div>
+
+        <h1><a href="tutorial/CiteSeq.html">Construct cell trajectory and estimate pseduotime based on cell embedding and clustering from joint analysis (kNN method) </a></h1>
+        <div class="bigbox">
+          <div class="box">
+            <p>
+              Based on joint analysis, we also can expend trajectory construction and pesudotime estimation from transcriptome-based to multi-modal data using both transcriptome and surface protein signals. 
+            </p>
+          </div>
+          <div class="box">
+            <a href="tutorial/CiteSeq.html"><img src="img/Figure6.png"></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

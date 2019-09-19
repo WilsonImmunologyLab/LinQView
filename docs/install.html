@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Lei Li leil@uchicago.edu" />
+
+<meta name="date" content="2019-07-02" />
+
+<title>LinQ-seq: joint analysis for multi-modal data</title>
+<link rel="icon" type="image/x-icon" href="cookie.ico"/>
+
+
+
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+<script type="text/javascript"> 
+function showorhide(id)  
+{  
+  var mychar = document.getElementById(id).style.display;
+  if (mychar == "none") 
+  {
+    document.getElementById(id).style.display ="block";  
+  }
+  else
+  {
+    document.getElementById(id).style.display ="none";
+  }
+}
+</script> 
+
+<style type="text/css">
+  div.MysourceCode {
+    background-color: black; 
+    font-family: "Lucida Console", Monaco, monospace; 
+    color: #66FF00; 
+    font-weight: bold;
+    font-size: 15px;
+    border:2px solid #a1a1a1;
+    border-radius:10px;
+  }
+  div.MysourceCode p {
+    margin-left: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+</style>
+
+</head>
+
+<body>
+
+
+<div class="navbox">
+<ul class="nav">
+  <li><a href="index.html">About</a></li>
+  <li><a class="active" href="install.html">Install</a></li>
+  <li><a href="tutorial.html">Tutorial</a></li>
+  <li><a href="contact.html">Contact</a></li>
+</ul>
+</div>
+
+<div class="row">
+
+  <div class="col s12 m3">
+    <div class="table cover">
+      <div class="cover-card table-cell table-middle">
+        <div class="center">
+          <img class="logo" src="img/linklogo.png" >
+        </div>
+        <span class="author_name">LinQ-seq: Joint analysis for multi-modal data</span>
+        <span class="author_bio">Wilson Lab</span>
+        <span class="author_job">The University of Chicago </span>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col s12 m9">
+    <div class="post-listing">
+      <div id="post">
+        <h1>Installation Instructions</h1>
+        <h3>Essentials</h3>
+        <ul>
+          <li>Install <a href="https://www.r-project.org/" target="_blank">R</a>, version 3.4 or greater</li>
+          <li>(Optional) Highly recommend install <a href="https://www.rstudio.com/" target="_blank">RStudio</a> </li>
+          <li>Install <a href="https://github.com/" target="_blank">LinQ-seq</a> from github</li>
+          <div class="MysourceCode">
+            <p>if (!require("devtools")) {install.packages("devtools")}</p>
+            <p>devtools::install_github("wilsonlab/linqseq",dependencies = TRUE)</p>
+          </div>
+        </ul>
+        <h3>Dependencies</h3>
+        
+        <span>Most of dependencies can be installed when install LinQ-seq, some packages may need to be installed seprately. Users can copy the all-in-one command collections below:</span>
+        <ul>
+          <div class="MysourceCode">
+            <p>if(!require("Seurat")) install.packages("Seurat")</p>
+            <p>if(!require("dplyr")) install.packages("dplyr")</p>
+            <p>if(!require("ggplot2")) install.packages("ggplot2")</p>
+            <p>if(!require("cowplot")) install.packages("cowplot")</p>
+            <p>if(!require("FastKNN")) install.packages("FastKNN")</p>
+            <p>if(!require("reshape2")) install.packages("reshape2")</p>
+            <p>if(!require("umap")) install.packages("umap")</p>
+            <p>if(!require("emstreeR")) install.packages("emstreeR")</p>
+            <p>if(!require("scales")) install.packages("scales")</p>
+            <p>if(!require("Rtsne")) install.packages("Rtsne")</p>
+            <p>if(!require("Rcpp")) install.packages("Rcpp")</p>
+            <p>if (!require("devtools")) {install.packages("devtools")}</p>
+            <p>devtools::install_github("Albluca/distutils")</p>
+            <p>devtools::install_github("Albluca/ElPiGraph.R")</p>
+          </div>
+        </ul>
+        <br>
+        <span onclick="showorhide('con')"><font color="red">Click</font> to show a detailed list of all dependencies and installation tips.</span>
+        <ul id="con" style="display: none;">
+          <li>Install <a href="https://satijalab.org/seurat/install.html" target="_blank">Seurat</a>, version 3.0.0 or greater</li>
+          <div class="MysourceCode">
+            <p>install.packages("Seurat")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/dplyr/ target="_blank"">dplyr</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("dplyr")</p>
+          </div>
+          <li>Install <a href="https://ggplot2.tidyverse.org/" target="_blank">ggplot2</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("ggplot2")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/cowplot/" target="_blank">cowplot</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("cowplot")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/FastKNN/" target="_blank">FastKNN</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("FastKNN")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/reshape2/" target="_blank">reshape2</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("reshape2")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/umap/" target="_blank">umap</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("umap")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/emstreeR/index.html" target="_blank">emstreeR</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("emstreeR")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/scales/" target="_blank">scales</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("scales")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/Rtsne/" target="_blank">Rtsne</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("Rtsne")</p>
+          </div>
+          <li>Install <a href="https://github.com/Albluca/ElPiGraph.R" target="_blank">ElPiGraph.R</a></li>
+          <div class="MysourceCode">
+            <p>if (!require("devtools")) {install.packages("devtools")}</p>
+            <p>devtools::install_github("Albluca/distutils")</p>
+            <p>devtools::install_github("Albluca/ElPiGraph.R")</p>
+          </div>
+          <li>Install <a href="https://cran.r-project.org/web/packages/Rcpp/index.html" target="_blank">Rcpp</a></li>
+          <div class="MysourceCode">
+            <p>install.packages("Rcpp")</p>
+          </div>
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
