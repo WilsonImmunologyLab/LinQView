@@ -8,7 +8,7 @@
 \usage{
 \method{jointDistance}{Seurat}(object, dims = 20, beta = 0.5,
   model = "LP", keep.rna = TRUE, keep.adt = TRUE, sigmoid.n = 10,
-  sigmoid.k = 0.5)
+  sigmoid.k = 0.5, precision.mode = TRUE, c = NULL)
 
 \method{jointDistance}{default}(object, dist1 = NULL, dist2 = NULL,
   beta = 1, model = "LP")

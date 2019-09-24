@@ -63,6 +63,50 @@ NumericMatrix scaleDistCpp(NumericMatrix data, double n, double k) {
   return temp_dist_matrix;
 }
 
+
+//' Scale distance using a sigmoid function. The main purpose is to reduce the effects of small distances (those distances are most likely from random noise of ADT signals)
+//' This is an updated function. This function will distingrish distances between negative and positive from those within negative/positive groups. Only distances within negative/positive groups will be scaled.
+//' This function may take longer time than normal one...
+//'
+//' @param data data matrix of ADT.
+//' @param n n for Sigmoid function.
+//' @param k k for Sigmoid function.
+//' @param c c is a vector that contains constant value that seaprate negative and positive for each ADT feature. By default, c = 1,1,...,1
+//' @export
+// [[Rcpp::export]]
+NumericMatrix scaleDistUpdateCpp(NumericMatrix data, double n, double k, NumericVector c) {
+  int dim_cell = data.ncol();
+  NumericMatrix temp_dist_matrix(dim_cell, dim_cell);
+
+  for(int i = 0; i < dim_cell - 1; i++)
+  {
+    for(int j = i + 1; j < dim_cell; j++)
+    {
+      NumericVector d1 = data( _ , i);
+      NumericVector d2 = data( _ , j);
+      NumericVector diff = abs(d1 - d2);
+      NumericVector diff_scale = Sigmoid(diff,n,k);
+
+      NumericVector min_value = pmin(d1,d2);
+      NumericVector max_value = pmax(d1,d2);
+      for(int m = 0; m < c.size(); m++)
+      {
+        if((min_value[m] < c[m]) && (max_value[m] > c[m]))
+        {
+          diff_scale[m] = diff[m];
+        }
+      }
+
+      double value = EucNorm(diff_scale);
+      temp_dist_matrix(i,j) = value;
+      temp_dist_matrix(j,i) = value;
+    }
+  }
+  return temp_dist_matrix;
+}
+
+
+
 //' objective function for gradient descnet method
 //'
 //' @param alpha current value of parameter alpha.

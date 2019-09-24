@@ -42,6 +42,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scaleDistUpdateCpp
+NumericMatrix scaleDistUpdateCpp(NumericMatrix data, double n, double k, NumericVector c);
+RcppExport SEXP _LinQseq_scaleDistUpdateCpp(SEXP dataSEXP, SEXP nSEXP, SEXP kSEXP, SEXP cSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type c(cSEXP);
+    rcpp_result_gen = Rcpp::wrap(scaleDistUpdateCpp(data, n, k, c));
+    return rcpp_result_gen;
+END_RCPP
+}
 // objectiveFunctionCpp
 double objectiveFunctionCpp(double alpha, NumericVector X, NumericVector Y);
 RcppExport SEXP _LinQseq_objectiveFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
@@ -89,6 +103,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_LinQseq_Sigmoid", (DL_FUNC) &_LinQseq_Sigmoid, 3},
     {"_LinQseq_EucNorm", (DL_FUNC) &_LinQseq_EucNorm, 1},
     {"_LinQseq_scaleDistCpp", (DL_FUNC) &_LinQseq_scaleDistCpp, 3},
+    {"_LinQseq_scaleDistUpdateCpp", (DL_FUNC) &_LinQseq_scaleDistUpdateCpp, 4},
     {"_LinQseq_objectiveFunctionCpp", (DL_FUNC) &_LinQseq_objectiveFunctionCpp, 3},
     {"_LinQseq_gradientFunctionCpp", (DL_FUNC) &_LinQseq_gradientFunctionCpp, 3},
     {"_LinQseq_gradientDescentCpp", (DL_FUNC) &_LinQseq_gradientDescentCpp, 6},

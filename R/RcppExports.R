@@ -29,6 +29,19 @@ scaleDistCpp <- function(data, n, k) {
     .Call(`_LinQseq_scaleDistCpp`, data, n, k)
 }
 
+#' Scale distance using a sigmoid function. The main purpose is to reduce the effects of small distances (those distances are most likely from random noise of ADT signals)
+#' This is an updated function. This function will distingrish distances between negative and positive from those within negative/positive groups. Only distances within negative/positive groups will be scaled.
+#' This function may take longer time than normal one...
+#'
+#' @param data data matrix of ADT.
+#' @param n n for Sigmoid function.
+#' @param k k for Sigmoid function.
+#' @param c c is a vector that contains constant value that seaprate negative and positive for each ADT feature. By default, c = 1,1,...,1
+#' @export
+scaleDistUpdateCpp <- function(data, n, k, c) {
+    .Call(`_LinQseq_scaleDistUpdateCpp`, data, n, k, c)
+}
+
 #' objective function for gradient descnet method
 #'
 #' @param alpha current value of parameter alpha.

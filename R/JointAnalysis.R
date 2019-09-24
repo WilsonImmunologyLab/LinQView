@@ -432,9 +432,22 @@ jointDistance.Seurat <- function(
   keep.rna = TRUE,
   keep.adt = TRUE,
   sigmoid.n = 10,
-  sigmoid.k = 0.5
+  sigmoid.k = 0.5,
+  precision.mode = TRUE,
+  c = NULL
 ) {
   cat("Start working...\n")
+
+  if(isTRUE(precision.mode)){
+    adt.num <- dim(object@assays[["ADT"]]@data)[1]
+    if(is.null(c)){
+      c <- rep(1,adt.num)
+    } else {
+      if(length(c) != adt.num){
+        stop("Number of C should be equal to the number of ADT features! Please check your input!")
+      }
+    }
+  }
 
   # for RNA
   cat("Start calculate cell-cell pairwise distances for RNA...\n")
@@ -452,7 +465,12 @@ jointDistance.Seurat <- function(
   DefaultAssay(object = object) <- "ADT"
   # calculate cell-cell pairwise distances for ADT directly using normalized data
   adt.data <- as.matrix(GetAssayData(object, slot = "data"))
-  adt.dist <- scaleDistCpp(adt.data, sigmoid.n, sigmoid.k)
+
+  if(isTRUE(precision.mode)){
+    adt.dist <- scaleDistUpdateCpp(adt.data, sigmoid.n, sigmoid.k, c)
+  } else {
+    adt.dist <- scaleDistCpp(adt.data, sigmoid.n, sigmoid.k)
+  }
   rownames(adt.dist) <- colnames(adt.data)
   colnames(adt.dist) <- colnames(adt.data)
   adt.dist <- as.dist(adt.dist)
