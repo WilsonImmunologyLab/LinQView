@@ -11,17 +11,20 @@ softThreshold.Seurat <- function(
 ) {
   if(!is.null(object)){
     # determine the soft threshold.
-    if(exists(object$percent.mt)){
-      mito <- object$percent.mt
-      mito <- sort(mito)
-      mito.cut <- mito[floor(length(mito)*0.95)]
-      if(mito.cut > sealing){
-        mito.cut = sealing
-      }
-      return(mito.cut)
-    }else{
-      stop("There is no percent.mt information in your Seurat object! Please run PercentageFeatureSet function in Seurat, or create your object use createObject function first!")
-    }
+    out <- tryCatch(
+      {
+        mito <- object$percent.mt
+        mito <- sort(mito)
+        mito.cut <- mito[floor(length(mito)*0.95)]
+        if(mito.cut > sealing){
+          mito.cut = sealing
+        }
+        return(mito.cut)
+      },
+      error=function(e){
+        stop("There is no percent.mt information in your Seurat object! Please run PercentageFeatureSet function in Seurat, or create your object use createObject function first!")
+        }
+      )
   } else {
     stop("Please provide Seurat object!")
   }
