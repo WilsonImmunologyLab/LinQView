@@ -6,7 +6,7 @@
 \usage{
 generateGridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
   darkTheme = TRUE, legend = TRUE, cluster.label = TRUE,
-  cluster.lable.size = 5)
+  cluster.lable.size = 5, reduction = "tsne")
 }
 \arguments{
 \item{object}{seurat object}
@@ -20,6 +20,8 @@ generateGridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
 \item{cluster.label}{swicth for showing cluster label on each sub plot (TRUE or FALSE)}
 
 \item{cluster.lable.size}{font size for cluster labels}
+
+\item{reduction}{reduction for all assays. Choose from tsne or umap}
 }
 \description{
 generate a grid dim plot object list for RNA, ADT and joint analysis

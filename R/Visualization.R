@@ -766,6 +766,7 @@ gridDimPlot <- function(
 #' @param legend switch for showing legend in each sub plot (TRUE or FALSE)
 #' @param cluster.label swicth for showing cluster label on each sub plot (TRUE or FALSE)
 #' @param cluster.lable.size font size for cluster labels
+#' @param reduction reduction for all assays. Choose from tsne or umap
 #'
 #' @export
 
@@ -775,7 +776,8 @@ generateGridDimPlot <- function(
   darkTheme = TRUE,
   legend = TRUE,
   cluster.label = TRUE,
-  cluster.lable.size = 5
+  cluster.lable.size = 5,
+  reduction = "tsne"
 ) {
   if(!is.null(object)) {
     p.list <- list()
@@ -784,7 +786,8 @@ generateGridDimPlot <- function(
       # dim plots for assay.x
       for (assay.y in assays) {
         cur.cluster <- object@misc[[assay.y]][['cluster']]
-        cur.map <- object@misc[[assay.x]][['reduction']]
+        #cur.map <- object@misc[[assay.x]][['reduction']]
+        cur.map <- paste0(reduction,'_',tolower(assay.x))
         reductionType <- gsub(pattern = "_.+", replacement = "", x = cur.map)
         cur.p <- DimPlot(object = object, group.by = cur.cluster,reduction = cur.map) + xlab(paste0(reductionType," 1")) + ylab(paste0(reductionType," 2"))
         if(!isTRUE(legend)) {
