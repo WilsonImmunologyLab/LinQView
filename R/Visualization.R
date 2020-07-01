@@ -620,7 +620,7 @@ heatMapPlot <- function(
       }
 
       if(isTRUE(rna.label)) {
-        rna.feature <- levels(ph.rna[["data"]][["Feature"]])
+        rna.feature <- levels(ph.rna[[1]][["data"]][["Feature"]])
         if(!is.null(label.hjust)) {
           if((label.hjust > 1) || (label.hjust < 0)) {
             cat("label.hjust only can be number between 0 and 1, will use default value 0.1!\n")
@@ -1201,7 +1201,7 @@ LightTheme <- function(...) {
   light.background.no.border <- element_rect(fill = 'white', size = 0)
   font.margin <- 4
   black.text <- element_text(
-    size = 20,
+    size = 12,
     colour = 'black',
     margin = margin(
       t = font.margin,
