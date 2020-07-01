@@ -241,7 +241,7 @@ distHeatMap <- function(
   group.by = NULL,
   colors = c("yellow","green"),
   group.bar = TRUE,
-  label = TRUE,
+  label = FALSE,
   size = 5.5,
   hjust = 0,
   angle = 90,
@@ -343,7 +343,8 @@ distHeatMap <- function(
       # cluster labels
       if(label) {
         x.max <- max(pbuild$layout$panel_params[[1]]$x.range)
-        x.divs <- pbuild$layout$panel_params[[1]]$x.major
+        #x.divs <- pbuild$layout$panel_params[[1]]$x.major
+        x.divs <- c(1:length(group.use))/length(group.use)
         x <- data.frame(group = sort(x = group.use), x = x.divs)
         label.x.pos <- tapply(X = x$x, INDEX = x$group, FUN = median) * x.max
         label.x.pos <- data.frame(group = names(x = label.x.pos), label.x.pos)
@@ -617,8 +618,9 @@ heatMapPlot <- function(
       if(!isTRUE(legend)) {
         ph.rna <- ph.rna + NoLegend()
       }
-      rna.feature <- levels(ph.rna[["data"]][["Feature"]])
+
       if(isTRUE(rna.label)) {
+        rna.feature <- levels(ph.rna[["data"]][["Feature"]])
         if(!is.null(label.hjust)) {
           if((label.hjust > 1) || (label.hjust < 0)) {
             cat("label.hjust only can be number between 0 and 1, will use default value 0.1!\n")
