@@ -1,0 +1,175 @@
+---
+title: "Using joint analysis with multi-modal data: CITE-seq"
+author: Lei Li <leil@uchicago.edu>
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+  html_document: default
+  pdf_document: default
+  knitrBootstrap::bootstrap_document:
+    theme: amelia
+    highlight: sunburst
+    theme.chooser: TRUE
+    highlight.chooser: TRUE
+---
+
+
+```{r setup, include=FALSE}
+options(tinytex.verbose = TRUE)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  cache.lazy = FALSE,
+  tidy = TRUE
+)
+```
+
+# Load packages
+
+```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
+library(LinQseq)
+library(cowplot)
+library(Seurat)
+```
+
+# Step 1 Load data from 10X folder
+Data can be downloaded from 10X website https://support.10xgenomics.com/single-cell-gene-expression/datasets/3.1.0/5k_pbmc_protein_v3
+```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
+# Load in the RNA UMI matrix
+cbmc.data <- readDataFrom10X(dir = "../../../Data/5K/filtered_feature_bc_matrix/")
+```
+
+# Step 2 Create object
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- createObject(data = cbmc.data)
+t2 <- Sys.time()
+t2 - t1
+```
+
+# Step 3 Pre-process
+###  1) Filter out unwanted cells (optional)
+for this dataset, we don't need to filter out unwanted cells
+```{r results='hide', message=FALSE, warning=FALSE}
+cbmc <- subset(cbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < softThreshold(cbmc))
+```
+
+###  2) Remove unwanted genes (optional)
+for this dataset, we don't need to filter out unwanted genes
+```{r results='hide', message=FALSE, warning=FALSE}
+# remove Ig genes
+#cbmc <- removeGene(object = cbmc,pattern = '^IG[HKL]')
+```
+
+###  3) Normalization 
+data Normalization for both ADT (CLR) and RNA (log)
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- dataNormalization(object = cbmc)
+t2 <- Sys.time()
+t2 - t1
+```
+
+###  4) Indentify HVGs for RNA data
+Call seurat function to identify highly variable genes (HVG) for RNA data
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- FindVariableFeatures(object = cbmc)   # directly use Seurat Function
+t2 <- Sys.time()
+t2 - t1
+```
+
+###  5) Data scaling 
+Scale data for both ADT and RNA
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- dataScaling(object = cbmc) 
+t2 <- Sys.time()
+t2 - t1
+```
+
+
+# Step 4 Linear dimension reduction (PCA)
+directly call Seurat function for linear dimension reduction (PCA)
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- RunPCA(cbmc, features = VariableFeatures(object = cbmc), verbose = FALSE)   # directly use Seurat Function
+t2 <- Sys.time()
+t2 - t1
+```
+
+# Step 5 Determine number of PCs
+call Seurat function JackStraw to determine number of PCs
+```{r fig.width=6, fig.height=6, results='hide', message=FALSE, warning=FALSE}
+#cbmc <- JackStraw(cbmc, num.replicate = 100)
+#cbmc <- ScoreJackStraw(cbmc, dims = 1:20)
+#JackStrawPlot(cbmc, dims = 1:15)
+#ElbowPlot(cbmc)
+```
+
+# Step 6 Distance calculation and joint distance calculation
+calculate cell-cell distances for RNA, ADT and joint. alpha was set to 0.5 as initial, number of PC was set to 20 by default.
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- jointDistance(object = cbmc, keep.rna = TRUE, keep.adt = TRUE)
+t2 <- Sys.time()
+t2 - t1
+```
+# Step 7 Non-linear dimension reduction (UMAP and t-SNE)
+run UMAP as Non-linear dimension reduction for RNA, ADT and joint analysis. 
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- tsneFromDistane(object = cbmc, assay = "All")
+t2 <- Sys.time()
+t2 - t1
+```
+# Step 8 Clustering
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- clusteringFromDistance(object = cbmc, assay = "All", resolution = c(1.2,1.2,1.2))
+t2 <- Sys.time()
+t2 - t1
+```
+
+```{r echo=TRUE, dpi=300,fig.width=9, fig.height=7,results='hide', message=FALSE, warning=FALSE}
+# contribution of two modalities
+distHeatMap(object = cbmc)
+```
+
+# Step 9 Visualization ADT vs RNA vs Joint
+### 1) Cell clusters
+```{r , echo=TRUE, dpi=300,fig.width=9, fig.height=9, results='hide', message=FALSE, warning=FALSE}
+#gridDimPlot(cbmc, wide.rel = 1.5, legend = FALSE, reduction.prefix = "tsne_", height.rel = 0.5)
+
+plots <- generateGridDimPlot(cbmc, legend = FALSE, darkTheme = FALSE,cluster.lable.size = 8)
+listPlot(object = plots, labels = "")
+
+###### user also can only plot some of those plots by index, figure ident or figure map info
+#listPlot(object = plots, fig.ident = "RNA")
+#listPlot(object = plots, fig.ident = "RNA", fig.map = "RNA")
+
+###### user can use plotInfo() function to get index, figure ident and figure map information, then plot figures by index
+#plotInfo(plots)
+#listPlot(object = plots, fig.id = 1)
+```
+
+### 2) Heat maps
+```{r  results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=12, fig.height=6}
+# Heatmap for joint clusters
+heatMapPlot(object = cbmc, group.by = "jointClusterID", height.rel = 3, adt.label = TRUE)
+# Heatmap for RNA clusters
+heatMapPlot(object = cbmc, group.by = "rnaClusterID", height.rel = 3, adt.label = TRUE)
+# Heatmap for ADT clusters
+heatMapPlot(object = cbmc, group.by = "adtClusterID", height.rel = 3, adt.label = TRUE)
+```
+
+
+```{r results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=15, fig.height=3}
+p1 <- VlnPlot(cbmc, features = "adt_PD-1", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+p3 <- VlnPlot(cbmc, features = "adt_CD45RO", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+p4 <- VlnPlot(cbmc, features = "adt_CD25", pt.size = 0, group.by = 'jointClusterID') + NoLegend()
+p5 <- VlnPlot(cbmc, features = "adt_CD127", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+p6 <- VlnPlot(cbmc, features = "adt_TIGIT", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+plot_grid(p1,p3,p4,p5,p6,nrow = 1)
+```

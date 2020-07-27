@@ -1,0 +1,178 @@
+---
+title: "Using joint analysis with multi-modal data: CITE-seq"
+author: Lei Li <leil@uchicago.edu>
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+  html_document: default
+  pdf_document: default
+  knitrBootstrap::bootstrap_document:
+    theme: amelia
+    highlight: sunburst
+    theme.chooser: TRUE
+    highlight.chooser: TRUE
+---
+
+
+```{r setup, include=FALSE}
+options(tinytex.verbose = TRUE)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  cache.lazy = FALSE,
+  tidy = TRUE
+)
+```
+
+# Load packages
+
+```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
+library(LinQseq)
+library(Seurat)
+library(cowplot)
+library(ggplot2)
+```
+
+# CITE-seq dataset
+In this tutorial, we use a public CITE-seq dataset to illustrate Joint analysis using LinQ-seq.
+Data could be download from NCBI: 
+RNA (ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE100nnn/GSE100866/suppl/GSE100866_CBMC_8K_13AB_10X-RNA_umi.csv.gz) 
+ADT (ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE100nnn/GSE100866/suppl/GSE100866_CBMC_8K_13AB_10X-ADT_umi.csv.gz)
+
+# Step 1 Load data from 10X folder
+```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
+# Load in the RNA UMI matrix
+cbmc.rna <- as.sparse(x = read.csv(file = "../../../Data/citeseq/GSE100866_CBMC_8K_13AB_10X-RNA_umi.csv.gz", sep = ",", header = TRUE, row.names = 1))
+cbmc.rna <- CollapseSpeciesExpressionMatrix(object = cbmc.rna)
+# Load in the ADT UMI matrix
+cbmc.adt <- as.sparse(x = read.csv(file = "../../../Data/citeseq/GSE100866_CBMC_8K_13AB_10X-ADT_umi.csv.gz", sep = ",", header = TRUE, row.names = 1))
+cbmc.adt <- cbmc.adt[setdiff(x = rownames(x = cbmc.adt), y = c("CCR5", "CCR7", "CD10")), ]
+```
+
+# Step 2 Create object
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- createObject(rna = cbmc.rna, adt = cbmc.adt)
+t2 <- Sys.time()
+t2 - t1
+```
+
+# Step 3 Pre-process
+###  1) Filter out unwanted cells (optional)
+for this dataset, we don't need to filter out unwanted cells
+```{r results='hide', message=FALSE, warning=FALSE}
+cbmc <- subset(cbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < softThreshold(cbmc))
+```
+
+###  2) Remove unwanted genes (optional)
+for this dataset, we don't need to filter out unwanted genes
+```{r results='hide', message=FALSE, warning=FALSE}
+# remove Ig genes
+#cbmc <- removeGene(object = cbmc,pattern = '^IG[HKL]')
+```
+
+###  3) Normalization 
+data Normalization for both ADT (CLR) and RNA (log)
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- dataNormalization(object = cbmc)
+t2 <- Sys.time()
+t2 - t1
+```
+
+###  4) Indentify HVGs for RNA data
+Call seurat function to identify highly variable genes (HVG) for RNA data
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- FindVariableFeatures(object = cbmc)   # directly use Seurat Function
+t2 <- Sys.time()
+t2 - t1
+```
+
+###  5) Data scaling 
+Scale data for both ADT and RNA
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- dataScaling(object = cbmc) 
+t2 <- Sys.time()
+t2 - t1
+```
+
+
+# Step 4 Linear dimension reduction (PCA)
+directly call Seurat function for linear dimension reduction (PCA)
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- RunPCA(cbmc, features = VariableFeatures(object = cbmc), verbose = FALSE)   # directly use Seurat Function
+t2 <- Sys.time()
+t2 - t1
+```
+
+# Step 5 Determine number of PCs
+call Seurat function JackStraw to determine number of PCs
+```{r fig.width=6, fig.height=6, results='hide', message=FALSE, warning=FALSE}
+#cbmc <- JackStraw(cbmc, num.replicate = 100)
+#cbmc <- ScoreJackStraw(cbmc, dims = 1:20)
+#JackStrawPlot(cbmc, dims = 1:20)
+#ElbowPlot(cbmc)
+```
+
+# Step 6 Distance calculation and joint distance calculation
+calculate cell-cell distances for RNA, ADT and joint. number of PC was set to 20 by default.
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- jointDistance(object = cbmc, keep.rna = TRUE, keep.adt = TRUE, dims = 25)
+t2 <- Sys.time()
+t2 - t1
+```
+# Step 7 Non-linear dimension reduction (UMAP and t-SNE)
+run UMAP as Non-linear dimension reduction for RNA, ADT and joint analysis. 
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- tsneFromDistane(object = cbmc, assay = "All")
+t2 <- Sys.time()
+t2 - t1
+```
+# Step 8 Clustering
+```{r echo=TRUE, dpi=300,fig.width=7, fig.height=5, results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- clusteringFromDistance(object = cbmc, assay = "All", resolution = c(0.9,0.9,0.9))
+t2 <- Sys.time()
+t2 - t1
+# contribution of two modalities
+distHeatMap(object = cbmc)
+```
+
+# Step 9 Visualization ADT vs RNA vs Joint
+### 1) Cell clusters
+```{r , echo=TRUE, dpi=300,fig.width=10, fig.height=10, results='hide', message=FALSE, warning=FALSE}
+plots <- generateGridDimPlot(cbmc, legend = FALSE, darkTheme = FALSE)
+
+listPlot(object = plots, align = "h")
+
+###### user also can only plot some of those plots by index, figure ident or figure map info
+#listPlot(object = plots, fig.ident = "RNA")
+#listPlot(object = plots, fig.ident = "RNA", fig.map = "RNA")
+#user can use plotInfo() function to get index, figure ident and figure map information, then plot figures by index
+plotInfo(plots)
+#listPlot(object = plots, fig.id = 1)
+```
+
+
+### 2) Heat maps
+```{r  results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=12, fig.height=6}
+# Heatmap for joint clusters
+heatMapPlot(object = cbmc, group.by = "jointClusterID", height.rel = 1, adt.label = TRUE)
+# Heatmap for RNA clusters
+heatMapPlot(object = cbmc, group.by = "rnaClusterID", height.rel = 1, adt.label = TRUE)
+# Heatmap for ADT clusters
+heatMapPlot(object = cbmc, group.by = "adtClusterID", height.rel = 1, adt.label = TRUE)
+```
+
+### 3) RNA and ADT expression
+```{r results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=12, fig.height=12}
+VlnPlot(cbmc, features = c("rna_CD8A", "adt_CD8", "rna_NCAM1", "adt_CD56", "rna_CD3G", "adt_CD3"), group.by = 'jointClusterID', pt.size = 0, ncol = 2)
+```
+
+

@@ -1,0 +1,226 @@
+---
+title: "Using joint analysis with multi-modal data: CITE-seq"
+author: Lei Li <leil@uchicago.edu>
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+  html_document: default
+  pdf_document: default
+  knitrBootstrap::bootstrap_document:
+    theme: amelia
+    highlight: sunburst
+    theme.chooser: TRUE
+    highlight.chooser: TRUE
+---
+
+
+```{r setup, include=FALSE}
+options(tinytex.verbose = TRUE)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  cache.lazy = FALSE,
+  tidy = TRUE
+)
+```
+
+# Load packages
+
+```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
+library(LinQseq)
+library(Seurat)
+library(cowplot)
+library(ggplot2)
+```
+
+# Step 1 Load data from 10X folder
+Data can be downloaded from 10X website https://support.10xgenomics.com/single-cell-gene-expression/datasets/3.0.0/pbmc_10k_protein_v3
+```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
+# Load in the RNA UMI matrix
+cbmc.data <- readDataFrom10X(dir = "../../../Data/10K/filtered_feature_bc_matrix/")
+```
+
+# Step 2 Create object
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- createObject(data = cbmc.data)
+t2 <- Sys.time()
+t2 - t1
+```
+
+# Step 3 Pre-process
+###  1) Filter out unwanted cells (optional)
+for this dataset, we don't need to filter out unwanted cells
+```{r results='hide', message=FALSE, warning=FALSE}
+cbmc <- subset(cbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < softThreshold(cbmc))
+```
+
+###  2) Remove unwanted genes (optional)
+for this dataset, we don't need to filter out unwanted genes
+```{r results='hide', message=FALSE, warning=FALSE}
+# remove Ig genes
+#cbmc <- removeGene(object = cbmc,pattern = '^IG[HKL]')
+```
+
+###  3) Normalization 
+data Normalization for both ADT (CLR) and RNA (log)
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- dataNormalization(object = cbmc)
+t2 <- Sys.time()
+t2 - t1
+```
+
+###  4) Indentify HVGs for RNA data
+Call seurat function to identify highly variable genes (HVG) for RNA data
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- FindVariableFeatures(object = cbmc)   # directly use Seurat Function
+t2 <- Sys.time()
+t2 - t1
+```
+
+###  5) Data scaling 
+Scale data for both ADT and RNA
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- dataScaling(object = cbmc) 
+t2 <- Sys.time()
+t2 - t1
+```
+
+
+# Step 4 Linear dimension reduction (PCA)
+directly call Seurat function for linear dimension reduction (PCA)
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- RunPCA(cbmc, features = VariableFeatures(object = cbmc), verbose = FALSE)   # directly use Seurat Function
+t2 <- Sys.time()
+t2 - t1
+```
+
+# Step 5 Determine number of PCs
+call Seurat function JackStraw to determine number of PCs
+```{r fig.width=6, fig.height=6, results='hide', message=FALSE, warning=FALSE}
+#cbmc <- JackStraw(cbmc, num.replicate = 100)
+#cbmc <- ScoreJackStraw(cbmc, dims = 1:20)
+#JackStrawPlot(cbmc, dims = 1:15)
+#ElbowPlot(cbmc)
+```
+
+# Step 6 Distance calculation and joint distance calculation
+calculate cell-cell distances for RNA, ADT and joint. alpha was set to 0.5 as initial, number of PC was set to 20 by default.
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- jointDistance(object = cbmc, keep.rna = TRUE, keep.adt = TRUE)
+t2 <- Sys.time()
+t2 - t1
+```
+# Step 7 Non-linear dimension reduction (UMAP and t-SNE)
+run UMAP as Non-linear dimension reduction for RNA, ADT and joint analysis. 
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- tsneFromDistane(object = cbmc, assay = "All")
+t2 <- Sys.time()
+t2 - t1
+```
+# Step 8 Clustering
+```{r results='hide', message=FALSE, warning=FALSE}
+t1 <- Sys.time()
+cbmc <- clusteringFromDistance(object = cbmc, assay = "All", resolution = c(0.8,0.8,0.8))
+t2 <- Sys.time()
+t2 - t1
+```
+
+```{r echo=TRUE, dpi=300,fig.width=9, fig.height=7,results='hide', message=FALSE, warning=FALSE}
+# contribution of two modalities
+distHeatMap(object = cbmc)
+```
+
+# Step 9 Visualization ADT vs RNA vs Joint
+### 1) Cell clusters
+```{r , echo=TRUE, dpi=300,fig.width=9, fig.height=9, results='hide', message=FALSE, warning=FALSE}
+#gridDimPlot(cbmc, wide.rel = 1.5, legend = FALSE, reduction.prefix = "tsne_", height.rel = 0.5)
+
+plots <- generateGridDimPlot(cbmc, legend = FALSE, darkTheme = FALSE,cluster.lable.size = 8)
+listPlot(object = plots, labels = "")
+
+###### user also can only plot some of those plots by index, figure ident or figure map info
+#listPlot(object = plots, fig.ident = "RNA")
+#listPlot(object = plots, fig.ident = "RNA", fig.map = "RNA")
+
+###### user can use plotInfo() function to get index, figure ident and figure map information, then plot figures by index
+plotInfo(plots)
+#listPlot(object = plots, fig.id = 1)
+```
+
+### 2) Heat maps
+```{r  results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=12, fig.height=6}
+# Heatmap for joint clusters
+heatMapPlot(object = cbmc, group.by = "jointClusterID", height.rel = 3, adt.label = TRUE)
+# Heatmap for RNA clusters
+heatMapPlot(object = cbmc, group.by = "rnaClusterID", height.rel = 3, adt.label = TRUE)
+# Heatmap for ADT clusters
+heatMapPlot(object = cbmc, group.by = "adtClusterID", height.rel = 3, adt.label = TRUE)
+```
+
+```{r results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=15, fig.height=3}
+p1 <- VlnPlot(cbmc, features = "adt_CD4", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+p3 <- VlnPlot(cbmc, features = "adt_CD8a", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+p4 <- VlnPlot(cbmc, features = "adt_CD15", pt.size = 0, group.by = 'jointClusterID') + NoLegend()
+p5 <- VlnPlot(cbmc, features = "adt_CD16", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+p6 <- VlnPlot(cbmc, features = "adt_CD127", pt.size = 0, group.by = 'jointClusterID') + NoLegend() 
+plot_grid(p1,p3,p4,p5,p6,nrow = 1)
+```
+
+
+# gene difference
+```{r results='hide', message=FALSE, warning=FALSE, echo=TRUE, dpi=300,fig.width=8, fig.height=7}
+a1 <- FeatureScatter(cbmc, feature1 = "adt_CD16", feature2 = "rna_FCGR3A") + NoLegend() + theme(text=element_text(size=16, family="serif")) + LightTheme()
+
+x <- cbmc@assays[["RNA"]]@counts["FCGR3A",]
+cells <- which(x == 0)
+y <- cbmc@assays[["ADT"]]@data["CD16",cells]
+y <- as.data.frame(y)
+p1 <- ggplot(y, aes(x=y)) + geom_histogram(fill = 'skyblue', color = 'grey30') + scale_y_log10() + ggtitle("FCGR3A gene negative cells") + LightTheme() + theme(text=element_text(size=16, family="serif"))
+
+a2 <- FeaturePlot(cbmc, features = "adt_CD16", reduction = "tsne_joint") + NoLegend() + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+a3 <- FeaturePlot(cbmc, features = "rna_FCGR3A", reduction = "tsne_joint") + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+
+b1 <- FeatureScatter(cbmc, feature1 = "adt_CD19", feature2 = "rna_CD19") + NoLegend() + theme(text=element_text(size=16, family="serif")) + LightTheme()
+
+x <- cbmc@assays[["RNA"]]@counts["CD19",]
+cells <- which(x == 0)
+y <- cbmc@assays[["ADT"]]@data["CD19",cells]
+y <- as.data.frame(y)
+p2 <- ggplot(y, aes(x=y)) + geom_histogram(fill = 'skyblue', color = 'grey30') + scale_y_log10() + ggtitle("CD19 gene negative cells") + LightTheme() + theme(text=element_text(size=16, family="serif"))
+
+b2 <- FeaturePlot(cbmc, features = "adt_CD19", reduction = "tsne_joint") + NoLegend() + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+b3 <- FeaturePlot(cbmc, features = "rna_CD19", reduction = "tsne_joint") + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+
+c1 <- FeatureScatter(cbmc, feature1 = "adt_CD3", feature2 = "rna_CD3E") + NoLegend() + theme(text=element_text(size=16, family="serif")) + LightTheme()
+
+x <- cbmc@assays[["RNA"]]@counts["CD3E",]
+cells <- which(x == 0)
+y <- cbmc@assays[["ADT"]]@data["CD3",cells]
+y <- as.data.frame(y)
+p3 <- ggplot(y, aes(x=y)) + geom_histogram(fill = 'skyblue', color = 'grey30') + scale_y_log10() + ggtitle("CD3E gene negative cells") + LightTheme() + theme(text=element_text(size=16, family="serif"))
+
+c2 <- FeaturePlot(cbmc, features = "adt_CD3", reduction = "tsne_joint") + NoLegend() + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+c3 <- FeaturePlot(cbmc, features = "rna_CD3E", reduction = "tsne_joint") + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+
+d1 <- FeatureScatter(cbmc, feature1 = "adt_CD8a", feature2 = "rna_CD8A") + NoLegend() + theme(text=element_text(size=16, family="serif")) + LightTheme()
+
+x <- cbmc@assays[["RNA"]]@counts["CD8A",]
+cells <- which(x == 0)
+y <- cbmc@assays[["ADT"]]@data["CD8a",cells]
+y <- as.data.frame(y)
+p4 <- ggplot(y, aes(x=y)) + geom_histogram(fill = 'skyblue', color = 'grey30') + scale_y_log10() + ggtitle("CD8A gene negative cells") + LightTheme() + theme(text=element_text(size=16, family="serif"))
+
+d2 <- FeaturePlot(cbmc, features = "adt_CD8a", reduction = "tsne_joint") + NoLegend() + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+d3 <- FeaturePlot(cbmc, features = "rna_CD8A", reduction = "tsne_joint") + theme(text=element_text(size=16, family="serif")) + xlab("t-SNE1") + ylab("t-SNE2") + LightTheme()
+
+plot_grid(a1,p1,a2,a3,b1,p2,b2,b3,c1,p3,c2,c3,d1,p4,d2,d3, ncol = 4, rel_widths = c(1,1,1,1.2))
+```
+
