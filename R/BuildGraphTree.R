@@ -384,7 +384,7 @@ fastKNN <- function(
 #' calculate pseudotime using a given start point from MST or KNN.
 #'
 #' @param object Seurat object
-#' @param method could be MST or KNN
+#' @param method could be MST
 #' @param assay Assay name. Can be RNA, ADT or Joint
 #' @param root.cluster user choose the root cell cluster
 #' @param percentile.cutoff setup a percentile cutoff for scaling distance to pseudoTime, can avoid some outliers
@@ -393,10 +393,10 @@ fastKNN <- function(
 #'
 pseudoTime <- function(
   object,
-  method = c("MST", "KNN"),
+  method = "MST",
   assay = "Joint",
   root.cluster = NULL,
-  percentile.cutoff = 0.99
+  percentile.cutoff = 1
 ) {
   if(!is.null(object)) {
     group.by <- object@misc[[assay]][['cluster']]
@@ -423,6 +423,7 @@ pseudoTime <- function(
       object@meta.data[[time.name]] <- time
       object@misc[[assay]][['time']][['mst']] <- time.name
     } else if (method == "KNN") {
+      stop("your method can not be regconized! Only can be MST!")
       # KNN
       knn <- object@misc[[assay]][['knn']]
 
@@ -435,7 +436,7 @@ pseudoTime <- function(
       object@meta.data[[time.name]] <- time
       object@misc[[assay]][['time']][['knn']] <- time.name
     } else {
-      stop("Please provide a valid method, MST or KNN!")
+      stop("your method can not be regconized! Only can be MST!")
     }
     return(object)
   } else {
