@@ -1073,6 +1073,124 @@ highCorrelatedGenePlot <- function(
   }
 }
 
+#' plotPseudoTimeBox
+#'
+#' plot pseudotime of each cluster on a Box or vln plot
+#'
+#' @importFrom grDevices colorRampPalette
+#' @importFrom ggplot2 ggplot geom_violin geom_boxplot coord_flip geom_jitter aes
+#'
+#'
+#' @param object Seurat object
+#' @param pseudotime name of pseudotime
+#' @param group.by cell clusters
+#' @param show.points display jetter points
+#' @param fig.type show "box" plot or "vln" plot
+#' @param coord.flip flip x and y axis
+#' @param point.size size of jetter points
+#'
+#' @export
+
+plotPseudoTimeBox <- function(
+  object = NULL,
+  pseudotime = NULL,
+  group.by = "ident",
+  show.points = TRUE,
+  fig.type = 'box',
+  coord.flip = TRUE,
+  point.size = 0.2
+) {
+  if(!is.null(object)) {
+    if(!is.null(pseudotime)) {
+      # fetch data
+      if (group.by == "ident") {
+        data <- data.frame(
+          PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
+          Cluster=object@active.ident
+        )
+      } else {
+        data <- data.frame(
+          PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
+          Cluster=object@meta.data[[group.by]]
+        )
+      }
+
+      # make figure
+      if(fig.type == 'vln') {
+        p <- ggplot(data, aes(x=Cluster, y=PseudoTime, fill=Cluster)) + geom_violin() + LightTheme()
+      } else {
+        p <- ggplot(data, aes(x=Cluster, y=PseudoTime, fill=Cluster)) + geom_boxplot() + LightTheme()
+      }
+      # coord flip
+      if(isTRUE(coord.flip)){
+        p <- p + coord_flip()
+      }
+      # add jitter points
+      if(isTRUE(show.points)) {
+        p <- p + geom_jitter(shape=16, position=position_jitter(0.2), size = point.size)
+      }
+      return(p)
+    } else {
+      stop("Please provide name of pseudotime!")
+    }
+  } else {
+    stop("Please provide Seurat Object!")
+  }
+}
+
+
+#' plotPseudoTimeRidge
+#'
+#' plot pseudotime of each cluster on a Ridge plot
+#'
+#' @importFrom grDevices colorRampPalette
+#' @importFrom ggplot2 ggplot geom_line theme annotation_raster coord_cartesian ggplot_build aes_string geom_tile scale_fill_manual labs aes arrow xlab ylab
+#' @importFrom ggridges geom_density_ridges
+#'
+#'
+#' @param object Seurat object
+#' @param pseudotime name of pseudotime
+#' @param group.by cell clusters
+#' @param coord.flip flip x and y axis
+#'
+#' @export
+
+plotPseudoTimeRidge <- function(
+  object = NULL,
+  pseudotime = NULL,
+  group.by = "ident",
+  coord.flip = FALSE
+) {
+  if(!is.null(object)) {
+    if(!is.null(pseudotime)) {
+      # fetch data
+      if (group.by == "ident") {
+        data <- data.frame(
+          PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
+          Cluster=object@active.ident
+        )
+      } else {
+        data <- data.frame(
+          PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
+          Cluster=object@meta.data[[group.by]]
+        )
+      }
+
+      # make figure
+      p <- ggplot(data, aes(x=PseudoTime, y=Cluster, fill=Cluster)) + geom_density_ridges() + LightTheme()
+      # coord flip
+      if(isTRUE(coord.flip)){ p <- p + coord_flip() }
+      return(p)
+    } else {
+      stop("Please provide name of pseudotime!")
+    }
+  } else {
+    stop("Please provide Seurat Object!")
+  }
+}
+
+
+
 #' A single heatmap from ggplot2 using geom_raster. Copy from Seurat
 #'
 #' @param data A matrix or data frame with data to plot
