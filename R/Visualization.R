@@ -370,8 +370,71 @@ distHeatMap <- function(
   }
 }
 
+#' DimplotContinue
+#'
+#' plot cells on t-SNE or UMAP embedding and colored by continuous values (e.g. percent.mt)
+#'
+#' @importFrom ggplot2 ggplot geom_point scale_color_gradientn geom_path xlab ylab aes labs
+#'
+#' @param object seurat object
+#' @param reduction reduction name
+#' @param colors gradient colors for pseudotime. color order is low to high.
+#' @param color.by a series of continuous values (e.g. percent.mt)
+#' @param display.min min value to display, color of excluded cells will be indicated by outlier.color
+#' @param display.max max value to display
+#' @param outlier.color color of outlier cells when display.min or display.max was set
+#' @param xlab label of x axis
+#' @param ylab label of y axis
+#'
+#' @export
+DimplotContinue <- function(
+  object = NULL,
+  reduction = 'pca',
+  color.by = NULL,
+  colors = c("blue", "green","yellow", "red"),
+  display.min = NULL,
+  display.max = NULL,
+  outlier.color = 'white',
+  xlab = 'dim1',
+  ylab = 'dim2'
+) {
+  if(!is.null(object)) {
+    if(!is.null(color.by)) {
+      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+      colorby <- object@meta.data[[color.by]]
 
+      # joint trajectory
+      data <- data.frame(
+        x=as.numeric(dim1),
+        y=as.numeric(dim2),
+        time=as.numeric(colorby)
+      )
 
+      min.value <- as.numeric(min(data$time))
+      max.value <- as.numeric(max(data$time))
+      if(!is.null(display.min)) {
+        min.value = as.numeric(display.min)
+      }
+      if(!is.null(display.max)) {
+        max.value = as.numeric(display.max)
+      }
+      if(max.value < min.value) {
+        min.value <- min(data$time)
+        max.value <- max(data$time)
+      }
+
+      p <- ggplot(data, aes(x,y)) +
+        geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors, limits=c(min.value,max.value), na.value = outlier.color) + xlab(xlab) + ylab(ylab) + labs(colour = color.by) + LightTheme()
+
+      return(p)
+    } else {
+      stop("Please provide a name of continuous values!")
+    }
+  } else {
+    stop("Please provide a Seurat object!")
+  }
+}
 
 
 #' pseudoTimePlotMST
@@ -381,7 +444,7 @@ distHeatMap <- function(
 #' @importFrom ggplot2 ggplot geom_point scale_color_gradientn geom_path xlab ylab aes
 #'
 #' @param object seurat object
-#' @param assay reduction name
+#' @param assay assay name (RNA, ADT or Joint)
 #' @param colors gradient colors for pseudotime. color order is low to high.
 #' @param line.size line width for trajectory
 #' @param line.color line color for trajectory
