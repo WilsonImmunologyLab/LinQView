@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 # Load packages
 
 ```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
-library(LinQseq)
+library(LinQView)
 library(cowplot)
 library(Seurat)
 ```
