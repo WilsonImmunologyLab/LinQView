@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // Sigmoid
 NumericVector Sigmoid(NumericVector a, double n, double k);
-RcppExport SEXP _LinQseq_Sigmoid(SEXP aSEXP, SEXP nSEXP, SEXP kSEXP) {
+RcppExport SEXP _LinQView_Sigmoid(SEXP aSEXP, SEXP nSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // EucNorm
 double EucNorm(NumericVector a);
-RcppExport SEXP _LinQseq_EucNorm(SEXP aSEXP) {
+RcppExport SEXP _LinQView_EucNorm(SEXP aSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -31,7 +31,7 @@ END_RCPP
 }
 // scaleDistCpp
 NumericMatrix scaleDistCpp(NumericMatrix data, double n, double k);
-RcppExport SEXP _LinQseq_scaleDistCpp(SEXP dataSEXP, SEXP nSEXP, SEXP kSEXP) {
+RcppExport SEXP _LinQView_scaleDistCpp(SEXP dataSEXP, SEXP nSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,7 +44,7 @@ END_RCPP
 }
 // scaleDistUpdateCpp
 NumericMatrix scaleDistUpdateCpp(NumericMatrix data, double n, double k, NumericVector c);
-RcppExport SEXP _LinQseq_scaleDistUpdateCpp(SEXP dataSEXP, SEXP nSEXP, SEXP kSEXP, SEXP cSEXP) {
+RcppExport SEXP _LinQView_scaleDistUpdateCpp(SEXP dataSEXP, SEXP nSEXP, SEXP kSEXP, SEXP cSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -58,7 +58,7 @@ END_RCPP
 }
 // objectiveFunctionCpp
 double objectiveFunctionCpp(double alpha, NumericVector X, NumericVector Y);
-RcppExport SEXP _LinQseq_objectiveFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
+RcppExport SEXP _LinQView_objectiveFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -71,7 +71,7 @@ END_RCPP
 }
 // gradientFunctionCpp
 double gradientFunctionCpp(double alpha, NumericVector X, NumericVector Y);
-RcppExport SEXP _LinQseq_gradientFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
+RcppExport SEXP _LinQView_gradientFunctionCpp(SEXP alphaSEXP, SEXP XSEXP, SEXP YSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -84,7 +84,7 @@ END_RCPP
 }
 // gradientDescentCpp
 double gradientDescentCpp(NumericVector X, NumericVector Y, double alpha, double learning_rate, double low_threshold, int max_iter);
-RcppExport SEXP _LinQseq_gradientDescentCpp(SEXP XSEXP, SEXP YSEXP, SEXP alphaSEXP, SEXP learning_rateSEXP, SEXP low_thresholdSEXP, SEXP max_iterSEXP) {
+RcppExport SEXP _LinQView_gradientDescentCpp(SEXP XSEXP, SEXP YSEXP, SEXP alphaSEXP, SEXP learning_rateSEXP, SEXP low_thresholdSEXP, SEXP max_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -100,17 +100,17 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_LinQseq_Sigmoid", (DL_FUNC) &_LinQseq_Sigmoid, 3},
-    {"_LinQseq_EucNorm", (DL_FUNC) &_LinQseq_EucNorm, 1},
-    {"_LinQseq_scaleDistCpp", (DL_FUNC) &_LinQseq_scaleDistCpp, 3},
-    {"_LinQseq_scaleDistUpdateCpp", (DL_FUNC) &_LinQseq_scaleDistUpdateCpp, 4},
-    {"_LinQseq_objectiveFunctionCpp", (DL_FUNC) &_LinQseq_objectiveFunctionCpp, 3},
-    {"_LinQseq_gradientFunctionCpp", (DL_FUNC) &_LinQseq_gradientFunctionCpp, 3},
-    {"_LinQseq_gradientDescentCpp", (DL_FUNC) &_LinQseq_gradientDescentCpp, 6},
+    {"_LinQView_Sigmoid", (DL_FUNC) &_LinQView_Sigmoid, 3},
+    {"_LinQView_EucNorm", (DL_FUNC) &_LinQView_EucNorm, 1},
+    {"_LinQView_scaleDistCpp", (DL_FUNC) &_LinQView_scaleDistCpp, 3},
+    {"_LinQView_scaleDistUpdateCpp", (DL_FUNC) &_LinQView_scaleDistUpdateCpp, 4},
+    {"_LinQView_objectiveFunctionCpp", (DL_FUNC) &_LinQView_objectiveFunctionCpp, 3},
+    {"_LinQView_gradientFunctionCpp", (DL_FUNC) &_LinQView_gradientFunctionCpp, 3},
+    {"_LinQView_gradientDescentCpp", (DL_FUNC) &_LinQView_gradientDescentCpp, 6},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_LinQseq(DllInfo *dll) {
+RcppExport void R_init_LinQView(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
