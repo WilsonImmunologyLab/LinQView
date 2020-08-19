@@ -23,9 +23,6 @@ plotRiverStream(object = NULL, pseudotime = NULL, group.by = "ident",
 
 \item{rel_widths}{reletive width between river plot and figure legend. By default is c(6,1), indicates figure:legend = 6:1}
 }
-\value{
-
-}
 \description{
 plotRiverStream.
 }

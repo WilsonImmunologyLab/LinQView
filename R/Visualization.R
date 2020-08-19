@@ -1518,7 +1518,7 @@ streamGraph <- function(
 #' @param colors array of color names. default is "auto"
 #' @param rel_widths reletive width between river plot and figure legend. By default is c(6,1), indicates figure:legend = 6:1
 #'
-#' @return
+#' @export
 #'
 #'
 plotRiverStream <- function(
