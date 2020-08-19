@@ -4,13 +4,13 @@
 \alias{pseudoTime}
 \title{pseudoTime}
 \usage{
-pseudoTime(object, method = c("MST", "KNN"), assay = "Joint",
-  root.cluster = NULL, percentile.cutoff = 0.99)
+pseudoTime(object, method = "MST", assay = "Joint",
+  root.cluster = NULL, percentile.cutoff = 1)
 }
 \arguments{
 \item{object}{Seurat object}
 
-\item{method}{could be MST or KNN}
+\item{method}{could be MST}
 
 \item{assay}{Assay name. Can be RNA, ADT or Joint}
 

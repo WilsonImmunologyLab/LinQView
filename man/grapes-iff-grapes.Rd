@@ -2,20 +2,20 @@
 % Please edit documentation in R/Visualization.R
 \name{\%iff\%}
 \alias{\%iff\%}
-\title{Set a default value if an object is NOT null}
+\title{Set a default value if an object is null}
 \usage{
 lhs \%iff\% rhs
 }
 \arguments{
-\item{lhs}{An object to set if it's NOT null}
+\item{lhs}{An object to set if it's null}
 
-\item{rhs}{The value to provide if x is NOT null}
+\item{rhs}{The value to provide if x is null}
 }
 \value{
-lhs if lhs is null, else rhs
+rhs if lhs is null, else lhs
 }
 \description{
-Set a default value if an object is NOT null
+Set a default value if an object is null
 }
 \references{
 https://adv-r.hadley.nz/functions.html#missing-arguments

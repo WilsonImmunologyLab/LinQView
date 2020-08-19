@@ -10,7 +10,7 @@ pseudoTimePlotMST(object = NULL, assay = NULL, colors = c("blue",
 \arguments{
 \item{object}{seurat object}
 
-\item{assay}{reduction name}
+\item{assay}{assay name (RNA, ADT or Joint)}
 
 \item{colors}{gradient colors for pseudotime. color order is low to high.}
 

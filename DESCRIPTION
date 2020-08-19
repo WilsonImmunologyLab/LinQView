@@ -25,6 +25,10 @@ Imports:
     scales (>= 1.0.0), 
     Rtsne (>= 0.15), 
     Rcpp (>= 1.0.0),
+    ElPiGraph.R,
+    ggridges,
+    ggplotify,
+    RColorBrewer,
     grDevices
 Suggests:
     testthat,

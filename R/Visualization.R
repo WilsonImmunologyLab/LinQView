@@ -1141,7 +1141,7 @@ highCorrelatedGenePlot <- function(
 #' plot pseudotime of each cluster on a Box or vln plot
 #'
 #' @importFrom grDevices colorRampPalette
-#' @importFrom ggplot2 ggplot geom_violin geom_boxplot coord_flip geom_jitter aes
+#' @importFrom ggplot2 ggplot geom_violin geom_boxplot coord_flip geom_jitter aes position_jitter
 #'
 #'
 #' @param object Seurat object
@@ -1405,3 +1405,217 @@ LightTheme <- function(...) {
   return(light.theme)
 }
 
+
+#' The function that implements the ThemeRiver and Zero Value algorithms. This function was adopted from https://canonicalized.com/streamgraphs-in-tableau-via-r/, author is Dorian Banutoiu
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin
+#' @return ThemeRiver data or Zero Value data
+#'
+
+computeStacks <- function(
+  values,
+  method = "ThemeRiver"
+){
+  timePoints <- dim(values)[1]
+  nStreams <- dim(values)[2]
+  yy <- matrix(0, timePoints, (nStreams * 2))
+  for (iStream in 1 : nStreams){
+    tmpVals <- values[, iStream]
+    if (iStream > 1){
+      yy[, iStream * 2 - 1] <- yy[, (iStream - 1) * 2]
+      yy[, iStream * 2] <- yy[, iStream * 2 - 1] + tmpVals
+    } else {
+      switch(method,
+             ThemeRiver = {
+               yy[, 1] <- -(1/2) * rowSums(values)
+               yy[, 2] <- yy[, iStream * 2 - 1] + tmpVals},
+             zero = {
+               yy[, 2] <- tmpVals},
+             { # default (no method selected)
+               print(paste0(baseline, "not recognized"))
+               print("algorithm can be zero or ThemeRiver")}
+      )
+    }# end: if (iStream > 1){
+  }# end:
+  return(yy)
+}
+
+
+#' The function that implements the ThemeRiver and Zero Value algorithms (curved lines). This function was adopted from https://canonicalized.com/streamgraphs-in-tableau-via-r/, author is Dorian Banutoiu
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin
+#' @return ThemeRiver data or Zero Value data (curved lines)
+#'
+computeSmoothedStacks <- function(
+  values,
+  method = "ThemeRiver",
+  multiple
+){
+  timePoints <- dim(values)[1]*multiple #the "multiple" is used to densify the data; higher values make the curves smoother, but they can increase the size of the data significantly
+  nStreams <- dim(values)[2]
+  yy <- matrix(0, timePoints, (nStreams * 2))
+  for (iStream in 1 : nStreams){
+    tmpVals <- spline(values[, iStream],n=timePoints)$y
+    if (iStream > 1){
+      yy[, iStream * 2 - 1] <- yy[, (iStream - 1) * 2]
+      yy[, iStream * 2] <- yy[, iStream * 2 - 1] + tmpVals
+    } else {
+      switch(method,
+             ThemeRiver = {
+               yy[, 1] <- -(1/2) * spline(rowSums(values),n=timePoints)$y
+               yy[, 2] <- yy[, iStream * 2 - 1] + tmpVals},
+             zero = {
+               yy[, 2] <- tmpVals},
+             { # default
+               print(paste0(baseline, "not recognized"))
+               print("algorithm can be zero or ThemeRiver")}
+      )
+    }# end: if (iStream > 1){
+  }# end:
+  return(yy)
+}
+
+#' Plots the streamgraph. This function was adopted from https://canonicalized.com/streamgraphs-in-tableau-via-r/ with modification, author is Dorian Banutoiu
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin
+#'
+#' @return base plot streamgraph figure
+#'
+
+streamGraph <- function(
+  yy,
+  cols,
+  plotTitle = "Streamgraph",
+  streamNames=c()
+){
+  timePoints <- dim(yy)[1]
+  nStreams <- dim(yy)[2] / 2
+
+  xx <- c(1:timePoints, timePoints:1)/100
+  plot(xx, xx, type = "n", main = plotTitle, xlab = "Pseudotime", ylab = "", ylim = range(yy), bty = "n")
+  for (iStream in 1 : nStreams)
+  {
+    y <- c(yy[, iStream * 2], rev(yy[, iStream * 2 - 1]))
+    polygon(xx, y, col = cols[iStream], border = NA)
+  }
+  #legend("topright",streamNames,pch=15,fill=cols, ncol=3)
+}
+
+#' plotRiverStream.
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin annotate theme_void xlim ylim
+#' @importFrom ggplotify as.ggplot
+#' @importFrom cowplot plot_grid
+#' @importFrom RColorBrewer brewer.pal
+#'
+#' @return base plot streamgraph figure
+#'
+#'
+plotRiverStream <- function(
+  object = NULL,
+  pseudotime = NULL,
+  group.by = "ident",
+  display.legend = TRUE,
+  legend.col = 1,
+  colors = "auto",
+  rel_widths = c(6,1)
+){
+  if(!is.null(object)) {
+    if(!is.null(pseudotime)){
+      # fetch data
+      if (group.by == "ident") {
+        if(is.null(object@meta.data[[pseudotime]])) {
+          stop(paste0("The pseudotime name ",pseudotime, " does not exist! Check your input!"))
+        }
+        my_data <- data.frame(
+          PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
+          Cluster=object@active.ident
+        )
+      } else {
+        if(is.null(object@meta.data[[pseudotime]])) {
+          stop(paste0("The pseudotime name ",pseudotime, " does not exist! Check your input!"))
+        } else if (is.null(object@meta.data[[group.by]])) {
+          stop(paste0("The grouping name ",group.by, " does not exist! Check your input!"))
+        }
+        my_data <- data.frame(
+          PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
+          Cluster=object@meta.data[[group.by]]
+        )
+      }
+
+      clusters <- sort(as.numeric(unique(my_data$Cluster)))
+      num_cluster <- length(clusters)
+      data_matrix <- matrix(data = 0, nrow = num_cluster, ncol = 100)
+      colnames(data_matrix) <- c(1:100)
+      rownames(data_matrix) <- clusters
+
+      for (i in c(1:dim(my_data)[1])) {
+        cur_cluster <- as.numeric(my_data[i, 2])
+        cur_value <- as.numeric(my_data[i, 1])
+
+        cur_value <- floor(cur_value*100) + 1
+        if(cur_value > 100){
+          cur_value <- 100
+        }
+        data_matrix[cur_cluster, cur_value] <- data_matrix[cur_cluster, cur_value] + 1
+      }
+
+      # convert data
+      plot_data <- t(data_matrix)
+      plot_data <- as.data.frame(plot_data)
+      colnames(plot_data) <- paste0('Cluster_', colnames(plot_data))
+      plot_data <- data.matrix(plot_data)
+
+      # color
+      if(colors == 'auto') {
+        colors <- c(brewer.pal(8, 'Set1'), brewer.pal(8, 'Set2'), brewer.pal(12, 'Set3'), brewer.pal(8, 'Dark2'), brewer.pal(7, 'Accent'))
+        cols <- colors[1:ncol(plot_data)]
+      } else {
+        cols <- colors
+      }
+
+      # plot figure
+      p1 <- as.ggplot(~streamGraph(computeSmoothedStacks(values=plot_data,multiple=1,method = "ThemeRiver"), cols, plotTitle = "River stream", c()))
+      if(display.legend == TRUE) {
+        if(legend.col == 1) {
+          p2 <- ggplot() +
+            annotate("point", x=1,y=1:length(cols),shape=22, size = 5, color='black', fill=cols) +
+            annotate("text", x=1.01, y=length(cols):1, label=colnames(plot_data), hjust=0) +
+            xlim(0.99, 1.2) + ylim(0, length(cols)+1) + theme_void()
+        } else {
+          n <- ceiling(length(cols)/legend.col)
+          x <- c()
+          y <- c()
+          cur_x <- 1
+          processed_n <- 0
+          while(processed_n < length(cols)) {
+            if((length(cols) - processed_n) > n){
+              x <- c(x, rep(cur_x, n))
+              y <- c(y, c(n:1))
+              cur_x <- cur_x + 0.2
+              processed_n <- processed_n + n
+            } else {
+              x <- c(x, rep(cur_x, (length(cols) - processed_n)))
+              y <- c(y, c(n:(n - length(cols) + processed_n + 1)))
+              cur_x <- cur_x + 0.2
+              processed_n <- length(cols)
+            }
+          }
+
+          p2 <- ggplot() +
+            annotate("point", x=x, y=y, shape=22, size = 5, color='black', fill=cols) +
+            annotate("text", x=x+0.02, y=y, label=colnames(plot_data), hjust=0) +
+            xlim(0.99, cur_x) + ylim(0, n) + theme_void()
+        }
+        p <- plot_grid(p1,p2,ncol = 2, rel_widths = rel_widths)
+        return(p)
+      } else {
+        return(p1)
+      }
+    } else {
+      stop("Please provide pseudotime name!")
+    }
+  } else {
+    stop("Please provide Seurat Object!")
+  }
+}

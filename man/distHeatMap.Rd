@@ -6,7 +6,7 @@
 \usage{
 distHeatMap(object = NULL, assay = "Joint", cell.num = 1000,
   group.by = NULL, colors = c("yellow", "green"), group.bar = TRUE,
-  label = TRUE, size = 5.5, hjust = 0, angle = 90, dims = 20)
+  label = FALSE, size = 5.5, hjust = 0, angle = 90, dims = 20)
 }
 \arguments{
 \item{object}{seurat object}
