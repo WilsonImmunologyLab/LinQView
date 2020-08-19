@@ -1501,24 +1501,20 @@ streamGraph <- function(
   #legend("topright",streamNames,pch=15,fill=cols, ncol=3)
 }
 
-#' plotRiverStream.
+#' data_prapare for river plot
 #'
 #' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin annotate theme_void xlim ylim
 #' @importFrom ggplotify as.ggplot
 #' @importFrom cowplot plot_grid
 #' @importFrom RColorBrewer brewer.pal
 #'
-#' @return base plot streamgraph figure
+#' @return
 #'
 #'
-plotRiverStream <- function(
+data_prapare <- function(
   object = NULL,
   pseudotime = NULL,
-  group.by = "ident",
-  display.legend = TRUE,
-  legend.col = 1,
-  colors = "auto",
-  rel_widths = c(6,1)
+  group.by = "ident"
 ){
   if(!is.null(object)) {
     if(!is.null(pseudotime)){
@@ -1566,54 +1562,79 @@ plotRiverStream <- function(
       colnames(plot_data) <- paste0('Cluster_', colnames(plot_data))
       plot_data <- data.matrix(plot_data)
 
-      # color
-      if(colors == 'auto') {
-        colors <- c(brewer.pal(8, 'Set1'), brewer.pal(8, 'Set2'), brewer.pal(12, 'Set3'), brewer.pal(8, 'Dark2'), brewer.pal(7, 'Accent'))
-        cols <- colors[1:ncol(plot_data)]
-      } else {
-        cols <- colors
-      }
-
-      # plot figure
-      p1 <- as.ggplot(~streamGraph(computeSmoothedStacks(values=plot_data,multiple=1,method = "ThemeRiver"), cols, plotTitle = "River stream", c()))
-      if(display.legend == TRUE) {
-        if(legend.col == 1) {
-          p2 <- ggplot() +
-            annotate("point", x=1,y=1:length(cols),shape=22, size = 5, color='black', fill=cols) +
-            annotate("text", x=1.01, y=length(cols):1, label=colnames(plot_data), hjust=0) +
-            xlim(0.99, 1.2) + ylim(0, length(cols)+1) + theme_void()
-        } else {
-          n <- ceiling(length(cols)/legend.col)
-          x <- c()
-          y <- c()
-          cur_x <- 1
-          processed_n <- 0
-          while(processed_n < length(cols)) {
-            if((length(cols) - processed_n) > n){
-              x <- c(x, rep(cur_x, n))
-              y <- c(y, c(n:1))
-              cur_x <- cur_x + 0.2
-              processed_n <- processed_n + n
-            } else {
-              x <- c(x, rep(cur_x, (length(cols) - processed_n)))
-              y <- c(y, c(n:(n - length(cols) + processed_n + 1)))
-              cur_x <- cur_x + 0.2
-              processed_n <- length(cols)
-            }
-          }
-
-          p2 <- ggplot() +
-            annotate("point", x=x, y=y, shape=22, size = 5, color='black', fill=cols) +
-            annotate("text", x=x+0.02, y=y, label=colnames(plot_data), hjust=0) +
-            xlim(0.99, cur_x) + ylim(0, n) + theme_void()
-        }
-        p <- plot_grid(p1,p2,ncol = 2, rel_widths = rel_widths)
-        return(p)
-      } else {
-        return(p1)
-      }
+      return(plot_data)
     } else {
       stop("Please provide pseudotime name!")
+    }
+  } else {
+    stop("Please provide Seurat Object!")
+  }
+}
+
+
+#' plotRiverStream.
+#'
+#' @importFrom ggplot2 ggplot aes_string geom_raster scale_fill_gradient aes element_rect element_line element_text theme margin annotate theme_void xlim ylim
+#' @importFrom ggplotify as.ggplot
+#' @importFrom cowplot plot_grid
+#' @importFrom RColorBrewer brewer.pal
+#'
+#' @return
+#'
+#'
+plotRiverStream <- function(
+  plot_data,
+  display.legend = TRUE,
+  legend.col = 1,
+  colors = "auto",
+  rel_widths = c(6,1)
+){
+  if(!is.null(plot_data)) {
+    # color
+    if(colors == 'auto') {
+      colors <- c(brewer.pal(8, 'Set1'), brewer.pal(8, 'Set2'), brewer.pal(12, 'Set3'), brewer.pal(8, 'Dark2'), brewer.pal(7, 'Accent'))
+      cols <- colors[1:ncol(plot_data)]
+    } else {
+      cols <- colors
+    }
+
+    # plot figure
+    p1 <- as.ggplot(~streamGraph(computeSmoothedStacks(values=plot_data,multiple=1,method = "ThemeRiver"), cols, plotTitle = "River stream", c()))
+    if(display.legend == TRUE) {
+      if(legend.col == 1) {
+        p2 <- ggplot() +
+          annotate("point", x=1,y=1:length(cols),shape=22, size = 5, color='black', fill=cols) +
+          annotate("text", x=1.01, y=length(cols):1, label=colnames(plot_data), hjust=0) +
+          xlim(0.99, 1.2) + ylim(0, length(cols)+1) + theme_void()
+      } else {
+        n <- ceiling(length(cols)/legend.col)
+        x <- c()
+        y <- c()
+        cur_x <- 1
+        processed_n <- 0
+        while(processed_n < length(cols)) {
+          if((length(cols) - processed_n) > n){
+            x <- c(x, rep(cur_x, n))
+            y <- c(y, c(n:1))
+            cur_x <- cur_x + 0.2
+            processed_n <- processed_n + n
+          } else {
+            x <- c(x, rep(cur_x, (length(cols) - processed_n)))
+            y <- c(y, c(n:(n - length(cols) + processed_n + 1)))
+            cur_x <- cur_x + 0.2
+            processed_n <- length(cols)
+          }
+        }
+
+        p2 <- ggplot() +
+          annotate("point", x=x, y=y, shape=22, size = 5, color='black', fill=cols) +
+          annotate("text", x=x+0.02, y=y, label=colnames(plot_data), hjust=0) +
+          xlim(0.99, cur_x) + ylim(0, n) + theme_void()
+      }
+      p <- plot_grid(p1,p2,ncol = 2, rel_widths = rel_widths)
+      return(p)
+    } else {
+      return(p1)
     }
   } else {
     stop("Please provide Seurat Object!")
