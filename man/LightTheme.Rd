@@ -2,7 +2,7 @@
 % Please edit documentation in R/Visualization.R
 \name{LightTheme}
 \alias{LightTheme}
-\title{A seurat style theme for ggplot2 figures}
+\title{A seurat style theme for ggplot2 figures (Light version)}
 \usage{
 LightTheme(...)
 }
@@ -10,5 +10,5 @@ LightTheme(...)
 A theme object
 }
 \description{
-A seurat style theme for ggplot2 figures
+A seurat style theme for ggplot2 figures (Light version)
 }
