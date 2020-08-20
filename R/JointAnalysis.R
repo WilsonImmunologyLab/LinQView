@@ -168,10 +168,10 @@ umapFromDistane.Seurat <- function(
       # run umap with pairwise distances
 
       my.umap <- umap(rna.dist.matrix,my.umap.conf,method = method)
+      colnames(my.umap$layout) <- c('rnaUMAP_1','rnaUMAP_2')
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "rnaUMAP_", assay = "RNA")
       object[["umap_rna"]] <- umap.reduction
       rownames(object@reductions[["umap_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["umap_rna"]]@cell.embeddings) <- c('rnaUMAP_1','rnaUMAP_2')
       object@misc[['RNA']][['reduction']] <- "umap_rna"
 
       # for ADT
@@ -180,10 +180,10 @@ umapFromDistane.Seurat <- function(
       adt.dist.matrix <- as.matrix(object@misc[['ADT']][['dist']])
       # run umap with pairwise distances
       my.umap <- umap(adt.dist.matrix, my.umap.conf, method = method)
+      colnames(my.umap$layout) <- c('adtUMAP_1','adtUMAP_2')
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "adtUMAP_", assay = "ADT")
       object[["umap_adt"]] <- umap.reduction
       rownames(object@reductions[["umap_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["umap_adt"]]@cell.embeddings) <- c('adtUMAP_1','adtUMAP_2')
       object@misc[['ADT']][['reduction']] <- "umap_adt"
 
       # for Joint
@@ -191,10 +191,10 @@ umapFromDistane.Seurat <- function(
 
       joint.dist.matrix <- as.matrix(object@misc[['Joint']][['dist']])
       my.umap <- umap(joint.dist.matrix,my.umap.conf,method = method)
+      colnames(my.umap$layout) <- c('jointUMAP_1','jointUMAP_2')
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout,key = "jointUMAP_",assay = "ADT")
       object[["umap_joint"]] <- umap.reduction
       rownames(object@reductions[["umap_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["umap_joint"]]@cell.embeddings) <- c('jointUMAP_1','jointUMAP_2')
       object@misc[['Joint']][['reduction']] <- "umap_joint"
     } else if (assay == "Joint") {
       # for Joint
@@ -202,10 +202,10 @@ umapFromDistane.Seurat <- function(
 
       joint.dist.matrix <- as.matrix(object@misc[['Joint']][['dist']])
       my.umap <- umap(joint.dist.matrix,my.umap.conf,method = method)
+      colnames(my.umap$layout) <- c('jointUMAP_1','jointUMAP_2')
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout,key = "jointUMAP_",assay = "ADT")
       object[["umap_joint"]] <- umap.reduction
       rownames(object@reductions[["umap_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["umap_joint"]]@cell.embeddings) <- c('jointUMAP_1','jointUMAP_2')
       object@misc[['Joint']][['reduction']] <- "umap_joint"
     } else if (assay == "ADT") {
       # for ADT
@@ -214,10 +214,10 @@ umapFromDistane.Seurat <- function(
       adt.dist.matrix <- as.matrix(object@misc[['ADT']][['dist']])
       # run umap with pairwise distances
       my.umap <- umap(adt.dist.matrix, my.umap.conf, method = method)
+      colnames(my.umap$layout) <- c('adtUMAP_1','adtUMAP_2')
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "adtUMAP_", assay = "ADT")
       object[["umap_adt"]] <- umap.reduction
       rownames(object@reductions[["umap_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["umap_adt"]]@cell.embeddings) <- c('adtUMAP_1','adtUMAP_2')
       object@misc[['ADT']][['reduction']] <- "umap_adt"
     } else if (assay == "RNA") {
       # for RNA
@@ -227,10 +227,10 @@ umapFromDistane.Seurat <- function(
       # run umap with pairwise distances
 
       my.umap <- umap(rna.dist.matrix,my.umap.conf,method = method)
+      colnames(my.umap$layout) <- c('rnaUMAP_1','rnaUMAP_2')
       umap.reduction <- CreateDimReducObject(embeddings = my.umap$layout, key = "rnaUMAP_", assay = "RNA")
       object[["umap_rna"]] <- umap.reduction
       rownames(object@reductions[["umap_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["umap_rna"]]@cell.embeddings) <- c('rnaUMAP_1','rnaUMAP_2')
       object@misc[['RNA']][['reduction']] <- "umap_rna"
     } else {
       stop("Please provide correct assay name! choose from RNA, ADT, Joint, All")
@@ -266,10 +266,10 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(rna.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
+      colnames(my.tsne$Y) <- c("rnatsne_1", "rnatsne_2")
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rnatsne_", assay = "RNA")
       object[["tsne_rna"]] <- tsne.reduction
       rownames(object@reductions[["tsne_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["tsne_rna"]]@cell.embeddings) <- c("rnatsne_1", "rnatsne_2")
       object@misc[['RNA']][['reduction']] <- "tsne_rna"
 
       # for ADT
@@ -279,10 +279,10 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(adt.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
+      colnames(my.tsne$Y) <- c("adttsne_1", "adttsne_2")
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adttsne_", assay = "ADT")
       object[["tsne_adt"]] <- tsne.reduction
       rownames(object@reductions[["tsne_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["tsne_adt"]]@cell.embeddings) <- c("adttsne_1", "adttsne_2")
       object@misc[['ADT']][['reduction']] <- "tsne_adt"
 
       # for Joint
@@ -292,10 +292,10 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(joint.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
+      colnames(my.tsne$Y) <- c("jointtsne_1", "jointtsne_2")
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "jointtsne_", assay = "ADT")
       object[["tsne_joint"]] <- tsne.reduction
       rownames(object@reductions[["tsne_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["tsne_joint"]]@cell.embeddings) <- c("jointtsne_1", "jointtsne_2")
       object@misc[['Joint']][['reduction']] <- "tsne_joint"
 
     } else if (assay == "Joint") {
@@ -306,10 +306,10 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(joint.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
+      colnames(my.tsne$Y) <- c("jointtsne_1", "jointtsne_2")
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "jointtsne_", assay = "ADT")
       object[["tsne_joint"]] <- tsne.reduction
       rownames(object@reductions[["tsne_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["tsne_joint"]]@cell.embeddings) <- c("jointtsne_1", "jointtsne_2")
       object@misc[['Joint']][['reduction']] <- "tsne_joint"
     } else if (assay == "ADT") {
       # for ADT
@@ -319,10 +319,10 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(adt.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
+      colnames(my.tsne$Y) <- c("adttsne_1", "adttsne_2")
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adttsne_", assay = "ADT")
       object[["tsne_adt"]] <- tsne.reduction
       rownames(object@reductions[["tsne_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["tsne_adt"]]@cell.embeddings) <- c("adttsne_1", "adttsne_2")
       object@misc[['ADT']][['reduction']] <- "tsne_adt"
       object@misc[['ADT']][['reduction']] <- "tsne_adt"
     } else if (assay == "RNA") {
@@ -333,10 +333,10 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(rna.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
+      colnames(my.tsne$Y) <- c("rnatsne_1", "rnatsne_2")
       tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rnatsne_", assay = "RNA")
       object[["tsne_rna"]] <- tsne.reduction
       rownames(object@reductions[["tsne_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
-      colnames(object@reductions[["tsne_rna"]]@cell.embeddings) <- c("rnatsne_1", "rnatsne_2")
       object@misc[['RNA']][['reduction']] <- "tsne_rna"
     } else {
       stop("Please provide correct assay name! choose from RNA, ADT, Joint, All")
