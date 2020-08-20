@@ -16,7 +16,6 @@ NULL
 #' @param graph.force.recalc parameter for Seurat function FindNeighbors. Force recalculation of SNN.
 #' @param cluster.modularity.fxn parameter for Seurat function FindClusters.Modularity function (1 = standard; 2 = alternative).
 #' @param cluster.initial.membership parameter for Seurat function FindClusters.Parameters to pass to the Python leidenalg function.
-#' @param cluster.weights parameter for Seurat function FindClusters.Parameters to pass to the Python leidenalg function.
 #' @param cluster.node.sizes parameter for Seurat function FindClusters.Parameters to pass to the Python leidenalg function.
 #' @param cluster.algorithm parameter for Seurat function FindClusters.Algorithm for modularity optimization (1 = original Louvain algorithm; 2 = Louvain algorithm with multilevel refinement; 3 = SLM algorithm; 4 = Leiden algorithm). Leiden requires the leidenalg python.
 #' @param cluster.n.start parameter for Seurat function FindClusters.Number of random starts.
@@ -38,7 +37,6 @@ clusteringFromDistance <- function(
   graph.force.recalc = FALSE,
   cluster.modularity.fxn = 1,
   cluster.initial.membership = NULL,
-  cluster.weights = NULL,
   cluster.node.sizes = NULL,
   cluster.algorithm = 1,
   cluster.n.start = 10,
@@ -63,7 +61,7 @@ clusteringFromDistance <- function(
 
       # identify cell clusters by calling Seurat function
       object[["rna_snn"]] <- FindNeighbors(object = object@misc[['RNA']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
-      object <- FindClusters(object = object, resolution = resolution[2], graph.name = "rna_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
+      object <- FindClusters(object = object, resolution = resolution[2], graph.name = "rna_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["rnaClusterID"]] <- Idents(object = object)
       object@misc[['RNA']][['cluster']] <- "rnaClusterID"
 
@@ -72,7 +70,7 @@ clusteringFromDistance <- function(
 
       # identify cell clusters by calling Seurat function
       object[["adt_snn"]] <- FindNeighbors(object = object@misc[['ADT']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
-      object <- FindClusters(object = object, resolution = resolution[3], graph.name = "adt_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
+      object <- FindClusters(object = object, resolution = resolution[3], graph.name = "adt_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["adtClusterID"]] <- Idents(object = object)
       object@misc[['ADT']][['cluster']] <- "adtClusterID"
 
@@ -81,7 +79,7 @@ clusteringFromDistance <- function(
 
       # identify cell clusters by calling Seurat function
       object[["joint_snn"]] <- FindNeighbors(object = object@misc[['Joint']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
-      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
+      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["jointClusterID"]] <- Idents(object = object)
       object@misc[['Joint']][['cluster']] <- "jointClusterID"
 
@@ -91,7 +89,7 @@ clusteringFromDistance <- function(
 
       # identify cell clusters by calling Seurat function
       object[["joint_snn"]] <- FindNeighbors(object = object@misc[['Joint']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
-      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
+      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "joint_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["jointClusterID"]] <- Idents(object = object)
       object@misc[['Joint']][['cluster']] <- "jointClusterID"
 
@@ -101,7 +99,7 @@ clusteringFromDistance <- function(
 
       # identify cell clusters by calling Seurat function
       object[["adt_snn"]] <- FindNeighbors(object = object@misc[['ADT']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
-      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "adt_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
+      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "adt_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["adtClusterID"]] <- Idents(object = object)
       object@misc[['ADT']][['cluster']] <- "adtClusterID"
 
@@ -111,7 +109,7 @@ clusteringFromDistance <- function(
 
       # identify cell clusters by calling Seurat function
       object[["rna_snn"]] <- FindNeighbors(object = object@misc[['RNA']][['dist']], k.param = graph.k.param, compute.SNN = graph.compute.SNN, prune.SNN = graph.prune.SNN, nn.eps = graph.nn.eps, verbose = FALSE, force.recalc = graph.force.recalc)$snn
-      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "rna_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, weights = cluster.weights, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
+      object <- FindClusters(object = object, resolution = resolution[1], graph.name = "rna_snn", modularity.fxn = cluster.modularity.fxn, initial.membership = cluster.initial.membership, node.sizes = cluster.node.sizes, algorithm = cluster.algorithm, n.start = cluster.n.start, n.iter = cluster.n.iter, random.seed = cluster.random.seed, group.singletons = cluster.group.singletons, temp.file.location = cluster.temp.file.location, edge.file.name = cluster.edge.file.name, verbose = FALSE)
       object[["rnaClusterID"]] <- Idents(object = object)
       object@misc[['RNA']][['cluster']] <- "rnaClusterID"
 
@@ -262,7 +260,7 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(rna.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
-      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rna_tsne_", assay = "RNA")
+      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rnatsne_", assay = "RNA")
       object[["tsne_rna"]] <- tsne.reduction
       rownames(object@reductions[["tsne_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
       object@misc[['RNA']][['reduction']] <- "tsne_rna"
@@ -274,7 +272,7 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(adt.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
-      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adt_tsne_", assay = "ADT")
+      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adttsne_", assay = "ADT")
       object[["tsne_adt"]] <- tsne.reduction
       rownames(object@reductions[["tsne_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
       object@misc[['ADT']][['reduction']] <- "tsne_adt"
@@ -286,7 +284,7 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(joint.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
-      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "joint_tsne_", assay = "ADT")
+      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "jointtsne_", assay = "ADT")
       object[["tsne_joint"]] <- tsne.reduction
       rownames(object@reductions[["tsne_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
       object@misc[['Joint']][['reduction']] <- "tsne_joint"
@@ -299,7 +297,7 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(joint.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
-      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "joint_tsne_", assay = "ADT")
+      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "jointtsne_", assay = "ADT")
       object[["tsne_joint"]] <- tsne.reduction
       rownames(object@reductions[["tsne_joint"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
       object@misc[['Joint']][['reduction']] <- "tsne_joint"
@@ -311,7 +309,7 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(adt.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
-      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adt_tsne_", assay = "ADT")
+      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "adttsne_", assay = "ADT")
       object[["tsne_adt"]] <- tsne.reduction
       rownames(object@reductions[["tsne_adt"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
       object@misc[['ADT']][['reduction']] <- "tsne_adt"
@@ -323,7 +321,7 @@ tsneFromDistane.Seurat <- function(
       # run tsne with pairwise distances
       my.tsne <- Rtsne(rna.dist, perplexity = perplexity, is_distance = TRUE, dims = dim, theta = theta)
 
-      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rna_tsne_", assay = "RNA")
+      tsne.reduction <- CreateDimReducObject(embeddings = my.tsne$Y, key = "rnatsne_", assay = "RNA")
       object[["tsne_rna"]] <- tsne.reduction
       rownames(object@reductions[["tsne_rna"]]@cell.embeddings) <- rownames(object@reductions[["pca"]]@cell.embeddings)
       object@misc[['RNA']][['reduction']] <- "tsne_rna"
