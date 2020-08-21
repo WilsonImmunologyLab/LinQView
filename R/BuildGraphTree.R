@@ -489,7 +489,7 @@ findRootNodeID<- function(
 orderCellsMST <- function(
   data = NULL,
   root = NULL,
-  cutoff = 0.99
+  cutoff = 1
 ) {
   if(!is.null(data)) {
     origin1 <- data
@@ -590,7 +590,7 @@ orderCellsKNN <- function(
   data = NULL,
   dist = NULL,
   root = NULL,
-  cutoff = 0.99
+  cutoff = 1
 ) {
   if(!is.null(data)) {
     # generate a matrix from KNN
