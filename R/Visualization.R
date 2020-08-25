@@ -1186,7 +1186,9 @@ plotPseudoTimeBox <- function(
       }
       # coord flip
       if(isTRUE(coord.flip)){
-        p <- p + coord_flip()
+        p <- p + coord_flip() + theme(axis.line.x = element_line(arrow = arrow(length = unit(0.5, 'cm'))))
+      } else {
+        p <- p + theme(axis.line.y = element_line(arrow = arrow(length = unit(0.5, 'cm'))))
       }
       # add jitter points
       if(isTRUE(show.points)) {
@@ -1242,7 +1244,11 @@ plotPseudoTimeRidge <- function(
       # make figure
       p <- ggplot(data, aes(x=PseudoTime, y=Cluster, fill=Cluster)) + geom_density_ridges() + LightTheme()
       # coord flip
-      if(isTRUE(coord.flip)){ p <- p + coord_flip() }
+      if(isTRUE(coord.flip)){
+        p <- p + coord_flip() + theme(axis.line.y = element_line(arrow = arrow(length = unit(0.5, 'cm'))))
+      } else {
+        p <- p + theme(axis.line.x = element_line(arrow = arrow(length = unit(0.5, 'cm'))))
+      }
       return(p)
     } else {
       stop("Please provide name of pseudotime!")
@@ -1486,13 +1492,18 @@ streamGraph <- function(
   yy,
   cols,
   plotTitle = "Streamgraph",
-  streamNames=c()
+  streamNames=c(),
+  display.arrow
 ){
   timePoints <- dim(yy)[1]
   nStreams <- dim(yy)[2] / 2
 
   xx <- c(1:timePoints, timePoints:1)/100
   plot(xx, xx, type = "n", main = plotTitle, xlab = "Pseudotime", ylab = "", ylim = range(yy), bty = "n")
+  if(isTRUE(display.arrow)) {
+    arrows(min(xx), 0, max(xx), 0, lwd=5, length=0.2)
+  }
+
   for (iStream in 1 : nStreams)
   {
     y <- c(yy[, iStream * 2], rev(yy[, iStream * 2 - 1]))
@@ -1517,6 +1528,7 @@ streamGraph <- function(
 #' @param legend.col display all legend elements in n columns, default = 1
 #' @param colors array of color names. default is "auto"
 #' @param rel_widths reletive width between river plot and figure legend. By default is c(6,1), indicates figure:legend = 6:1
+#' @param display.arrow display arrow or not
 #'
 #' @export
 #'
@@ -1528,7 +1540,8 @@ plotRiverStream <- function(
   display.legend = TRUE,
   legend.col = 1,
   colors = "auto",
-  rel_widths = c(6,1)
+  rel_widths = c(6,1),
+  display.arrow = TRUE
 ){
   if(!is.null(object)) {
     if(!is.null(pseudotime)){
@@ -1586,8 +1599,10 @@ plotRiverStream <- function(
         cols <- colors
       }
 
+      LinQView_RiverStream_plot_cols <<- cols
+      LinQView_RiverStream_plot_display.arrow <<- display.arrow
       # plot figure
-      p1 <- as.ggplot(~streamGraph(computeSmoothedStacks(values=LinQView_RiverStream_plot_data,multiple=1,method = "ThemeRiver"), cols, plotTitle = "River stream", c()))
+      p1 <- as.ggplot(~streamGraph(computeSmoothedStacks(values=LinQView_RiverStream_plot_data,multiple=1,method = "ThemeRiver"), LinQView_RiverStream_plot_cols, plotTitle = "River stream", c(), LinQView_RiverStream_plot_display.arrow))
       if(display.legend == TRUE) {
         if(legend.col == 1) {
           p2 <- ggplot() +
