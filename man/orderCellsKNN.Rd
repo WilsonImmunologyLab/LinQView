@@ -4,7 +4,7 @@
 \alias{orderCellsKNN}
 \title{orderCellsKNN}
 \usage{
-orderCellsKNN(data = NULL, dist = NULL, root = NULL, cutoff = 0.99)
+orderCellsKNN(data = NULL, dist = NULL, root = NULL, cutoff = 1)
 }
 \arguments{
 \item{data}{a KNN}

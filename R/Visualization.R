@@ -212,6 +212,128 @@ trajectoryPlotMST <- function(
   }
 }
 
+#' mstPlot
+#'
+#'
+#' plot cells with MST
+#'
+#' @param mst mst object
+#' @param reduction reduction array
+#' @param color.by color array
+#' @param line.size width of cell trajectory
+#' @param line.color color of cell trajectory
+#'
+#' @importFrom ggplot2 ggplot geom_path geom_point aes labs xlab ylab
+#'
+#' @export
+mstPlot <- function(
+  mst = NULL,
+  reduction = NULL,
+  color.by = NULL,
+  line.size = 0.5,
+  line.color = "gray"
+) {
+  dim1 = reduction[, 1]
+  dim2 = reduction[, 2]
+
+  # trajectory
+  data <- data.frame(
+    x=as.numeric(dim1),
+    y=as.numeric(dim2),
+    cluster=color.by
+  )
+
+  node.pg <- reduction
+  tree.pg <- t(as.matrix(mst))
+
+  path.x <- rep(0, dim(tree.pg)[1]*3)
+  path.y <- rep(0, dim(tree.pg)[1]*3)
+
+  for (x in 1:dim(tree.pg)[1]) {
+    i <- tree.pg[x,1]
+    j <- tree.pg[x,2]
+
+    xxx <- 3*(x-1) + 1
+    path.x[xxx] <- node.pg[i,1]
+    path.x[xxx+1] <- node.pg[j,1]
+    path.x[xxx+2] <- 0
+
+    path.y[xxx] <- node.pg[i,2]
+    path.y[xxx+1] <- node.pg[j,2]
+    path.y[xxx+2] <- NA
+  }
+
+  path <- data.frame(x=path.x,y=path.y)
+
+  p <- ggplot(data, aes(x,y)) +
+    geom_point(aes(colour = cluster)) +
+    geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+    xlab("dim1") + ylab("dim2") + LightTheme()
+
+  return(p)
+}
+
+#' trimmstPlot
+#'
+#'
+#' plot cells with MST
+#'
+#' @param trimed trimed mst object
+#' @param reduction reduction array
+#' @param color.by color array
+#' @param line.size width of cell trajectory
+#' @param line.color color of cell trajectory
+#'
+#' @importFrom ggplot2 ggplot geom_path geom_point aes labs xlab ylab
+#'
+#' @export
+trimmstPlot <- function(
+  trimed = NULL,
+  reduction = NULL,
+  color.by = NULL,
+  line.size = 0.5,
+  line.color = "gray"
+) {
+  dim1 = reduction[, 1]
+  dim2 = reduction[, 2]
+
+  # trajectory
+  data <- data.frame(
+    x=as.numeric(dim1),
+    y=as.numeric(dim2),
+    cluster=color.by
+  )
+
+  node.pg <- trimed[[2]]
+  tree.pg <- trimed[[1]]
+
+  path.x <- rep(0, dim(tree.pg)[1]*3)
+  path.y <- rep(0, dim(tree.pg)[1]*3)
+
+  for (x in 1:dim(tree.pg)[1]) {
+    i <- tree.pg[x,1]
+    j <- tree.pg[x,2]
+
+    xxx <- 3*(x-1) + 1
+    path.x[xxx] <- node.pg[i,1]
+    path.x[xxx+1] <- node.pg[j,1]
+    path.x[xxx+2] <- 0
+
+    path.y[xxx] <- node.pg[i,2]
+    path.y[xxx+1] <- node.pg[j,2]
+    path.y[xxx+2] <- NA
+  }
+
+  path <- data.frame(x=path.x,y=path.y)
+
+  p <- ggplot(data, aes(x,y)) +
+    geom_point(aes(colour = cluster)) +
+    geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+    xlab("dim1") + ylab("dim2") + LightTheme()
+
+  return(p)
+}
+
 
 #' distHeatMap
 #'

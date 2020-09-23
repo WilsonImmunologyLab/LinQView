@@ -6,7 +6,7 @@
 \usage{
 plotRiverStream(object = NULL, pseudotime = NULL, group.by = "ident",
   display.legend = TRUE, legend.col = 1, colors = "auto",
-  rel_widths = c(6, 1))
+  rel_widths = c(6, 1), display.arrow = TRUE)
 }
 \arguments{
 \item{object}{seurat object}
@@ -22,6 +22,8 @@ plotRiverStream(object = NULL, pseudotime = NULL, group.by = "ident",
 \item{colors}{array of color names. default is "auto"}
 
 \item{rel_widths}{reletive width between river plot and figure legend. By default is c(6,1), indicates figure:legend = 6:1}
+
+\item{display.arrow}{display arrow or not}
 }
 \description{
 plotRiverStream.

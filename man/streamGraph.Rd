@@ -4,7 +4,8 @@
 \alias{streamGraph}
 \title{Plots the streamgraph. This function was adopted from https://canonicalized.com/streamgraphs-in-tableau-via-r/ with modification, author is Dorian Banutoiu}
 \usage{
-streamGraph(yy, cols, plotTitle = "Streamgraph", streamNames = c())
+streamGraph(yy, cols, plotTitle = "Streamgraph", streamNames = c(),
+  display.arrow)
 }
 \value{
 base plot streamgraph figure
