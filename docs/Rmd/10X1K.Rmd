@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 # Load packages
 ```{r results='hide', results='hide', message=FALSE, warning=FALSE, warning=FALSE}
-library(LinQseq)
+library(LinQView)
 library(cowplot)
 library(Seurat)
 ```
@@ -137,7 +137,7 @@ t2 - t1
 
 ```{r echo=TRUE, dpi=300,fig.width=5, fig.height=4,results='hide', message=FALSE, warning=FALSE}
 # contribution of two modalities
-LinQseq::distHeatMap(object = cbmc, label = TRUE)
+distHeatMap(object = cbmc, label = TRUE)
 ```
 
 # Step 9 Visualization ADT vs RNA vs Joint
