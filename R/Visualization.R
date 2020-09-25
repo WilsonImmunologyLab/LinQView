@@ -265,10 +265,18 @@ mstPlot <- function(
 
   path <- data.frame(x=path.x,y=path.y)
 
-  p <- ggplot(data, aes(x,y)) +
-    geom_point(aes(colour = cluster)) +
-    geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
-    xlab("dim1") + ylab("dim2") + LightTheme()
+  if(is.numeric(data$cluster)){
+    colors = c("blue", "green","yellow", "red")
+    p <- ggplot(data, aes(x,y)) +
+      geom_point(aes(colour = cluster)) + scale_color_gradientn(colours = colors, breaks=c(min(data$cluster),max(data$cluster))) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      xlab("dim1") + ylab("dim2") + LightTheme()
+  } else {
+    p <- ggplot(data, aes(x,y)) +
+      geom_point(aes(colour = cluster)) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      xlab("dim1") + ylab("dim2") + LightTheme()
+  }
 
   return(p)
 }
@@ -326,10 +334,18 @@ trimmstPlot <- function(
 
   path <- data.frame(x=path.x,y=path.y)
 
-  p <- ggplot(data, aes(x,y)) +
-    geom_point(aes(colour = cluster)) +
-    geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
-    xlab("dim1") + ylab("dim2") + LightTheme()
+  if(is.numeric(data$cluster)){
+    colors = c("blue", "green","yellow", "red")
+    p <- ggplot(data, aes(x,y)) +
+      geom_point(aes(colour = cluster)) + scale_color_gradientn(colours = colors, breaks=c(min(data$cluster),max(data$cluster))) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      xlab("dim1") + ylab("dim2") + LightTheme()
+  } else {
+    p <- ggplot(data, aes(x,y)) +
+      geom_point(aes(colour = cluster)) +
+      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+      xlab("dim1") + ylab("dim2") + LightTheme()
+  }
 
   return(p)
 }
@@ -567,6 +583,7 @@ DimplotContinue <- function(
 #'
 #' @param object seurat object
 #' @param assay assay name (RNA, ADT or Joint)
+#' @param show.trajectory show trajectory or not
 #' @param colors gradient colors for pseudotime. color order is low to high.
 #' @param line.size line width for trajectory
 #' @param line.color line color for trajectory
@@ -575,52 +592,72 @@ DimplotContinue <- function(
 pseudoTimePlotMST <- function(
   object = NULL,
   assay = NULL,
+  show.trajectory = TRUE,
   colors = c("blue", "green","yellow", "red"),
   line.size = 0.5,
   line.color = "gray"
 ) {
   if(!is.null(object)) {
-    pg <- object@misc[[assay]][['pg']]
-    reduction <- object@misc[[assay]][['reduction']]
-    dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
-    dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
-    time.name <- object@misc[[assay]][['time']][['mst']]
-    pseudotime <- object@meta.data[[time.name]]
+    if(show.trajectory == TRUE) {
+      pg <- object@misc[[assay]][['pg']]
+      reduction <- object@misc[[assay]][['reduction']]
+      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+      time.name <- object@misc[[assay]][['time']][['mst']]
+      pseudotime <- object@meta.data[[time.name]]
 
-    # joint trajectory
-    data <- data.frame(
-      x=as.numeric(dim1),
-      y=as.numeric(dim2),
-      time=as.numeric(pseudotime)
-    )
+      # joint trajectory
+      data <- data.frame(
+        x=as.numeric(dim1),
+        y=as.numeric(dim2),
+        time=as.numeric(pseudotime)
+      )
 
-    node.pg <- pg[[1]]$NodePositions
-    tree.pg <- pg[[1]][["Edges"]][["Edges"]]
+      node.pg <- pg[[1]]$NodePositions
+      tree.pg <- pg[[1]][["Edges"]][["Edges"]]
 
 
-    path.x <- rep(0, dim(tree.pg)[1]*3)
-    path.y <- rep(0, dim(tree.pg)[1]*3)
+      path.x <- rep(0, dim(tree.pg)[1]*3)
+      path.y <- rep(0, dim(tree.pg)[1]*3)
 
-    for (x in 1:dim(tree.pg)[1]) {
-      i <- tree.pg[x,1]
-      j <- tree.pg[x,2]
+      for (x in 1:dim(tree.pg)[1]) {
+        i <- tree.pg[x,1]
+        j <- tree.pg[x,2]
 
-      xxx <- 3*(x-1) + 1
-      path.x[xxx] <- node.pg[i,1]
-      path.x[xxx+1] <- node.pg[j,1]
-      path.x[xxx+2] <- 0
+        xxx <- 3*(x-1) + 1
+        path.x[xxx] <- node.pg[i,1]
+        path.x[xxx+1] <- node.pg[j,1]
+        path.x[xxx+2] <- 0
 
-      path.y[xxx] <- node.pg[i,2]
-      path.y[xxx+1] <- node.pg[j,2]
-      path.y[xxx+2] <- NA
+        path.y[xxx] <- node.pg[i,2]
+        path.y[xxx+1] <- node.pg[j,2]
+        path.y[xxx+2] <- NA
+      }
+
+      path <- data.frame(x=path.x,y=path.y)
+
+      p <- ggplot(data, aes(x,y)) +
+        geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) +
+        geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
+        xlab("dim1") + ylab("dim2") + LightTheme()
+    } else {
+      reduction <- object@misc[[assay]][['reduction']]
+      dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
+      dim2 = object@reductions[[reduction]]@cell.embeddings[, 2]
+      time.name <- object@misc[[assay]][['time']][['mst']]
+      pseudotime <- object@meta.data[[time.name]]
+
+      # joint trajectory
+      data <- data.frame(
+        x=as.numeric(dim1),
+        y=as.numeric(dim2),
+        time=as.numeric(pseudotime)
+      )
+
+      p <- ggplot(data, aes(x,y)) +
+        geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) +
+        xlab("dim1") + ylab("dim2") + LightTheme()
     }
-
-    path <- data.frame(x=path.x,y=path.y)
-
-    p <- ggplot(data, aes(x,y)) +
-      geom_point(aes(colour = time)) + scale_color_gradientn(colours = colors, breaks=c(0,1), labels=c("Early","Late")) +
-      geom_path(data = path, mapping = aes(x,y), colour = line.color, size = line.size) +
-      xlab("dim1") + ylab("dim2") + LightTheme()
 
     return(p)
   } else {
