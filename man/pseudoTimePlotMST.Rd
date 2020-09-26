@@ -4,13 +4,16 @@
 \alias{pseudoTimePlotMST}
 \title{pseudoTimePlotMST}
 \usage{
-pseudoTimePlotMST(object = NULL, assay = NULL, colors = c("blue",
-  "green", "yellow", "red"), line.size = 0.5, line.color = "gray")
+pseudoTimePlotMST(object = NULL, assay = NULL,
+  show.trajectory = TRUE, colors = c("blue", "green", "yellow", "red"),
+  line.size = 0.5, line.color = "gray")
 }
 \arguments{
 \item{object}{seurat object}
 
 \item{assay}{assay name (RNA, ADT or Joint)}
+
+\item{show.trajectory}{show trajectory or not}
 
 \item{colors}{gradient colors for pseudotime. color order is low to high.}
 

@@ -226,6 +226,8 @@ trajectoryPlotMST <- function(
 #' @importFrom ggplot2 ggplot geom_path geom_point aes labs xlab ylab
 #'
 #' @export
+#'
+#'
 mstPlot <- function(
   mst = NULL,
   reduction = NULL,
@@ -295,6 +297,8 @@ mstPlot <- function(
 #' @importFrom ggplot2 ggplot geom_path geom_point aes labs xlab ylab
 #'
 #' @export
+#'
+#'
 trimmstPlot <- function(
   trimed = NULL,
   reduction = NULL,
