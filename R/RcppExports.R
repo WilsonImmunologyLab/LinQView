@@ -8,7 +8,7 @@
 #' @param k k for Sigmoid function.
 #' @export
 Sigmoid <- function(a, n, k) {
-    .Call(`_LinQView_Sigmoid`, a, n, k)
+    .Call('_LinQView_Sigmoid', PACKAGE = 'LinQView', a, n, k)
 }
 
 #' EucNorm function
@@ -16,7 +16,7 @@ Sigmoid <- function(a, n, k) {
 #' @param a A Numeric Vector.
 #' @export
 EucNorm <- function(a) {
-    .Call(`_LinQView_EucNorm`, a)
+    .Call('_LinQView_EucNorm', PACKAGE = 'LinQView', a)
 }
 
 #' Scale distance using a sigmoid function. The main purpose is to reduce the effects of small distances (those distances are most likely from random noise of ADT signals)
@@ -26,7 +26,7 @@ EucNorm <- function(a) {
 #' @param k k for Sigmoid function.
 #' @export
 scaleDistCpp <- function(data, n, k) {
-    .Call(`_LinQView_scaleDistCpp`, data, n, k)
+    .Call('_LinQView_scaleDistCpp', PACKAGE = 'LinQView', data, n, k)
 }
 
 #' Scale distance using a sigmoid function. The main purpose is to reduce the effects of small distances (those distances are most likely from random noise of ADT signals)
@@ -39,7 +39,7 @@ scaleDistCpp <- function(data, n, k) {
 #' @param c c is a vector that contains constant value that seaprate negative and positive for each ADT feature. By default, c = 1,1,...,1
 #' @export
 scaleDistUpdateCpp <- function(data, n, k, c) {
-    .Call(`_LinQView_scaleDistUpdateCpp`, data, n, k, c)
+    .Call('_LinQView_scaleDistUpdateCpp', PACKAGE = 'LinQView', data, n, k, c)
 }
 
 #' objective function for gradient descnet method
@@ -49,7 +49,7 @@ scaleDistUpdateCpp <- function(data, n, k, c) {
 #' @param Y distance vector.
 #' @export
 objectiveFunctionCpp <- function(alpha, X, Y) {
-    .Call(`_LinQView_objectiveFunctionCpp`, alpha, X, Y)
+    .Call('_LinQView_objectiveFunctionCpp', PACKAGE = 'LinQView', alpha, X, Y)
 }
 
 #' gradient function for gradient descnet method
@@ -59,7 +59,7 @@ objectiveFunctionCpp <- function(alpha, X, Y) {
 #' @param Y distance vector.
 #' @export
 gradientFunctionCpp <- function(alpha, X, Y) {
-    .Call(`_LinQView_gradientFunctionCpp`, alpha, X, Y)
+    .Call('_LinQView_gradientFunctionCpp', PACKAGE = 'LinQView', alpha, X, Y)
 }
 
 #' gradient descnet method
@@ -72,6 +72,6 @@ gradientFunctionCpp <- function(alpha, X, Y) {
 #' @param max_iter maximum iterations
 #' @export
 gradientDescentCpp <- function(X, Y, alpha, learning_rate, low_threshold, max_iter) {
-    .Call(`_LinQView_gradientDescentCpp`, X, Y, alpha, learning_rate, low_threshold, max_iter)
+    .Call('_LinQView_gradientDescentCpp', PACKAGE = 'LinQView', X, Y, alpha, learning_rate, low_threshold, max_iter)
 }
 

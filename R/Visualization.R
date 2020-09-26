@@ -1304,7 +1304,7 @@ highCorrelatedGenePlot <- function(
 #' plot pseudotime of each cluster on a Box or vln plot
 #'
 #' @importFrom grDevices colorRampPalette
-#' @importFrom ggplot2 ggplot geom_violin geom_boxplot coord_flip geom_jitter aes position_jitter
+#' @importFrom ggplot2 ggplot geom_violin geom_boxplot coord_flip geom_jitter aes position_jitter unit
 #'
 #'
 #' @param object Seurat object
