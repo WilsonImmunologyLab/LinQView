@@ -99,8 +99,17 @@ function showorhide(id)
             <p>devtools::install_github("WilsonImmunologyLab/LinQView",dependencies = TRUE)</p>
           </div>
         </ul>
+        <ul>
+          <h4>Potential installation issue with R 4.0</h4>
+            <p>Because this package developed some C++ codes with <a href="https://cran.r-project.org/web/packages/Rcpp/index.html" target="_blank">Rcpp</a> library, R 4.0 users may have installation issues with this package. The error message usually be: </p>
+            <div class="MysourceCode">
+              <p>fatal error: 'math.h' file not found</p>
+            </div>
+            <p>For Windows RStudio users, we suggest you switch back to R 3.6. </p>
+            <p>For Mac RStudio users, we highly recommand a tool <a href="https://rud.is/rswitch/" target="_blank">RSwitch</a> that allows you to keep multiple R version and switch among them. </p>
+        </ul>
+
         <h3>Dependencies</h3>
-        
         <span>Most of dependencies can be installed when install LinQ-View, some packages may need to be installed seprately. Users can copy the all-in-one command collections below:</span>
         <ul>
           <div class="MysourceCode">
