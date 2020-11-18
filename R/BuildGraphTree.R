@@ -109,6 +109,8 @@ buildMST.default <- function(
 #' buildPG.Seurat
 #' @importFrom ElPiGraph.R computeElasticPrincipalTree
 #'
+#' @param initial.MST choose from "miniMST", and FALSE
+#'
 #' @rdname buildPG
 #' @export
 #'
@@ -122,7 +124,9 @@ buildPG.Seurat <- function(
   pg.Mu = 0.01,
   trimming.radius = Inf,
   final.energy = "Penalized",
-  initial.MST = FALSE
+  initial.MST = TRUE,
+  group.by = NULL,
+  nodes.per.cluster = 10
 ) {
   if(!is.null(object)) {
     if(assay == "All") {
@@ -134,24 +138,48 @@ buildPG.Seurat <- function(
       joint.mst <- object@misc[['Joint']][['mst']]
       joint.reduction.name <- object@misc[['Joint']][['reduction']]
       joint.embedding <- object@reductions[[joint.reduction.name]]@cell.embeddings
-
-      object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      if(isTRUE(initial.MST)){
+        if(is.null(group.by)) {
+          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+        }
+        trimedMST <- trimMSTcluster(mst = t(joint.mst)[,1:2], embedding = joint.embedding, dist = object@misc[["Joint"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
+      } else {
+        trimedMST = joint.mst
+        initial.MST = FALSE
+      }
+      object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = trimedMST, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
 
       # build PG for RNA data
       cat("build PG for RNA data ... \n")
       rna.mst <- object@misc[['RNA']][['mst']]
       rna.reduction.name <- object@misc[['RNA']][['reduction']]
       rna.embedding <- object@reductions[[rna.reduction.name]]@cell.embeddings
-
-      object@misc[['RNA']][['pg']] <- buildPG(object = rna.embedding, mst = rna.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      if(isTRUE(initial.MST)){
+        if(is.null(group.by)) {
+          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+        }
+        trimedMST <- trimMSTcluster(mst = t(rna.mst)[,1:2], embedding = rna.embedding, dist = object@misc[["RNA"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
+      } else {
+        trimedMST = rna.mst
+        initial.MST = FALSE
+      }
+      object@misc[['RNA']][['pg']] <- buildPG(object = rna.embedding, mst = trimedMST, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
 
       # build PG for ADT data
       cat("build PG for ADT data ... \n")
       adt.mst <- object@misc[['ADT']][['mst']]
       adt.reduction.name <- object@misc[['ADT']][['reduction']]
       adt.embedding <- object@reductions[[adt.reduction.name]]@cell.embeddings
-
-      object@misc[['ADT']][['pg']] <- buildPG(object = adt.embedding, mst = adt.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      if(isTRUE(initial.MST)){
+        if(is.null(group.by)) {
+          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+        }
+        trimedMST <- trimMSTcluster(mst = t(adt.mst)[,1:2], embedding = adt.embedding, dist = object@misc[["ADT"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
+      } else {
+        trimedMST = adt.mst
+        initial.MST = FALSE
+      }
+      object@misc[['ADT']][['pg']] <- buildPG(object = adt.embedding, mst = trimedMST, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "Joint") {
       # build PG for joint data
       cat("build PG for joint data ... \n")
@@ -163,7 +191,16 @@ buildPG.Seurat <- function(
       }
       joint.embedding <- object@reductions[[joint.reduction.name]]@cell.embeddings
 
-      object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = joint.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      if(isTRUE(initial.MST)){
+        if(is.null(group.by)) {
+          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+        }
+        trimedMST <- trimMSTcluster(mst = t(joint.mst)[,1:2], embedding = joint.embedding, dist = object@misc[["Joint"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
+      } else {
+        trimedMST = joint.mst
+        initial.MST = FALSE
+      }
+      object@misc[['Joint']][['pg']] <- buildPG(object = joint.embedding, mst = trimedMST, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "RNA") {
       # build PG for RNA data
       cat("build PG for RNA data ... \n")
@@ -175,7 +212,16 @@ buildPG.Seurat <- function(
       }
       rna.embedding <- object@reductions[[rna.reduction.name]]@cell.embeddings
 
-      object@misc[['RNA']][['pg']] <- buildPG(object = rna.embedding, mst = rna.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      if(isTRUE(initial.MST)){
+        if(is.null(group.by)) {
+          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+        }
+        trimedMST <- trimMSTcluster(mst = t(rna.mst)[,1:2], embedding = rna.embedding, dist = object@misc[["RNA"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
+      } else {
+        trimedMST = rna.mst
+        initial.MST = FALSE
+      }
+      object@misc[['RNA']][['pg']] <- buildPG(object = rna.embedding, mst = trimedMST, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else if (assay == "ADT") {
       # build PG for ADT data
       cat("build PG for ADT data ... \n")
@@ -187,7 +233,16 @@ buildPG.Seurat <- function(
       }
       adt.embedding <- object@reductions[[adt.reduction.name]]@cell.embeddings
 
-      object@misc[['ADT']][['pg']] <- buildPG(object = adt.embedding, mst = adt.mst, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
+      if(isTRUE(initial.MST)){
+        if(is.null(group.by)) {
+          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+        }
+        trimedMST <- trimMSTcluster(mst = t(adt.mst)[,1:2], embedding = adt.embedding, dist = object@misc[["ADT"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
+      } else {
+        trimedMST = adt.mst
+        initial.MST = FALSE
+      }
+      object@misc[['ADT']][['pg']] <- buildPG(object = adt.embedding, mst = trimedMST, pg.nodes = pg.nodes, pg.min.nodes = pg.min.nodes, pg.Lambda = pg.Lambda, pg.Mu = pg.Mu, initial.MST = initial.MST, trimming.radius = trimming.radius, final.energy = final.energy)
     } else {
       stop("Invalid assay name! Assay name can only be RNA, ADT, Joint or All")
     }
@@ -222,24 +277,22 @@ buildPG.default <- function(
     if(!is.null(pg.nodes)) {
       nodes <- pg.nodes
     } else {
-      n.point <- dim(mst)[2]
+      n.point <- dim(embedding)[2]
       nodes <- floor(n.point/100)
       nodes <- ifelse(test = nodes > pg.min.nodes, yes = nodes, no = pg.min.nodes)
     }
 
-    mst <- t(mst)[,1:2]
     if(isTRUE(initial.MST)) {
       if(is.null(mst)) {
         stop("You set 'initial.MST = TRUE', please provide an MST using 'mst =' paramater \n")
       }
       # infer PG from cell embedding and use trimmed MST as initial
-      trimed <- trimMST(mst = mst, embedding = embedding)
       PrincipalTree <- computeElasticPrincipalTree(X = embedding,
                                                    NumNodes = nodes,
                                                    Lambda = pg.Lambda,
                                                    Mu = pg.Mu,
-                                                   InitNodePositions = trimed[[2]],
-                                                   InitEdges = trimed[[1]],
+                                                   InitNodePositions = mst[[2]],
+                                                   InitEdges = mst[[1]],
                                                    FinalEnergy = final.energy,
                                                    TrimmingRadius= trimming.radius,
                                                    Do_PCA = FALSE,
@@ -706,6 +759,59 @@ trimMST <- function(
 
   mst.trimmed[,1] <- projection[mst.trimmed[,1]]
   mst.trimmed[,2] <- projection[mst.trimmed[,2]]
+
+  result <- list()
+  result[[1]] <- mst.trimmed
+  result[[2]] <- embedding.trimmed
+
+  return(result)
+}
+
+#' trimMSTcluster
+#'
+#' generate a mini MST using cluster nodes as initial for PG
+#'
+#' @param mst a MST
+#' @param embedding cell embedding
+#' @param cluster.label clustering label in object-meta
+#' @param dist distance matrix for current assay
+#' @param nodes.per.cluster how many nodes picked from each cluster
+#'
+#' @export
+#'
+trimMSTcluster <- function(
+  mst = NULL,
+  embedding = NULL,
+  cluster.label = NULL,
+  dist = NULL,
+  nodes.per.cluster = 5
+) {
+  picked.list <- c()
+  # pick hub nodes for each cluster
+  mst.all.nodes <- c(mst[,1],mst[,2])
+  mst.count <- as.data.frame(table(mst.all.nodes))
+
+  cluster.label <- as.factor(cluster.label)
+  all.clusters <- levels(cluster.label)
+  for (current.cluster in all.clusters) {
+    cur.index <- which(cluster.label == current.cluster)
+    if(length(cur.index) > nodes.per.cluster) {
+      cur.data <- mst.count[cur.index,]
+      cur.data <- cur.data[order(-cur.data$Freq),]
+      cur.sel.index <- as.integer(cur.data[1:nodes.per.cluster,1])
+      picked.list <- c(picked.list, cur.sel.index)
+    } else {
+      picked.list <- c(picked.list, cur.index)
+    }
+  }
+
+  # mst on selected nodes
+  dist <- as.matrix(dist)
+  select.distance <- dist[picked.list,picked.list]
+  mst.trimmed <- buildMST(select.distance)
+  mst.trimmed <- t(mst.trimmed[1:2,])
+  # embedding for selected nodes
+  embedding.trimmed <- embedding[picked.list,]
 
   result <- list()
   result[[1]] <- mst.trimmed
