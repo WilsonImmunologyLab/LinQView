@@ -814,10 +814,14 @@ heatMapPlot <- function(
         cat("User didn't provide RNA feature list, will choose top 10 for each cluster!\n")
 
         Idents(object = object) <- object[[group.by]]
-        rna.markers <- FindAllMarkers(object, max.cells.per.ident = 100, min.diff.pct = 0.3, only.pos = TRUE,assay = 'RNA')
-        rna.top10 <- rna.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_logFC)
-        rna.feature <- rna.top10
-        rna.feature <- unique(rna.feature$gene)
+        rna.markers <- FindAllMarkers(object, max.cells.per.ident = 100, min.diff.pct = 0.3, only.pos = TRUE, assay = 'RNA')
+
+        if(identical(colnames(rna.markers)[2], "avg_logFC")) {
+          rna.top10 <- rna.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_logFC)
+        } else {
+          rna.top10 <- rna.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+        }
+        rna.feature <- unique(rna.top10$gene)
       } else {
         rna.feature <- unique(rna.feature)
       }
@@ -1345,7 +1349,7 @@ plotPseudoTimeBox <- function(
       if(fig.type == 'vln') {
         p <- ggplot(data, aes(x=Cluster, y=PseudoTime, fill=Cluster)) + geom_violin() + LightTheme()
       } else {
-        p <- ggplot(data, aes(x=Cluster, y=PseudoTime, fill=Cluster)) + geom_boxplot() + LightTheme()
+        p <- ggplot(data, aes(x=Cluster, y=PseudoTime, fill=Cluster)) + geom_boxplot(outlier.alpha = 0) + LightTheme()
       }
       # coord flip
       if(isTRUE(coord.flip)){

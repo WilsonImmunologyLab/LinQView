@@ -449,7 +449,7 @@ pseudoTime <- function(
   method = "MST",
   assay = "Joint",
   root.cluster = NULL,
-  percentile.cutoff = 1
+  percentile.cutoff = 0.99
 ) {
   if(!is.null(object)) {
     group.by <- object@misc[[assay]][['cluster']]
@@ -542,7 +542,7 @@ findRootNodeID<- function(
 orderCellsMST <- function(
   data = NULL,
   root = NULL,
-  cutoff = 1
+  cutoff = 0.99
 ) {
   if(!is.null(data)) {
     origin1 <- data
