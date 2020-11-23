@@ -4,7 +4,7 @@
 \alias{orderCellsMST}
 \title{orderCellsMST}
 \usage{
-orderCellsMST(data = NULL, root = NULL, cutoff = 1)
+orderCellsMST(data = NULL, root = NULL, cutoff = 0.99)
 }
 \arguments{
 \item{data}{a MST}

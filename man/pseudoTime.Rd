@@ -5,7 +5,7 @@
 \title{pseudoTime}
 \usage{
 pseudoTime(object, method = "MST", assay = "Joint",
-  root.cluster = NULL, percentile.cutoff = 1)
+  root.cluster = NULL, percentile.cutoff = 0.99)
 }
 \arguments{
 \item{object}{Seurat object}

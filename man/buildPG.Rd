@@ -9,7 +9,7 @@
 \method{buildPG}{Seurat}(object, assay = "Joint", reduction = NULL,
   pg.nodes = NULL, pg.min.nodes = 30, pg.Lambda = 0.03,
   pg.Mu = 0.01, trimming.radius = Inf, final.energy = "Penalized",
-  initial.MST = FALSE)
+  initial.MST = TRUE, group.by = NULL, nodes.per.cluster = 10)
 
 \method{buildPG}{default}(object, mst = NULL, pg.nodes = NULL,
   pg.min.nodes = 30, pg.Lambda = 0.03, pg.Mu = 0.01,
@@ -35,11 +35,13 @@ buildPG(object, ...)
 
 \item{final.energy}{parameter for computing Elastic Principal Graph, string indicating the final elastic emergy associated with the configuration. Currently it can be "Base" or "Penalized"}
 
-\item{initial.MST}{use MST as initial for PG or not. default is FALSE because use MST as initial is time consuming for large dataset}
+\item{initial.MST}{choose from "miniMST", and FALSE}
 
 \item{mst}{(For default) MST for building PG}
 
 \item{object}{(For default) cell embedding}
+
+\item{initial.MST}{use MST as initial for PG or not. default is FALSE because use MST as initial is time consuming for large dataset}
 }
 \description{
 build PG based on user's choice (RNA, ADT, Joint or All) MST

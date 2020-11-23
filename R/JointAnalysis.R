@@ -675,4 +675,156 @@ gradientDescent <- function(X, Y, alpha, learning.rate, low.threshold) {
   return(alpha)
 }
 
+#' scoreRNA
+#'
+#' RNA score function. use ROGUE score for RNA data
+#'
+#' @importFrom ROGUE rogue
+#'
+#' @param object single cell data object
+#' @param group.by name of clustering
+#' @param platform platform of rna sequencing
+#' @param span parameter span
+#' @param samples name of sample information, can be blank
+#'
+#' @export
+#'
+scoreRNA <- function(
+  object = NULL,
+  group.by = NULL,
+  platform = 'UMI',
+  span = 0.6,
+  samples = NULL
+){
+  if(is_null(object)) {
+    stop('Please provide data object!')
+  }
+  if(is_null(group.by)) {
+    stop('Please provide clustering name! e.g. jointClusterID, rnaClusterID...')
+  }
+  if(is_null(samples)) {
+    samples <- rep('EntireDataset', length(object@meta.data[[group.by]]))
+  } else {
+    samples <- object@meta.data[[samples]]
+  }
+
+  rna_expr <- object@assays[["RNA"]]@counts
+
+  rogue.res.rna <- rogue(rna_expr, labels = object@meta.data[[group.by]], samples = samples, platform = "UMI", span = 0.6)
+  return(rogue.res.rna)
+}
+
+
+#' scoreADTfun
+#'
+#' ADT score function
+#'
+#'
+#' @param object single cell data object
+#' @param group.by name of clustering
+#' @param samples name of sample information, can be blank
+#' @param k parameter k option. set "auto" will use the sum of SDs of entire dataset
+#'
+#' @export
+
+scoreADT <- function(
+  object = NULL,
+  group.by = NULL,
+  k = 'auto',
+  samples = NULL
+){
+  if(is_null(object)) {
+    stop('Please provide data object!')
+  }
+  if(is_null(group.by)) {
+    stop('Please provide clustering name! e.g. jointClusterID, rnaClusterID...')
+  }
+  adt_expr_norm <- object@assays[["ADT"]]@data
+  if(!is.numeric(k)){
+    k = 0
+    for (i in c(1:dim(adt_expr_norm)[1])) {
+      value <- sd(adt_expr_norm[i,])
+      k <- k + value
+    }
+  }
+  if(is_null(samples)) {
+    adt.score <- scoreADTfun(adt_expr_norm, labels = object@meta.data[[group.by]], k = k)
+  } else {
+    adt.score <- NULL
+    samples <- as.character(object@meta.data[[samples]])
+    samples.name <- unique(samples)
+    labels <- as.character(object@meta.data[[group.by]])
+    labels.name <- unique(labels)
+    for (sample.name in samples.name) {
+      cur_index <- which(samples == sample.name)
+      cur_adt_expr_norm <- adt_expr_norm[,cur_index]
+      cur_labels <- object@meta.data[[group.by]]
+      cur_labels <- cur_labels[cur_index]
+      cur_adt.score <- scoreADTfun(cur_adt_expr_norm, labels = cur_labels,labels.name = labels.name, k = k)
+      rownames(cur_adt.score) <- c(sample.name)
+      if(is_null(adt.score)) {
+        adt.score <- cur_adt.score
+      } else {
+        adt.score <- rbind(adt.score, cur_adt.score)
+      }
+    }
+  }
+  return(adt.score)
+}
+
+#' scoreADTfun
+#'
+#' ADT score function
+#'
+#' @param object single cell data object
+#' @param labels name of clustering
+#' @param labels.name a list of all labels
+#' @param k parameter k
+#'
+#'
+
+scoreADTfun <- function(
+  object = NULL,
+  labels = NULL,
+  labels.name = NULL,
+  k = 10
+) {
+  # determine k value based on current dataset
+  if(!is.numeric(k)){
+    k = 0
+    adt_expr <- object
+    for (i in c(1:dim(adt_expr)[1])) {
+      value <- sd(adt_expr[i,])
+      k <- k + value
+    }
+  }
+
+  labels <- as.character(labels)
+  if(is_null(labels.name)) {
+    labels.name <- unique(labels)
+  }
+  scores <- c()
+  # for each cluster
+  for(label.name in labels.name){
+    index <- which(labels == label.name)
+    if(length(index) == 0){
+      cat('Current sample do not have members in this cluster, set to 0...')
+      plus.sd <- 0
+      scores <- c(scores, plus.sd)
+    } else {
+      adt_expr <- object[,index]
+      plus.sd <- 0
+      for (i in c(1:dim(adt_expr)[1])) {
+        value <- sd(adt_expr[i,])
+        plus.sd <- plus.sd + value
+      }
+      plus.sd <- k/(plus.sd + k)
+      scores <- c(scores, plus.sd)
+    }
+  }
+  names(scores) <- labels.name
+  scores <- t(as.data.frame(scores))
+  scores <- as.data.frame(scores)
+  return(scores)
+}
 
