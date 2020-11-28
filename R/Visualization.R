@@ -1719,7 +1719,7 @@ plotRiverStream <- function(
         }
         my_data <- data.frame(
           PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
-          Cluster=object@active.ident
+          Cluster=as.factor(object@active.ident)
         )
       } else {
         if(is.null(object@meta.data[[pseudotime]])) {
@@ -1729,11 +1729,11 @@ plotRiverStream <- function(
         }
         my_data <- data.frame(
           PseudoTime=as.numeric(object@meta.data[[pseudotime]]),
-          Cluster=object@meta.data[[group.by]]
+          Cluster=as.factor(object@meta.data[[group.by]])
         )
       }
 
-      clusters <- sort(as.numeric(unique(my_data$Cluster)))
+      clusters <- levels(my_data$Cluster)
       num_cluster <- length(clusters)
       data_matrix <- matrix(data = 0, nrow = num_cluster, ncol = 100)
       colnames(data_matrix) <- c(1:100)
