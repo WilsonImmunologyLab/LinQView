@@ -4,15 +4,26 @@
 \alias{clusteringFromDistance}
 \title{clusteringFromDistance}
 \usage{
-clusteringFromDistance(object, assay = "All", resolution = c(0.6, 0.6,
-  0.6), graph.k.param = 20, graph.compute.SNN = TRUE,
-  graph.prune.SNN = 1/15, graph.nn.eps = 0,
-  graph.force.recalc = FALSE, cluster.modularity.fxn = 1,
-  cluster.initial.membership = NULL, cluster.weights = NULL,
-  cluster.node.sizes = NULL, cluster.algorithm = 1,
-  cluster.n.start = 10, cluster.n.iter = 10, cluster.random.seed = 0,
-  cluster.group.singletons = TRUE, cluster.temp.file.location = NULL,
-  cluster.edge.file.name = NULL)
+clusteringFromDistance(
+  object,
+  assay = "All",
+  resolution = c(0.6, 0.6, 0.6),
+  graph.k.param = 20,
+  graph.compute.SNN = TRUE,
+  graph.prune.SNN = 1/15,
+  graph.nn.eps = 0,
+  graph.force.recalc = FALSE,
+  cluster.modularity.fxn = 1,
+  cluster.initial.membership = NULL,
+  cluster.node.sizes = NULL,
+  cluster.algorithm = 1,
+  cluster.n.start = 10,
+  cluster.n.iter = 10,
+  cluster.random.seed = 0,
+  cluster.group.singletons = TRUE,
+  cluster.temp.file.location = NULL,
+  cluster.edge.file.name = NULL
+)
 }
 \arguments{
 \item{object}{Seurat object}
@@ -34,8 +45,6 @@ clusteringFromDistance(object, assay = "All", resolution = c(0.6, 0.6,
 \item{cluster.modularity.fxn}{parameter for Seurat function FindClusters.Modularity function (1 = standard; 2 = alternative).}
 
 \item{cluster.initial.membership}{parameter for Seurat function FindClusters.Parameters to pass to the Python leidenalg function.}
-
-\item{cluster.weights}{parameter for Seurat function FindClusters.Parameters to pass to the Python leidenalg function.}
 
 \item{cluster.node.sizes}{parameter for Seurat function FindClusters.Parameters to pass to the Python leidenalg function.}
 

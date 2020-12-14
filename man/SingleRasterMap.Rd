@@ -4,9 +4,17 @@
 \alias{SingleRasterMap}
 \title{A single heatmap from ggplot2 using geom_raster. Copy from Seurat}
 \usage{
-SingleRasterMap(data, raster = TRUE, cell.order = NULL,
-  feature.order = NULL, colors = PurpleAndYellow(), disp.min = -2.5,
-  disp.max = 2.5, limits = NULL, group.by = NULL)
+SingleRasterMap(
+  data,
+  raster = TRUE,
+  cell.order = NULL,
+  feature.order = NULL,
+  colors = PurpleAndYellow(),
+  disp.min = -2.5,
+  disp.max = 2.5,
+  limits = NULL,
+  group.by = NULL
+)
 }
 \arguments{
 \item{data}{A matrix or data frame with data to plot}

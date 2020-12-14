@@ -4,8 +4,13 @@
 \alias{attachModal}
 \title{attachModal (not finished)}
 \usage{
-attachModal(object = NULL, data = NULL, target.col.name = NULL,
-  type = c("bool", "value"), barcode.index = 1)
+attachModal(
+  object = NULL,
+  data = NULL,
+  target.col.name = NULL,
+  type = c("bool", "value"),
+  barcode.index = 1
+)
 }
 \arguments{
 \item{object}{Seurat object}

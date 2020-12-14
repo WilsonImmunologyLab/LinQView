@@ -4,9 +4,15 @@
 \alias{generateGridDimPlot}
 \title{generateGridDimPlot}
 \usage{
-generateGridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
-  darkTheme = TRUE, legend = TRUE, cluster.label = TRUE,
-  cluster.lable.size = 5, reduction = "tsne")
+generateGridDimPlot(
+  object = NULL,
+  assays = c("RNA", "ADT", "Joint"),
+  darkTheme = TRUE,
+  legend = TRUE,
+  cluster.label = TRUE,
+  cluster.lable.size = 5,
+  reduction = "tsne"
+)
 }
 \arguments{
 \item{object}{seurat object}

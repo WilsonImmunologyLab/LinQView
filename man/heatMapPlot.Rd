@@ -4,10 +4,18 @@
 \alias{heatMapPlot}
 \title{heatMapPlot}
 \usage{
-heatMapPlot(object = NULL, adt.feature = NULL, rna.feature = NULL,
-  group.by = NULL, adt.label = TRUE, rna.label = FALSE,
-  label.hjust = 0.1, label.size = 5, height.rel = 1,
-  legend = FALSE)
+heatMapPlot(
+  object = NULL,
+  adt.feature = NULL,
+  rna.feature = NULL,
+  group.by = NULL,
+  adt.label = TRUE,
+  rna.label = FALSE,
+  label.hjust = 0.1,
+  label.size = 5,
+  height.rel = 1,
+  legend = FALSE
+)
 }
 \arguments{
 \item{object}{seurat object}

@@ -4,10 +4,17 @@
 \alias{gridDimPlot}
 \title{gridDimPlot}
 \usage{
-gridDimPlot(object = NULL, assays = c("RNA", "ADT", "Joint"),
-  darkTheme = TRUE, legend = TRUE, figure.label.size = 7,
-  cluster.label = TRUE, cluster.lable.size = 5, wide.rel = 1.5,
-  height.rel = 1)
+gridDimPlot(
+  object = NULL,
+  assays = c("RNA", "ADT", "Joint"),
+  darkTheme = TRUE,
+  legend = TRUE,
+  figure.label.size = 7,
+  cluster.label = TRUE,
+  cluster.lable.size = 5,
+  wide.rel = 1.5,
+  height.rel = 1
+)
 }
 \arguments{
 \item{object}{seurat object}

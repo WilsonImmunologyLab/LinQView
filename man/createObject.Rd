@@ -4,10 +4,20 @@
 \alias{createObject}
 \title{createObject}
 \usage{
-createObject(data = NULL, project = "SeuratProject", min.cells = 0,
-  min.features = 0, names.field = 1, names.delim = "_",
-  meta.data = NULL, min.cells.adt = 0, min.features.adt = 0,
-  rna = NULL, adt = NULL, hto = NULL)
+createObject(
+  data = NULL,
+  project = "SeuratProject",
+  min.cells = 0,
+  min.features = 0,
+  names.field = 1,
+  names.delim = "_",
+  meta.data = NULL,
+  min.cells.adt = 0,
+  min.features.adt = 0,
+  rna = NULL,
+  adt = NULL,
+  hto = NULL
+)
 }
 \arguments{
 \item{data}{data of 10X cell ranger output}

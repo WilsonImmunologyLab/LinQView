@@ -6,17 +6,38 @@
 \alias{umapFromDistane}
 \title{umapFromDistane.Seurat}
 \usage{
-\method{umapFromDistane}{Seurat}(object, assay = "All", seed = 42,
-  method = "umap-learn", n.neighbors = 15, n.components = 2,
-  metric = "euclidean", verbose = FALSE, n.epochs = 200,
-  min.dist = 0.1, spread = 1, set.op.mix.ratio = 1,
-  local.connectivity = 1L, negative.sample.rate = 5L)
+\method{umapFromDistane}{Seurat}(
+  object,
+  assay = "All",
+  seed = 42,
+  method = "umap-learn",
+  n.neighbors = 15,
+  n.components = 2,
+  metric = "euclidean",
+  verbose = FALSE,
+  n.epochs = 200,
+  min.dist = 0.1,
+  spread = 1,
+  set.op.mix.ratio = 1,
+  local.connectivity = 1L,
+  negative.sample.rate = 5L
+)
 
-\method{umapFromDistane}{default}(object, seed = 42,
-  method = "umap-learn", n.neighbors = 15, n.components = 2,
-  metric = "euclidean", verbose = TRUE, n.epochs = 200,
-  min.dist = 0.1, spread = 1, set.op.mix.ratio = 1,
-  local.connectivity = 1L, negative.sample.rate = 5L)
+\method{umapFromDistane}{default}(
+  object,
+  seed = 42,
+  method = "umap-learn",
+  n.neighbors = 15,
+  n.components = 2,
+  metric = "euclidean",
+  verbose = TRUE,
+  n.epochs = 200,
+  min.dist = 0.1,
+  spread = 1,
+  set.op.mix.ratio = 1,
+  local.connectivity = 1L,
+  negative.sample.rate = 5L
+)
 
 umapFromDistane(object, ...)
 }

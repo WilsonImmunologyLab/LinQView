@@ -30,4 +30,4 @@ Suggests:
     testthat,
     hdf5r
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

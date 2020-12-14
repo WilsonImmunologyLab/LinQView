@@ -6,11 +6,16 @@
 \alias{tsneFromDistane}
 \title{tsneFromDistane.Seurat}
 \usage{
-\method{tsneFromDistane}{Seurat}(object, assay = "All",
-  perplexity = 30, dim = 2, seed = 42, theta = 0.5)
+\method{tsneFromDistane}{Seurat}(
+  object,
+  assay = "All",
+  perplexity = 30,
+  dim = 2,
+  seed = 42,
+  theta = 0.5
+)
 
-\method{tsneFromDistane}{default}(object, perplexity = 30, dim = 2,
-  seed = 42, theta = 0.5)
+\method{tsneFromDistane}{default}(object, perplexity = 30, dim = 2, seed = 42, theta = 0.5)
 
 tsneFromDistane(object, ...)
 }

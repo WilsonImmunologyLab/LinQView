@@ -4,12 +4,27 @@
 \alias{listPlot}
 \title{listPlot}
 \usage{
-listPlot(object = NULL, align = "none", axis = "none",
-  fig.id = NULL, fig.ident = NULL, fig.map = NULL, ncol = NULL,
-  rel_widths = 1, rel_heights = 1, labels = NULL, label_size = 10,
-  label_fontfamily = NULL, label_fontface = "bold",
-  label_colour = NULL, label_x = 0.1, label_y = 1, hjust = -0.5,
-  vjust = 1, scale = 1)
+listPlot(
+  object = NULL,
+  align = "none",
+  axis = "none",
+  fig.id = NULL,
+  fig.ident = NULL,
+  fig.map = NULL,
+  ncol = NULL,
+  rel_widths = 1,
+  rel_heights = 1,
+  labels = NULL,
+  label_size = 10,
+  label_fontfamily = NULL,
+  label_fontface = "bold",
+  label_colour = NULL,
+  label_x = 0.1,
+  label_y = 1,
+  hjust = -0.5,
+  vjust = 1,
+  scale = 1
+)
 }
 \arguments{
 \item{object}{list of dim plots}

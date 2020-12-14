@@ -4,10 +4,20 @@
 \alias{dataScaling}
 \title{dataScaling}
 \usage{
-dataScaling(object = NULL, features = NULL, assay = NULL,
-  vars.to.regress = NULL, model.use = "linear", use.umi = FALSE,
-  do.scale = TRUE, do.center = TRUE, scale.max = 10,
-  block.size = 1000, min.cells.to.block = 3000, verbose = TRUE)
+dataScaling(
+  object = NULL,
+  features = NULL,
+  assay = NULL,
+  vars.to.regress = NULL,
+  model.use = "linear",
+  use.umi = FALSE,
+  do.scale = TRUE,
+  do.center = TRUE,
+  scale.max = 10,
+  block.size = 1000,
+  min.cells.to.block = 3000,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{= NULL, A Seurat object}

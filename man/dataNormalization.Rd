@@ -4,8 +4,12 @@
 \alias{dataNormalization}
 \title{dataNormalization}
 \usage{
-dataNormalization(object = NULL, scale.factor = 10000, margin = 1,
-  verbose = TRUE)
+dataNormalization(
+  object = NULL,
+  scale.factor = 10000,
+  margin = 1,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{object}{Seurat object}
