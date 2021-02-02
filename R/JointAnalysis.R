@@ -727,7 +727,7 @@ scoreRNA <- function(
 }
 
 
-#' scoreADTfun
+#' scoreADT
 #'
 #' ADT score function
 #'
@@ -743,7 +743,8 @@ scoreADT <- function(
   object = NULL,
   group.by = NULL,
   k = 'auto',
-  samples = NULL
+  samples = NULL,
+  rank = 2
 ){
   if(is_null(object)) {
     stop('Please provide data object!')
@@ -756,11 +757,11 @@ scoreADT <- function(
     k = 0
     for (i in c(1:dim(adt_expr_norm)[1])) {
       value <- sd(adt_expr_norm[i,])
-      k <- k + value
+      k <- k + value^rank
     }
   }
   if(is_null(samples)) {
-    adt.score <- scoreADTfun(adt_expr_norm, labels = object@meta.data[[group.by]], k = k)
+    adt.score <- scoreADTfun(adt_expr_norm, labels = object@meta.data[[group.by]], k = k, rank = 2)
   } else {
     adt.score <- NULL
     samples <- as.character(object@meta.data[[samples]])
@@ -772,7 +773,7 @@ scoreADT <- function(
       cur_adt_expr_norm <- adt_expr_norm[,cur_index]
       cur_labels <- object@meta.data[[group.by]]
       cur_labels <- cur_labels[cur_index]
-      cur_adt.score <- scoreADTfun(cur_adt_expr_norm, labels = cur_labels,labels.name = labels.name, k = k)
+      cur_adt.score <- scoreADTfun(cur_adt_expr_norm, labels = cur_labels,labels.name = labels.name, k = k, rank = 2)
       rownames(cur_adt.score) <- c(sample.name)
       if(is_null(adt.score)) {
         adt.score <- cur_adt.score
@@ -799,7 +800,8 @@ scoreADTfun <- function(
   object = NULL,
   labels = NULL,
   labels.name = NULL,
-  k = 10
+  k = 10,
+  rank = 2
 ) {
   # determine k value based on current dataset
   if(!is.numeric(k)){
@@ -807,7 +809,7 @@ scoreADTfun <- function(
     adt_expr <- object
     for (i in c(1:dim(adt_expr)[1])) {
       value <- sd(adt_expr[i,])
-      k <- k + value
+      k <- k + value^rank
     }
   }
 
@@ -828,7 +830,7 @@ scoreADTfun <- function(
       plus.sd <- 0
       for (i in c(1:dim(adt_expr)[1])) {
         value <- sd(adt_expr[i,])
-        plus.sd <- plus.sd + value
+        plus.sd <- plus.sd + value^rank
       }
       plus.sd <- k/(plus.sd + k)
       scores <- c(scores, plus.sd)
