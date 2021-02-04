@@ -761,7 +761,7 @@ scoreADT <- function(
     }
   }
   if(is_null(samples)) {
-    adt.score <- scoreADTfun(adt_expr_norm, labels = object@meta.data[[group.by]], k = k, rank = 2)
+    adt.score <- scoreADTfun(adt_expr_norm, labels = object@meta.data[[group.by]], k = k, rank = rank)
   } else {
     adt.score <- NULL
     samples <- as.character(object@meta.data[[samples]])
@@ -773,7 +773,7 @@ scoreADT <- function(
       cur_adt_expr_norm <- adt_expr_norm[,cur_index]
       cur_labels <- object@meta.data[[group.by]]
       cur_labels <- cur_labels[cur_index]
-      cur_adt.score <- scoreADTfun(cur_adt_expr_norm, labels = cur_labels,labels.name = labels.name, k = k, rank = 2)
+      cur_adt.score <- scoreADTfun(cur_adt_expr_norm, labels = cur_labels,labels.name = labels.name, k = k, rank = rank)
       rownames(cur_adt.score) <- c(sample.name)
       if(is_null(adt.score)) {
         adt.score <- cur_adt.score
