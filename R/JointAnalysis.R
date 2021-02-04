@@ -708,13 +708,13 @@ scoreRNA <- function(
   span = 0.6,
   samples = NULL
 ){
-  if(is_null(object)) {
+  if(is.null(object)) {
     stop('Please provide data object!')
   }
-  if(is_null(group.by)) {
+  if(is.null(group.by)) {
     stop('Please provide clustering name! e.g. jointClusterID, rnaClusterID...')
   }
-  if(is_null(samples)) {
+  if(is.null(samples)) {
     samples <- rep('EntireDataset', length(object@meta.data[[group.by]]))
   } else {
     samples <- object@meta.data[[samples]]
@@ -746,10 +746,10 @@ scoreADT <- function(
   samples = NULL,
   rank = 2
 ){
-  if(is_null(object)) {
+  if(is.null(object)) {
     stop('Please provide data object!')
   }
-  if(is_null(group.by)) {
+  if(is.null(group.by)) {
     stop('Please provide clustering name! e.g. jointClusterID, rnaClusterID...')
   }
   adt_expr_norm <- object@assays[["ADT"]]@data
@@ -760,7 +760,7 @@ scoreADT <- function(
       k <- k + value^rank
     }
   }
-  if(is_null(samples)) {
+  if(is.null(samples)) {
     adt.score <- scoreADTfun(adt_expr_norm, labels = object@meta.data[[group.by]], k = k, rank = rank)
   } else {
     adt.score <- NULL
@@ -775,7 +775,7 @@ scoreADT <- function(
       cur_labels <- cur_labels[cur_index]
       cur_adt.score <- scoreADTfun(cur_adt_expr_norm, labels = cur_labels,labels.name = labels.name, k = k, rank = rank)
       rownames(cur_adt.score) <- c(sample.name)
-      if(is_null(adt.score)) {
+      if(is.null(adt.score)) {
         adt.score <- cur_adt.score
       } else {
         adt.score <- rbind(adt.score, cur_adt.score)
@@ -814,7 +814,7 @@ scoreADTfun <- function(
   }
 
   labels <- as.character(labels)
-  if(is_null(labels.name)) {
+  if(is.null(labels.name)) {
     labels.name <- unique(labels)
   }
   scores <- c()
