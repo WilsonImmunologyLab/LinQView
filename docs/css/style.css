@@ -45,6 +45,7 @@ div.navbox {
   display: block;
   height: 87px;
   width: 100%;
+  z-index: 999;
 }
 
 img.logo {
