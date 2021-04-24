@@ -723,6 +723,7 @@ scoreRNA <- function(
   rna_expr <- object@assays[["RNA"]]@counts
 
   rogue.res.rna <- rogue(rna_expr, labels = object@meta.data[[group.by]], samples = samples, platform = "UMI", span = 0.6)
+  rogue.res.rna <- rogue.res.rna[,sort(colnames(rogue.res.rna))]
   return(rogue.res.rna)
 }
 
@@ -782,6 +783,7 @@ scoreADT <- function(
       }
     }
   }
+  adt.score <- adt.score[,sort(colnames(adt.score))]
   return(adt.score)
 }
 
