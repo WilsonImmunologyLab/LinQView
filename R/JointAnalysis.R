@@ -841,3 +841,33 @@ scoreADTfun <- function(
   scores <- as.data.frame(scores)
   return(scores)
 }
+
+#' CombineScore
+#'
+#' Combine RNA and ADT scores
+#'
+#' @param rna.score RNA score, output from scoreRNA()
+#' @param adt.score ADT score, output from scoreADT()
+#'
+#' @export
+
+CombineScore <- function(
+  rna.score = NULL,
+  adt.score = NULL
+) {
+  rna.score <- rna.score[,sort(colnames(rna.score))]
+  adt.score <- adt.score[,sort(colnames(adt.score))]
+  combine.score <- c()
+  if (length(rna.score) == length(adt.score)) {
+    for (i in c(1:length(rna.score))) {
+      current.score <- sqrt(rna.score[i]*adt.score[i])
+      combine.score <- c(combine.score, current.score)
+    }
+    combine.score <- as.data.frame(combine.score)
+    colnames(combine.score) <- colnames(rna.score)
+    rownames(combine.score) <- c('Purity score')
+    return(combine.score)
+  } else {
+    stop('Your ADT score and RNA score do not have same length! Check your input!')
+  }
+}
