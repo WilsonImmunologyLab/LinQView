@@ -541,6 +541,8 @@ jointDistance.Seurat <- function(
         stop("beta should be a number!\n")
       } else {
         joint.dist <- rna.dist.scale*beta + adt.dist.scale*(1-beta)
+        p.rna <- 1
+        p.adt <- 1
       }
     } else {
       stop("Can not recognize your model! Please set model, 'LP' or 'L1'! \n")
