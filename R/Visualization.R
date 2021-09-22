@@ -165,7 +165,7 @@ trajectoryPlotMST <- function(
 ) {
   if(!is.null(object)) {
     group.namae <- as.character(object@misc[[assay]][['cluster']])
-    group <- as.character(object@meta.data[[group.namae]])
+    group <- as.factor(object@meta.data[[group.namae]])
     pg <- object@misc[[assay]][['pg']]
     reduction <- object@misc[[assay]][['reduction']]
     dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]
@@ -694,7 +694,7 @@ clusterConnectionPlot <- function(
 ) {
   if(!is.null(object)) {
     group.namae <- as.character(object@misc[[assay]][['cluster']])
-    group <- as.character(object@meta.data[[group.namae]])
+    group <- as.factor(object@meta.data[[group.namae]])
     graph <- object@misc[[assay]][['knn']]
     reduction <- object@misc[[assay]][['reduction']]
     dim1 = object@reductions[[reduction]]@cell.embeddings[, 1]

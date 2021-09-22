@@ -140,7 +140,7 @@ buildPG.Seurat <- function(
       joint.embedding <- object@reductions[[joint.reduction.name]]@cell.embeddings
       if(isTRUE(initial.MST)){
         if(is.null(group.by)) {
-          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+          stop("You set 'initial.MST = TRUE', please provide a clustering name using 'group.by =' paramater \n")
         }
         trimedMST <- trimMSTcluster(mst = t(joint.mst)[,1:2], embedding = joint.embedding, dist = object@misc[["Joint"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
       } else {
@@ -156,7 +156,7 @@ buildPG.Seurat <- function(
       rna.embedding <- object@reductions[[rna.reduction.name]]@cell.embeddings
       if(isTRUE(initial.MST)){
         if(is.null(group.by)) {
-          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+          stop("You set 'initial.MST = TRUE', please provide a clustering name using 'group.by =' paramater \n")
         }
         trimedMST <- trimMSTcluster(mst = t(rna.mst)[,1:2], embedding = rna.embedding, dist = object@misc[["RNA"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
       } else {
@@ -172,7 +172,7 @@ buildPG.Seurat <- function(
       adt.embedding <- object@reductions[[adt.reduction.name]]@cell.embeddings
       if(isTRUE(initial.MST)){
         if(is.null(group.by)) {
-          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+          stop("You set 'initial.MST = TRUE', please provide a clustering name using 'group.by =' paramater \n")
         }
         trimedMST <- trimMSTcluster(mst = t(adt.mst)[,1:2], embedding = adt.embedding, dist = object@misc[["ADT"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
       } else {
@@ -193,7 +193,7 @@ buildPG.Seurat <- function(
 
       if(isTRUE(initial.MST)){
         if(is.null(group.by)) {
-          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+          stop("You set 'initial.MST = TRUE', please provide a clustering name using 'group.by =' paramater \n")
         }
         trimedMST <- trimMSTcluster(mst = t(joint.mst)[,1:2], embedding = joint.embedding, dist = object@misc[["Joint"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
       } else {
@@ -214,7 +214,7 @@ buildPG.Seurat <- function(
 
       if(isTRUE(initial.MST)){
         if(is.null(group.by)) {
-          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+          stop("You set 'initial.MST = TRUE', please provide a clustering name using 'group.by =' paramater \n")
         }
         trimedMST <- trimMSTcluster(mst = t(rna.mst)[,1:2], embedding = rna.embedding, dist = object@misc[["RNA"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
       } else {
@@ -235,7 +235,7 @@ buildPG.Seurat <- function(
 
       if(isTRUE(initial.MST)){
         if(is.null(group.by)) {
-          stop("You set 'initial.MST = miniMST', please provide a clustering name using 'group.by =' paramater \n")
+          stop("You set 'initial.MST = TRUE', please provide a clustering name using 'group.by =' paramater \n")
         }
         trimedMST <- trimMSTcluster(mst = t(adt.mst)[,1:2], embedding = adt.embedding, dist = object@misc[["ADT"]][["dist"]], cluster.label = object@meta.data[[group.by]], nodes.per.cluster = nodes.per.cluster)
       } else {
